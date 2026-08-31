@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* dark: лишаємо як class-варіант, щоб системна темна тема не вмикалась сама */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* доменні кольори Offerly */
+  --color-subtle: var(--subtle);
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-ai: var(--ai);
+  --color-ai-muted: var(--ai-muted);
+  --color-terracotta: var(--terracotta);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* поверхні */
+  --background: #faf7f2;           /* крем-папір */
+  --foreground: #241f1b;
+  --card: #fffdfa;
+  --card-foreground: #241f1b;
+  --popover: #fffdfa;
+  --popover-foreground: #241f1b;
+
+  /* акценти */
+  --primary: #146b52;              /* ліс-зелень */
+  --primary-foreground: #fffdfa;
+  --secondary: #f1ebe1;
+  --secondary-foreground: #241f1b;
+  --muted: #f7f3ec;
+  --muted-foreground: #6b6058;
+  --subtle: #8a7d70;               /* найприглушеніший текст */
+  --accent: #f1ebe1;               /* hover-поверхні */
+  --accent-foreground: #241f1b;
+  --terracotta: #c4692a;
+
+  /* статуси */
+  --destructive: #b34a4a;          /* відмова / помилка */
+  --success: #0f5a45;              /* оффер */
+  --success-muted: #e8f3ee;
+  --warning: #a1521f;              /* нагадування */
+  --warning-muted: #f6dfd0;
+  --ai: #5b4ec9;                   /* AI-блоки */
+  --ai-muted: #f4f0fb;
+
+  /* обведення */
+  --border: rgba(36, 31, 27, 0.1);
+  --input: rgba(36, 31, 27, 0.16);
+  --ring: #146b52;
+
+  /* графіки */
+  --chart-1: #146b52;
+  --chart-2: #c4692a;
+  --chart-3: #5b4ec9;
+  --chart-4: #8a7d70;
+  --chart-5: #b34a4a;
+
+  --radius: 0.625rem;
+
+  /* sidebar */
+  --sidebar: #f1ebe1;
+  --sidebar-foreground: #241f1b;
+  --sidebar-primary: #146b52;
+  --sidebar-primary-foreground: #fffdfa;
+  --sidebar-accent: #f7f3ec;
+  --sidebar-accent-foreground: #241f1b;
+  --sidebar-border: rgba(36, 31, 27, 0.08);
+  --sidebar-ring: #146b52;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply scroll-smooth font-sans;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
