@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 
+import { Providers } from "@/app/providers";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -21,13 +22,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="uk"
+      data-scroll-behavior="smooth"
       className={cn(
         "h-full font-sans antialiased",
         inter.variable,
         geistMono.variable
       )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
