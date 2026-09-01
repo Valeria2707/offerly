@@ -2,7 +2,11 @@ export const ROUTES = {
   home: "/",
   login: "/login",
   signup: "/signup",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
 } as const;
+
+export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
 export const SECTIONS = {
   features: "features",
