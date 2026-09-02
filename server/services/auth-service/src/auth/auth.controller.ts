@@ -8,6 +8,8 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto';
 import { PasswordResetService } from './password-reset.service';
+import { GoogleAuthDto } from './dto/google-auth.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -16,10 +18,28 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Create a user account' })
-  @ApiCreatedResponse({ type: ProfileResponseDto })
+  @ApiCreatedResponse({ type: AuthResponseDto })
   @ApiConflictResponse({ description: 'A user with this email already exists' })
-  register(@Body() input: RegisterDto): Promise<ProfileResponseDto> {
+  register(@Body() input: RegisterDto): Promise<AuthResponseDto> {
     return this.auth.register(input);
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Authenticate with a Google ID token' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Google token is invalid' })
+  google(@Body() input: GoogleAuthDto): Promise<AuthResponseDto> {
+    return this.auth.authenticateWithGoogle(input.idToken);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Rotate a refresh token and receive a new token pair' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Refresh token is invalid, expired, or already used' })
+  refresh(@Body() input: RefreshTokenDto): Promise<AuthResponseDto> {
+    return this.auth.refresh(input.refreshToken);
   }
 
   @Post('login')

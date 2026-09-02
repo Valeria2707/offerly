@@ -58,6 +58,8 @@ services:
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-now}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      REFRESH_TOKEN_EXPIRES_IN_DAYS: ${REFRESH_TOKEN_EXPIRES_IN_DAYS:-30}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       AUTH_NAME: ${AUTH_NAME:-Admin}
       AUTH_EMAIL: ${AUTH_EMAIL:-admin@example.com}
       AUTH_PASSWORD: ${AUTH_PASSWORD:-admin123}

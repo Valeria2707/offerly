@@ -31,6 +31,7 @@ export class UsersService implements OnApplicationBootstrap {
       name: input.name.trim(),
       email: this.normalizeEmail(input.email),
       passwordHash: await hash(input.password, 12),
+      googleId: null,
       isActive: true
     });
     try {
@@ -49,6 +50,26 @@ export class UsersService implements OnApplicationBootstrap {
 
   async updatePassword(userId: string, password: string): Promise<void> {
     await this.users.update({ id: userId }, { passwordHash: await hash(password, 12) });
+  }
+
+  async findOrCreateGoogleUser(input: { googleId: string; email: string; name: string }): Promise<User> {
+    const email = this.normalizeEmail(input.email);
+    const byGoogleId = await this.users.findOneBy({ googleId: input.googleId });
+    if (byGoogleId) return byGoogleId;
+
+    const byEmail = await this.findByEmail(email);
+    if (byEmail) {
+      byEmail.googleId = input.googleId;
+      return this.users.save(byEmail);
+    }
+
+    return this.users.save(this.users.create({
+      name: input.name.trim(),
+      email,
+      passwordHash: null,
+      googleId: input.googleId,
+      isActive: true
+    }));
   }
 
   private normalizeEmail(email: string): string {
