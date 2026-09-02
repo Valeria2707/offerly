@@ -8,9 +8,11 @@ import { JwtPayload } from './auth.types';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { ProfileResponseDto } from './dto/auth-response.dto';
 import { TokenRevocationService } from './token-revocation.service';
 import { UsersService } from './users.service';
+import { RefreshTokenService } from './refresh-token.service';
+import { User } from './entities/user.entity';
+import { GoogleAuthService } from './google-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -19,31 +21,55 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly revocations: TokenRevocationService,
-    private readonly audit: AuditProducerService
+    private readonly audit: AuditProducerService,
+    private readonly refreshTokens: RefreshTokenService,
+    private readonly googleAuth: GoogleAuthService
   ) {}
 
   async login(credentials: LoginDto): Promise<AuthResponseDto> {
     const user = await this.users.findByEmail(credentials.email);
-    const valid = user?.isActive && (await compare(credentials.password, user.passwordHash));
-    if (!user || !valid) throw new UnauthorizedException('Invalid username or password');
+    const valid = user?.isActive && user.passwordHash && (await compare(credentials.password, user.passwordHash));
+    if (!user || !valid) throw new UnauthorizedException('Invalid email or password');
 
-    const expiresIn = this.parseExpiry(this.config.getOrThrow<string>('JWT_EXPIRES_IN'));
-    const payload: JwtPayload = { sub: user.id, email: user.email, name: user.name, jti: randomUUID() };
-    const accessToken = await this.jwt.signAsync(payload, { expiresIn });
-    await this.audit.publish('identity.auth.login.v1', payload.sub);
-    return { accessToken, tokenType: 'Bearer', expiresIn };
+    const response = await this.createTokenPair(user);
+    await this.audit.publish('identity.auth.login.v1', user.id);
+    return response;
   }
 
-  async register(input: RegisterDto): Promise<ProfileResponseDto> {
+  async register(input: RegisterDto): Promise<AuthResponseDto> {
     const user = await this.users.create(input);
     await this.audit.publish('identity.user.registered.v1', user.id);
-    return { id: user.id, name: user.name, email: user.email };
+    return this.createTokenPair(user);
+  }
+
+  async authenticateWithGoogle(idToken: string): Promise<AuthResponseDto> {
+    const user = await this.googleAuth.authenticate(idToken);
+    await this.audit.publish('identity.auth.google-login.v1', user.id);
+    return this.createTokenPair(user);
+  }
+
+  async refresh(refreshToken: string): Promise<AuthResponseDto> {
+    const rotated = await this.refreshTokens.rotate(refreshToken);
+    return this.createTokenPair(rotated.user, rotated.refreshToken);
   }
 
   async logout(user: JwtPayload): Promise<void> {
     if (!user.exp) throw new UnauthorizedException('Token has no expiration');
     await this.revocations.revoke(user.jti, user.exp, user.sub);
+    await this.refreshTokens.revokeAll(user.sub);
     await this.audit.publish('identity.auth.logout.v1', user.sub);
+  }
+
+  private async createTokenPair(user: User, refreshToken?: string): Promise<AuthResponseDto> {
+    const expiresIn = this.parseExpiry(this.config.getOrThrow<string>('JWT_EXPIRES_IN'));
+    const payload: JwtPayload = { sub: user.id, email: user.email, name: user.name, jti: randomUUID() };
+    const accessToken = await this.jwt.signAsync(payload, { expiresIn });
+    return {
+      accessToken,
+      refreshToken: refreshToken ?? await this.refreshTokens.issue(user.id),
+      tokenType: 'Bearer',
+      expiresIn
+    };
   }
 
   private parseExpiry(value: string): number {

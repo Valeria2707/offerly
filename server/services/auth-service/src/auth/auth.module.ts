@@ -10,15 +10,18 @@ import { JwtStrategy } from './jwt.strategy';
 import { TokenRevocationService } from './token-revocation.service';
 import { RevokedToken } from './entities/revoked-token.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { MailService } from './mail.service';
 import { PasswordResetService } from './password-reset.service';
+import { RefreshTokenService } from './refresh-token.service';
+import { GoogleAuthService } from './google-auth.service';
 
 @Module({
   imports: [
     PassportModule,
-    TypeOrmModule.forFeature([User, RevokedToken, PasswordResetToken]),
+    TypeOrmModule.forFeature([User, RevokedToken, PasswordResetToken, RefreshToken]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -28,6 +31,6 @@ import { PasswordResetService } from './password-reset.service';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, TokenRevocationService, AuditProducerService, UsersService, MailService, PasswordResetService]
+  providers: [AuthService, JwtStrategy, TokenRevocationService, AuditProducerService, UsersService, MailService, PasswordResetService, RefreshTokenService, GoogleAuthService]
 })
 export class AuthModule {}
