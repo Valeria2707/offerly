@@ -12,7 +12,13 @@ export const loginRequest = (input: LoginInput) =>
   apiRequest<AuthTokens>(API_ROUTES.login, { method: "POST", body: input });
 
 export const registerRequest = (input: RegisterInput) =>
-  apiRequest<Profile>(API_ROUTES.register, { method: "POST", body: input });
+  apiRequest<AuthTokens>(API_ROUTES.register, { method: "POST", body: input });
+
+export const googleRequest = (idToken: string) =>
+  apiRequest<AuthTokens>(API_ROUTES.google, {
+    method: "POST",
+    body: { idToken },
+  });
 
 export const forgotPasswordRequest = (email: string) =>
   apiRequest<void>(API_ROUTES.forgotPassword, {

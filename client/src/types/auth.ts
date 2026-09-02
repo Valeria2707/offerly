@@ -6,6 +6,7 @@ export type Profile = {
 
 export type AuthTokens = {
   accessToken: string;
+  refreshToken: string;
   tokenType: string;
   expiresIn: number;
 };

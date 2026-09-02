@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import {
   forgotPasswordRequest,
+  googleRequest,
   loginRequest,
   logoutRequest,
   profileRequest,
@@ -13,7 +14,7 @@ import {
 } from "@/api/auth";
 import { ROUTES } from "@/constants/routes";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
-import type { LoginInput, RegisterInput } from "@/types/auth";
+import type { AuthTokens } from "@/types/auth";
 
 export const authKeys = {
   profile: ["auth", "profile"] as const,
@@ -30,47 +31,40 @@ export function useCurrentUser() {
   });
 }
 
-function useAuthSuccess() {
+function useSessionStart() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const setSession = useAuthStore((state) => state.setSession);
 
-  return async (accessToken: string) => {
-    setAccessToken(accessToken);
+  return async (tokens: AuthTokens) => {
+    setSession(tokens);
     await queryClient.invalidateQueries({ queryKey: authKeys.profile });
     router.push(ROUTES.home);
   };
 }
 
 export function useLogin() {
-  const onAuthenticated = useAuthSuccess();
+  const startSession = useSessionStart();
 
-  return useMutation({
-    mutationFn: loginRequest,
-    onSuccess: (tokens) => onAuthenticated(tokens.accessToken),
-  });
+  return useMutation({ mutationFn: loginRequest, onSuccess: startSession });
 }
 
 export function useRegister() {
-  const onAuthenticated = useAuthSuccess();
+  const startSession = useSessionStart();
 
-  return useMutation({
-    mutationFn: async (input: RegisterInput) => {
-      await registerRequest(input);
-      const credentials: LoginInput = {
-        email: input.email,
-        password: input.password,
-      };
-      return loginRequest(credentials);
-    },
-    onSuccess: (tokens) => onAuthenticated(tokens.accessToken),
-  });
+  return useMutation({ mutationFn: registerRequest, onSuccess: startSession });
+}
+
+export function useGoogleAuth() {
+  const startSession = useSessionStart();
+
+  return useMutation({ mutationFn: googleRequest, onSuccess: startSession });
 }
 
 export function useLogout() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const clearAccessToken = useAuthStore((state) => state.clearAccessToken);
+  const clearSession = useAuthStore((state) => state.clearSession);
 
   return useMutation({
     mutationFn: async () => {
@@ -78,7 +72,7 @@ export function useLogout() {
       if (token) await logoutRequest(token);
     },
     onSettled: () => {
-      clearAccessToken();
+      clearSession();
       queryClient.clear();
       router.push(ROUTES.home);
     },
