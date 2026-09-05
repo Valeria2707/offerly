@@ -23,6 +23,7 @@ type RequestOptions = {
   method?: HttpMethod;
   body?: unknown;
   token?: string | null;
+  baseUrl?: string;
 };
 
 async function send(
@@ -30,15 +31,18 @@ async function send(
   method: HttpMethod,
   body: unknown,
   token: string | null | undefined,
+  baseUrl: string = API_BASE_URL,
 ): Promise<Response> {
+  const isFormData = body instanceof FormData;
+
   try {
-    return await fetch(`${API_BASE_URL}${path}`, {
+    return await fetch(`${baseUrl}${path}`, {
       method,
       headers: {
-        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     });
   } catch {
     throw new ApiError(DEFAULT_API_ERROR_MESSAGE, 0);
@@ -80,13 +84,14 @@ function refreshSession(): Promise<string | null> {
 
 export async function apiRequest<T>(
   path: string,
-  { method = "GET", body, token }: RequestOptions = {},
+  { method = "GET", body, token, baseUrl = API_BASE_URL }: RequestOptions = {},
 ): Promise<T> {
-  let response = await send(path, method, body, token);
+  let response = await send(path, method, body, token, baseUrl);
 
   if (response.status === 401 && token) {
     const refreshed = await refreshSession();
-    if (refreshed) response = await send(path, method, body, refreshed);
+    if (refreshed)
+      response = await send(path, method, body, refreshed, baseUrl);
   }
 
   const text = await response.text();

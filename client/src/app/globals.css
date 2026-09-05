@@ -61,33 +61,30 @@
 }
 
 :root {
-  /* поверхні */
-  --background: #faf7f2;           /* крем-папір */
+  --background: #faf7f2;
   --foreground: #241f1b;
   --card: #fffdfa;
   --card-foreground: #241f1b;
   --popover: #fffdfa;
   --popover-foreground: #241f1b;
 
-  /* акценти */
-  --primary: #146b52;              /* ліс-зелень */
+  --primary: #146b52;
   --primary-foreground: #fffdfa;
   --secondary: #f1ebe1;
   --secondary-foreground: #241f1b;
   --muted: #f7f3ec;
   --muted-foreground: #6b6058;
-  --subtle: #8a7d70;               /* найприглушеніший текст */
-  --accent: #f1ebe1;               /* hover-поверхні */
+  --subtle: #8a7d70;
+  --accent: #f1ebe1;
   --accent-foreground: #241f1b;
   --terracotta: #c4692a;
 
-  /* статуси */
-  --destructive: #b34a4a;          /* відмова / помилка */
-  --success: #0f5a45;              /* оффер */
+  --destructive: #b34a4a;
+  --success: #0f5a45;
   --success-muted: #e8f3ee;
-  --warning: #a1521f;              /* нагадування */
+  --warning: #a1521f;
   --warning-muted: #f6dfd0;
-  --ai: #5b4ec9;                   /* AI-блоки */
+  --ai: #5b4ec9;
   --ai-muted: #f4f0fb;
 
   /* обведення */
@@ -109,7 +106,7 @@
   --sidebar-foreground: #241f1b;
   --sidebar-primary: #146b52;
   --sidebar-primary-foreground: #fffdfa;
-  --sidebar-accent: #f7f3ec;
+  --sidebar-accent: #e2d9cf;
   --sidebar-accent-foreground: #241f1b;
   --sidebar-border: rgba(36, 31, 27, 0.08);
   --sidebar-ring: #146b52;
@@ -121,6 +118,13 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  label[for],
+  summary {
+    @apply cursor-pointer;
   }
   html {
     @apply scroll-smooth font-sans;

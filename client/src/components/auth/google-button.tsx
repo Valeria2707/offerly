@@ -26,7 +26,6 @@ export function GoogleButton() {
         theme="outline"
         size="large"
         shape="rectangular"
-        locale="uk"
         width="400"
       />
     </div>
