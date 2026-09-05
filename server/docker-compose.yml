@@ -88,6 +88,29 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  profile-service:
+    build:
+      context: ./services/profile-service
+    environment:
+      PORT: 3002
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-now}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-offerly}
+      DATABASE_USER: ${POSTGRES_USER:-offerly}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-offerly-local-password}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      CV_MAX_EXTRACTED_CHARACTERS: ${CV_MAX_EXTRACTED_CHARACTERS:-100000}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3001}
+      SWAGGER_ENABLED: "true"
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   kafka-data:
   postgres-data:
