@@ -39,7 +39,7 @@ function useSessionStart() {
   return async (tokens: AuthTokens) => {
     setSession(tokens);
     await queryClient.invalidateQueries({ queryKey: authKeys.profile });
-    router.push(ROUTES.home);
+    router.replace(ROUTES.dashboard);
   };
 }
 
