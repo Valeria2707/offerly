@@ -14,6 +14,10 @@ export const CV_EXTRACTION_INSTRUCTIONS = [
   'Never guess missing values; use null or an empty array.',
   'Dates must be YYYY or YYYY-MM when the source is precise enough.',
   'Keep achievements faithful to the source and do not embellish them.',
+  'Extract every explicitly named pet, personal, side, open-source, freelance, portfolio, hackathon, and academic project into projects.',
+  'For each project, preserve its name, role or purpose in description, URL, dates, measurable outcomes in highlights, and technologies in skills.',
+  'Do not place a project in experience unless the CV explicitly presents it as employment or a client engagement under an employer.',
+  'If a project is mentioned without enough detail, still include it and use null or empty arrays for the missing fields.',
   'Career preferences (desiredPosition, level, workFormat, expectedSalary) are not CV facts and must always be null.',
   'A skill level must be null unless the CV explicitly states it.'
 ].join(' ');

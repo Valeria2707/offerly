@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
 import { validateCvFileSignature } from '../utils/file.utils';
+import { renderPdfPageWithLinks } from '../utils/pdf-page.utils';
 import { CV_MIN_EXTRACTED_CHARACTERS, PDF_MIME_TYPE } from './cv.constants';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class CvTextExtractorService {
 
     try {
       const text = file.mimetype === PDF_MIME_TYPE
-        ? (await pdf(file.buffer)).text
+        ? (await pdf(file.buffer, { pagerender: renderPdfPageWithLinks })).text
         : (await mammoth.extractRawText({ buffer: file.buffer })).value;
       const normalized = text.replace(/\u0000/g, '').replace(/[ \t]+\n/g, '\n').trim();
 
