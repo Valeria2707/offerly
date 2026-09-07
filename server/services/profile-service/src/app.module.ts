@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
+import { SharedAuthModule } from '@offerly/auth';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Joi from 'joi';
-import { AuthModule } from './auth/auth.module';
 import { InitialProfileSchema1788384000000 } from './database/migrations/1788384000000-initial-profile-schema';
 import { HealthController } from './health.controller';
 import { CvImport } from './profile/entities/cv-import.entity';
@@ -44,7 +44,7 @@ import { ProfileModule } from './profile/profile.module';
         synchronize: false
       })
     }),
-    AuthModule,
+    SharedAuthModule,
     ProfileModule
   ],
   controllers: [HealthController]
