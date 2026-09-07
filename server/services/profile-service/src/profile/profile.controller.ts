@@ -1,8 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { AuthenticatedRequest, JwtAuthGuard } from '@offerly/auth';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiPayloadTooLargeResponse, ApiServiceUnavailableResponse, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
-import { AuthenticatedRequest } from '../auth/auth.types';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CV_MAX_UPLOAD_SIZE_BYTES } from '../cv/cv.constants';
 import { ApplyCvImportDto, CvImportResponseDto, ProfileResponseDto, UpdateProfileDto } from './dto/profile.dto';
 import { ProfileService } from './profile.service';
