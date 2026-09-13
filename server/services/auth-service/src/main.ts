@@ -5,11 +5,22 @@ import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: process.env.APP_BASE_URL ?? 'http://localhost:3001' });
+  app.enableCors({
+    origin: process.env.APP_BASE_URL ?? 'http://localhost:3001'
+  });
   app.setGlobalPrefix('api/v1');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true
+    })
+  );
 
-  if (process.env.SWAGGER_ENABLED === 'true' || process.env.NODE_ENV !== 'production') {
+  if (
+    process.env.SWAGGER_ENABLED === 'true' ||
+    process.env.NODE_ENV !== 'production'
+  ) {
     const config = new DocumentBuilder()
       .setTitle('Authentication service')
       .setDescription('Login, logout, and JWT authentication API')

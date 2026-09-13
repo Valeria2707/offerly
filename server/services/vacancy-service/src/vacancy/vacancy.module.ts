@@ -6,8 +6,12 @@ import { VacancyImport } from './entities/vacancy-import.entity';
 import { VacancyController } from './vacancy.controller';
 import { VacancyRepository } from './vacancy.repository';
 import { VacancyService } from './vacancy.service';
+import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Vacancy, VacancyImport]), ImportModule],
+  imports: [
+    TypeOrmModule.forFeature([Vacancy, VacancyImport, OutboxEvent]),
+    ImportModule
+  ],
   controllers: [VacancyController],
   providers: [VacancyRepository, VacancyService]
 })

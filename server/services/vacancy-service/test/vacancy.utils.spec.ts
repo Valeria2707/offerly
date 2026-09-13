@@ -1,4 +1,4 @@
-import { VacancyStatus } from '../src/vacancy/enums/vacancy-status.enum';
+import { VacancyLifecycle } from '../src/vacancy/enums/vacancy-lifecycle.enum';
 import { VacancyDraftData } from '../src/vacancy/vacancy.types';
 import { resolveVacancyImportDraft } from '../src/utils/vacancy.utils';
 
@@ -24,8 +24,7 @@ describe('resolveVacancyImportDraft', () => {
   it('uses the stored AI draft when no edited draft is supplied', () => {
     expect(resolveVacancyImportDraft(original)).toEqual({
       ...original,
-      status: VacancyStatus.SAVED,
-      nextStep: null
+      lifecycle: VacancyLifecycle.ACTIVE
     });
   });
 
@@ -38,7 +37,7 @@ describe('resolveVacancyImportDraft', () => {
     ).toMatchObject({
       title: 'Senior Backend Engineer',
       sourceUrl: original.sourceUrl,
-      status: VacancyStatus.SAVED
+      lifecycle: VacancyLifecycle.ACTIVE
     });
   });
 });

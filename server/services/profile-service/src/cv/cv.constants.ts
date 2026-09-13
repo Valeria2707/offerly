@@ -1,5 +1,6 @@
 export const PDF_MIME_TYPE = 'application/pdf';
-export const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+export const DOCX_MIME_TYPE =
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 export const PDF_FILE_SIGNATURE = '%PDF-';
 export const ZIP_FILE_SIGNATURE = [0x50, 0x4b];
 

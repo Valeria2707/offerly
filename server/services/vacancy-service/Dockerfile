@@ -6,10 +6,20 @@ COPY libs/auth/tsconfig.json ./
 COPY libs/auth/src ./src
 RUN npm run build
 
+FROM node:22-alpine AS shared-helpers
+WORKDIR /server/libs/helpers
+COPY libs/helpers/package*.json ./
+RUN npm ci
+COPY libs/helpers/tsconfig.json ./
+COPY libs/helpers/src ./src
+RUN npm run build
+
 FROM node:22-alpine AS build
 WORKDIR /server
 COPY --from=shared-auth /server/libs/auth/package.json ./libs/auth/package.json
 COPY --from=shared-auth /server/libs/auth/dist ./libs/auth/dist
+COPY --from=shared-helpers /server/libs/helpers/package.json ./libs/helpers/package.json
+COPY --from=shared-helpers /server/libs/helpers/dist ./libs/helpers/dist
 WORKDIR /server/services/vacancy-service
 COPY services/vacancy-service/package*.json ./
 COPY services/vacancy-service/.npmrc ./
@@ -23,6 +33,8 @@ WORKDIR /server
 ENV NODE_ENV=production
 COPY --from=shared-auth /server/libs/auth/package.json ./libs/auth/package.json
 COPY --from=shared-auth /server/libs/auth/dist ./libs/auth/dist
+COPY --from=shared-helpers /server/libs/helpers/package.json ./libs/helpers/package.json
+COPY --from=shared-helpers /server/libs/helpers/dist ./libs/helpers/dist
 WORKDIR /server/services/vacancy-service
 COPY services/vacancy-service/package*.json ./
 COPY services/vacancy-service/.npmrc ./

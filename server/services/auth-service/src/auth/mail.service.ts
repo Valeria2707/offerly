@@ -18,7 +18,11 @@ export class MailService {
     });
   }
 
-  async sendPasswordReset(email: string, name: string, token: string): Promise<void> {
+  async sendPasswordReset(
+    email: string,
+    name: string,
+    token: string
+  ): Promise<void> {
     const resetUrl = `${this.config.getOrThrow<string>('APP_BASE_URL')}/reset-password?token=${encodeURIComponent(token)}`;
     await this.transporter.sendMail({
       from: this.config.getOrThrow<string>('SMTP_FROM'),

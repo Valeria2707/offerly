@@ -28,8 +28,12 @@ export class AuthService {
 
   async login(credentials: LoginDto): Promise<AuthResponseDto> {
     const user = await this.users.findByEmail(credentials.email);
-    const valid = user?.isActive && user.passwordHash && (await compare(credentials.password, user.passwordHash));
-    if (!user || !valid) throw new UnauthorizedException('Invalid email or password');
+    const valid =
+      user?.isActive &&
+      user.passwordHash &&
+      (await compare(credentials.password, user.passwordHash));
+    if (!user || !valid)
+      throw new UnauthorizedException('Invalid email or password');
 
     const response = await this.createTokenPair(user);
     await this.audit.publish('identity.auth.login.v1', user.id);
@@ -60,13 +64,23 @@ export class AuthService {
     await this.audit.publish('identity.auth.logout.v1', user.sub);
   }
 
-  private async createTokenPair(user: User, refreshToken?: string): Promise<AuthResponseDto> {
-    const expiresIn = this.parseExpiry(this.config.getOrThrow<string>('JWT_EXPIRES_IN'));
-    const payload: JwtPayload = { sub: user.id, email: user.email, name: user.name, jti: randomUUID() };
+  private async createTokenPair(
+    user: User,
+    refreshToken?: string
+  ): Promise<AuthResponseDto> {
+    const expiresIn = this.parseExpiry(
+      this.config.getOrThrow<string>('JWT_EXPIRES_IN')
+    );
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      jti: randomUUID()
+    };
     const accessToken = await this.jwt.signAsync(payload, { expiresIn });
     return {
       accessToken,
-      refreshToken: refreshToken ?? await this.refreshTokens.issue(user.id),
+      refreshToken: refreshToken ?? (await this.refreshTokens.issue(user.id)),
       tokenType: 'Bearer',
       expiresIn
     };
@@ -74,9 +88,9 @@ export class AuthService {
 
   private parseExpiry(value: string): number {
     const match = /^(\d+)(s|m|h|d)$/.exec(value);
-    if (!match) throw new Error('JWT_EXPIRES_IN must look like 30s, 15m, 1h, or 1d');
+    if (!match)
+      throw new Error('JWT_EXPIRES_IN must look like 30s, 15m, 1h, or 1d');
     const multipliers = { s: 1, m: 60, h: 3600, d: 86400 };
     return Number(match[1]) * multipliers[match[2] as keyof typeof multipliers];
   }
-
 }

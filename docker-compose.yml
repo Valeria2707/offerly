@@ -53,7 +53,8 @@ services:
 
   auth-service:
     build:
-      context: ./server/services/auth-service
+      context: ./server
+      dockerfile: services/auth-service/Dockerfile
     environment:
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-now}
@@ -63,7 +64,6 @@ services:
       AUTH_NAME: ${AUTH_NAME:-Admin}
       AUTH_EMAIL: ${AUTH_EMAIL:-admin@example.com}
       AUTH_PASSWORD: ${AUTH_PASSWORD:-admin123}
-      KAFKA_BROKERS: kafka:9092
       SWAGGER_ENABLED: "true"
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -80,8 +80,6 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      kafka:
-        condition: service_healthy
       postgres:
         condition: service_healthy
       mailpit:
@@ -122,6 +120,35 @@ services:
       retries: 10
     restart: unless-stopped
 
+  workflow-service:
+    build:
+      context: ./server
+      dockerfile: services/workflow-service/Dockerfile
+    environment:
+      PORT: 3004
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-now}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-offerly}
+      DATABASE_USER: ${POSTGRES_USER:-offerly}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-offerly-local-password}
+      KAFKA_BROKERS: kafka:9092
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3001}
+      SWAGGER_ENABLED: "true"
+    ports:
+      - "3004:3004"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3004/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   vacancy-service:
     build:
       context: ./server
@@ -136,11 +163,14 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-offerly-local-password}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
+      KAFKA_BROKERS: kafka:9092
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3001}
       SWAGGER_ENABLED: "true"
     ports:
       - "3003:3003"
     depends_on:
+      kafka:
+        condition: service_healthy
       postgres:
         condition: service_healthy
     healthcheck:
@@ -168,6 +198,8 @@ services:
       profile-service:
         condition: service_healthy
       vacancy-service:
+        condition: service_healthy
+      workflow-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3001').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]

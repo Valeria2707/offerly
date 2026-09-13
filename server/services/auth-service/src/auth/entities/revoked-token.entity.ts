@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn
+} from 'typeorm';
 
 @Entity({ name: 'revoked_tokens' })
 export class RevokedToken {

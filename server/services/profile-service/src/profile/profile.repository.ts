@@ -19,7 +19,9 @@ export class ProfileRepository {
     if (existing) return existing;
 
     try {
-      return await this.profiles.save(this.profiles.create({ userId, data: createEmptyProfileData() }));
+      return await this.profiles.save(
+        this.profiles.create({ userId, data: createEmptyProfileData() })
+      );
     } catch (error) {
       const concurrentlyCreated = await this.profiles.findOneBy({ userId });
       if (!concurrentlyCreated) throw error;
@@ -39,7 +41,10 @@ export class ProfileRepository {
     return this.imports.save(cvImport);
   }
 
-  async saveAppliedImport(profile: Profile, cvImport: CvImport): Promise<Profile> {
+  async saveAppliedImport(
+    profile: Profile,
+    cvImport: CvImport
+  ): Promise<Profile> {
     return this.dataSource.transaction(async (manager) => {
       const savedProfile = await manager.save(Profile, profile);
       await manager.save(CvImport, cvImport);

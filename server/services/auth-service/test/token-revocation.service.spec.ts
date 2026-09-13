@@ -10,7 +10,11 @@ describe('TokenRevocationService', () => {
     } as unknown as Repository<RevokedToken>;
     const service = new TokenRevocationService(repository);
 
-    await service.revoke('95b20e21-a247-46cc-b20a-885e86767b4d', Math.floor(Date.now() / 1000) + 60, '16046d70-825d-4e38-a9f6-3c412ea70923');
+    await service.revoke(
+      '95b20e21-a247-46cc-b20a-885e86767b4d',
+      Math.floor(Date.now() / 1000) + 60,
+      '16046d70-825d-4e38-a9f6-3c412ea70923'
+    );
 
     expect(repository.upsert).toHaveBeenCalledTimes(1);
   });
@@ -22,6 +26,8 @@ describe('TokenRevocationService', () => {
     } as unknown as Repository<RevokedToken>;
     const service = new TokenRevocationService(repository);
 
-    await expect(service.isRevoked('95b20e21-a247-46cc-b20a-885e86767b4d')).resolves.toBe(true);
+    await expect(
+      service.isRevoked('95b20e21-a247-46cc-b20a-885e86767b4d')
+    ).resolves.toBe(true);
   });
 });

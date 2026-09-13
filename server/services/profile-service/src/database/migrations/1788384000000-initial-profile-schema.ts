@@ -36,7 +36,9 @@ export class InitialProfileSchema1788384000000 implements MigrationInterface {
         CONSTRAINT "PK_profile_cv_imports" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query('CREATE INDEX "IDX_profile_cv_imports_user_id_created_at" ON "profile"."cv_imports" ("user_id", "created_at")');
+    await queryRunner.query(
+      'CREATE INDEX "IDX_profile_cv_imports_user_id_created_at" ON "profile"."cv_imports" ("user_id", "created_at")'
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

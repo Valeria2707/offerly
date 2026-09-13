@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { VacancyStatus } from '../enums/vacancy-status.enum';
+import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
 @Entity({ schema: 'vacancy', name: 'vacancies' })
 export class Vacancy {
   @PrimaryGeneratedColumn('uuid') id!: string;
@@ -57,10 +57,12 @@ export class Vacancy {
   languageRequirements!: string[];
   @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
   sourceUrl!: string | null;
-  @Column({ type: 'enum', enum: VacancyStatus, default: VacancyStatus.SAVED })
-  status!: VacancyStatus;
-  @Column({ name: 'next_step', type: 'text', nullable: true }) nextStep!:
-    string | null;
+  @Column({
+    type: 'enum',
+    enum: VacancyLifecycle,
+    default: VacancyLifecycle.ACTIVE
+  })
+  lifecycle!: VacancyLifecycle;
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })

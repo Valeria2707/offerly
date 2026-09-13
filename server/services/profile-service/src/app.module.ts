@@ -14,7 +14,9 @@ import { ProfileModule } from './profile/profile.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('development', 'test', 'production').default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'test', 'production')
+          .default('development'),
         PORT: Joi.number().port().default(3002),
         JWT_SECRET: Joi.string().min(32).required(),
         DATABASE_HOST: Joi.string().required(),
@@ -24,7 +26,11 @@ import { ProfileModule } from './profile/profile.module';
         DATABASE_PASSWORD: Joi.string().min(8).required(),
         OPENAI_API_KEY: Joi.string().allow('').default(''),
         OPENAI_MODEL: Joi.string().allow('').default(''),
-        CV_MAX_EXTRACTED_CHARACTERS: Joi.number().integer().min(10_000).max(500_000).default(100_000),
+        CV_MAX_EXTRACTED_CHARACTERS: Joi.number()
+          .integer()
+          .min(10_000)
+          .max(500_000)
+          .default(100_000),
         APP_BASE_URL: Joi.string().uri().required(),
         SWAGGER_ENABLED: Joi.boolean().default(false)
       })

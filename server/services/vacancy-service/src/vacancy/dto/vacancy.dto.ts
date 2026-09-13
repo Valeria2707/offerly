@@ -12,7 +12,7 @@ import {
   MaxLength,
   ValidateNested
 } from 'class-validator';
-import { VacancyStatus } from '../enums/vacancy-status.enum';
+import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
 
 export class VacancyDraftDto {
   @ApiProperty() @IsString() @Length(1, 300) @Matches(/\S/) title!: string;
@@ -87,16 +87,10 @@ export class VacancyDraftDto {
 }
 
 export class UpdateVacancyDto extends PartialType(VacancyDraftDto) {
-  @ApiPropertyOptional({ enum: VacancyStatus })
+  @ApiPropertyOptional({ enum: VacancyLifecycle })
   @IsOptional()
-  @IsEnum(VacancyStatus)
-  status?: VacancyStatus;
-
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(2_000)
-  nextStep?: string | null;
+  @IsEnum(VacancyLifecycle)
+  lifecycle?: VacancyLifecycle;
 }
 
 export class ImportVacancyUrlDto {
@@ -131,8 +125,7 @@ export class ApplyVacancyImportDto {
 
 export class VacancyResponseDto extends VacancyDraftDto {
   @ApiProperty() id!: string;
-  @ApiProperty({ enum: VacancyStatus }) status!: VacancyStatus;
-  @ApiProperty({ nullable: true }) nextStep!: string | null;
+  @ApiProperty({ enum: VacancyLifecycle }) lifecycle!: VacancyLifecycle;
   @ApiProperty() createdAt!: Date;
   @ApiProperty() updatedAt!: Date;
 }

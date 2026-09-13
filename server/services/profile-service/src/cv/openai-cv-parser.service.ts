@@ -1,4 +1,9 @@
-import { Injectable, Logger, ServiceUnavailableException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnprocessableEntityException
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
@@ -6,9 +11,12 @@ import { ProfileDataDto } from '../profile/dto/profile.dto';
 import { ProfileData } from '../profile/profile.types';
 import { toProfileData } from '../utils/profile.utils';
 import { normalizeProfileUrls } from '../utils/url.utils';
-import { getValidationPaths } from '../utils/validation.utils';
-import { isOpenAiResponse } from '../utils/openai-response.utils';
-import { CV_EXTRACTION_INSTRUCTIONS, OPENAI_REQUEST_TIMEOUT_MS, OPENAI_RESPONSES_URL } from './cv.constants';
+import { getValidationPaths, isOpenAiResponse } from '@offerly/helpers';
+import {
+  CV_EXTRACTION_INSTRUCTIONS,
+  OPENAI_REQUEST_TIMEOUT_MS,
+  OPENAI_RESPONSES_URL
+} from './cv.constants';
 import { cvProfileJsonSchema } from './cv-profile.schema';
 
 @Injectable()
@@ -56,43 +64,59 @@ export class OpenAiCvParserService {
     }
 
     if (!response.ok) {
-      throw new ServiceUnavailableException('CV AI provider rejected the request');
+      throw new ServiceUnavailableException(
+        'CV AI provider rejected the request'
+      );
     }
 
     let payload: unknown;
     try {
       payload = await response.json();
     } catch {
-      throw new ServiceUnavailableException('CV AI provider returned an unreadable response');
+      throw new ServiceUnavailableException(
+        'CV AI provider returned an unreadable response'
+      );
     }
 
     if (!isOpenAiResponse(payload)) {
-      throw new UnprocessableEntityException('CV AI provider returned an invalid response');
+      throw new UnprocessableEntityException(
+        'CV AI provider returned an invalid response'
+      );
     }
 
     const outputText = payload.output
       ?.flatMap((item) => item.content ?? [])
-      .find((item) => item.type === 'output_text')
-      ?.text;
+      .find((item) => item.type === 'output_text')?.text;
 
-    if (!outputText) throw new UnprocessableEntityException('CV AI provider returned no structured result');
+    if (!outputText)
+      throw new UnprocessableEntityException(
+        'CV AI provider returned no structured result'
+      );
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(outputText);
     } catch {
-      throw new UnprocessableEntityException('CV AI provider returned an invalid structured result');
+      throw new UnprocessableEntityException(
+        'CV AI provider returned an invalid structured result'
+      );
     }
 
     const validated = plainToInstance(ProfileDataDto, parsed);
-    const errors = validateSync(validated, { whitelist: true, forbidNonWhitelisted: true });
+    const errors = validateSync(validated, {
+      whitelist: true,
+      forbidNonWhitelisted: true
+    });
     if (errors.length > 0) {
-      this.logger.warn(`CV structured result failed validation at: ${getValidationPaths(errors).join(', ')}`);
-      throw new UnprocessableEntityException('CV AI provider returned an invalid structured result');
+      this.logger.warn(
+        `CV structured result failed validation at: ${getValidationPaths(errors).join(', ')}`
+      );
+      throw new UnprocessableEntityException(
+        'CV AI provider returned an invalid structured result'
+      );
     }
     const profileData = toProfileData(validated);
     normalizeProfileUrls(profileData);
     return profileData;
   }
-
 }
