@@ -4,6 +4,9 @@ export const API_BASE_URL =
 export const PROFILE_API_BASE_URL =
   process.env.NEXT_PUBLIC_PROFILE_API_URL ?? "http://localhost:3002/api/v1";
 
+export const VACANCY_API_BASE_URL =
+  process.env.NEXT_PUBLIC_VACANCY_API_URL ?? "http://localhost:3003/api/v1";
+
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 export const API_ROUTES = {
@@ -22,6 +25,15 @@ export const PROFILE_ROUTES = {
   cvImports: "/profile/cv-imports",
   cvImport: (id: string) => `/profile/cv-imports/${id}`,
   applyCvImport: (id: string) => `/profile/cv-imports/${id}/apply`,
+} as const;
+
+export const VACANCY_ROUTES = {
+  vacancies: "/vacancies",
+  vacancy: (id: string) => `/vacancies/${id}`,
+  importUrl: "/vacancies/imports/url",
+  importText: "/vacancies/imports/text",
+  vacancyImport: (id: string) => `/vacancies/imports/${id}`,
+  applyImport: (id: string) => `/vacancies/imports/${id}/apply`,
 } as const;
 
 export const API_ERROR_MESSAGES: Record<number, string> = {

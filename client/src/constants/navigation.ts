@@ -2,7 +2,7 @@ import { ROUTES } from "@/constants/routes";
 
 export const APP_NAV_ITEMS = [
   { label: "Дешборд", accent: "bg-subtle", href: ROUTES.dashboard },
-  { label: "Мої вакансії", accent: "bg-primary", href: null },
+  { label: "Мої вакансії", accent: "bg-primary", href: ROUTES.vacancies },
   { label: "Аналітика", accent: "bg-ai", href: null },
   { label: "Нагадування", accent: "bg-terracotta", href: null },
   { label: "Профіль", accent: "bg-foreground", href: ROUTES.profile },

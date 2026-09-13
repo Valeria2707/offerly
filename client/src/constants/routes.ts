@@ -6,9 +6,13 @@ export const ROUTES = {
   resetPassword: "/reset-password",
   dashboard: "/dashboard",
   profile: "/profile",
+  vacancies: "/vacancies",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
+
+export const vacancyImportRoute = (importId: string) =>
+  `${ROUTES.vacancies}/imports/${importId}` as const;
 
 export const SECTIONS = {
   features: "features",

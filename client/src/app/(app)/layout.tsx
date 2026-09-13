@@ -22,7 +22,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-full flex-1">
       <AppSidebar />
-      <main className="min-w-0 flex-1 px-10 py-8">{children}</main>
+      <main className="relative min-w-0 flex-1 px-10 py-8">{children}</main>
     </div>
   );
 }

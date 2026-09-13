@@ -16,7 +16,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <Toaster position="top-center" />
+        <Toaster position="bottom-right" richColors />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </GoogleOAuthProvider>
