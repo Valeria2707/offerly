@@ -1,5 +1,25 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiAcceptedResponse, ApiBearerAuth, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards
+} from '@nestjs/common';
+import {
+  ApiAcceptedResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthenticatedRequest } from './auth.types';
 import { AuthResponseDto, ProfileResponseDto } from './dto/auth-response.dto';
@@ -14,7 +34,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService, private readonly passwordReset: PasswordResetService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly passwordReset: PasswordResetService
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Create a user account' })
@@ -35,9 +58,13 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Rotate a refresh token and receive a new token pair' })
+  @ApiOperation({
+    summary: 'Rotate a refresh token and receive a new token pair'
+  })
   @ApiOkResponse({ type: AuthResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Refresh token is invalid, expired, or already used' })
+  @ApiUnauthorizedResponse({
+    description: 'Refresh token is invalid, expired, or already used'
+  })
   refresh(@Body() input: RefreshTokenDto): Promise<AuthResponseDto> {
     return this.auth.refresh(input.refreshToken);
   }
@@ -54,7 +81,9 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiOperation({ summary: 'Send a password-reset email if the account exists' })
+  @ApiOperation({
+    summary: 'Send a password-reset email if the account exists'
+  })
   @ApiAcceptedResponse({ description: 'Request accepted' })
   async forgotPassword(@Body() input: ForgotPasswordDto): Promise<void> {
     await this.passwordReset.request(input.email);
@@ -74,7 +103,9 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Revoke the current JWT access token' })
   @ApiNoContentResponse({ description: 'The current token was revoked' })
-  @ApiUnauthorizedResponse({ description: 'Token is missing, invalid, expired, or revoked' })
+  @ApiUnauthorizedResponse({
+    description: 'Token is missing, invalid, expired, or revoked'
+  })
   async logout(@Req() request: AuthenticatedRequest): Promise<void> {
     await this.auth.logout(request.user);
   }
@@ -84,8 +115,14 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Return the authenticated user profile' })
   @ApiOkResponse({ type: ProfileResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Token is missing, invalid, expired, or revoked' })
+  @ApiUnauthorizedResponse({
+    description: 'Token is missing, invalid, expired, or revoked'
+  })
   me(@Req() request: AuthenticatedRequest): ProfileResponseDto {
-    return { id: request.user.sub, name: request.user.name, email: request.user.email };
+    return {
+      id: request.user.sub,
+      name: request.user.name,
+      email: request.user.email
+    };
   }
 }

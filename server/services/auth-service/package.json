@@ -7,7 +7,7 @@
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
     "test": "jest --runInBand",
-    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/typeorm": "^10.0.2",
+    "@offerly/helpers": "file:../../libs/helpers",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -38,8 +39,8 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.8",
     "@nestjs/testing": "^10.4.15",
-    "@types/jest": "^29.5.14",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.10.2",
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",

@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
@@ -16,7 +21,9 @@ export class UsersService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    const email = this.normalizeEmail(this.config.getOrThrow<string>('AUTH_EMAIL'));
+    const email = this.normalizeEmail(
+      this.config.getOrThrow<string>('AUTH_EMAIL')
+    );
     if (await this.findByEmail(email)) return;
     await this.create({
       name: this.config.getOrThrow<string>('AUTH_NAME'),
@@ -37,7 +44,10 @@ export class UsersService implements OnApplicationBootstrap {
     try {
       return await this.users.save(user);
     } catch (error: unknown) {
-      if (error instanceof QueryFailedError && (error.driverError as { code?: string }).code === '23505') {
+      if (
+        error instanceof QueryFailedError &&
+        (error.driverError as { code?: string }).code === '23505'
+      ) {
         throw new ConflictException('A user with this email already exists');
       }
       throw error;
@@ -49,10 +59,17 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   async updatePassword(userId: string, password: string): Promise<void> {
-    await this.users.update({ id: userId }, { passwordHash: await hash(password, 12) });
+    await this.users.update(
+      { id: userId },
+      { passwordHash: await hash(password, 12) }
+    );
   }
 
-  async findOrCreateGoogleUser(input: { googleId: string; email: string; name: string }): Promise<User> {
+  async findOrCreateGoogleUser(input: {
+    googleId: string;
+    email: string;
+    name: string;
+  }): Promise<User> {
     const email = this.normalizeEmail(input.email);
     const byGoogleId = await this.users.findOneBy({ googleId: input.googleId });
     if (byGoogleId) return byGoogleId;
@@ -63,13 +80,15 @@ export class UsersService implements OnApplicationBootstrap {
       return this.users.save(byEmail);
     }
 
-    return this.users.save(this.users.create({
-      name: input.name.trim(),
-      email,
-      passwordHash: null,
-      googleId: input.googleId,
-      isActive: true
-    }));
+    return this.users.save(
+      this.users.create({
+        name: input.name.trim(),
+        email,
+        passwordHash: null,
+        googleId: input.googleId,
+        isActive: true
+      })
+    );
   }
 
   private normalizeEmail(email: string): string {

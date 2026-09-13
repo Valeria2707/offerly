@@ -19,6 +19,8 @@
 
 ## Code style
 
+- All backend services use `eslint.config.factory.js` and the server-level `.prettierrc`; do not introduce service-specific style rules without an explicit architectural reason.
+- Before creating a utility, read `HELPERS.md` and `libs/helpers/README.md`; reuse `@offerly/helpers` instead of duplicating shared functions.
 - Use TypeScript strict mode; do not use `any` unless the reason is documented locally.
 - Prefer small, single-purpose modules and dependency injection. Controllers handle transport only; business rules belong in services.
 - Use descriptive English names. Files use `kebab-case`; classes use `PascalCase`; variables and functions use `camelCase`.

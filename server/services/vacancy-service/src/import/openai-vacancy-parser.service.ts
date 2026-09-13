@@ -9,8 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { VacancyDraftDto } from '../vacancy/dto/vacancy.dto';
 import { VacancyDraftData } from '../vacancy/vacancy.types';
-import { isOpenAiResponse } from '../utils/type-guard.utils';
-import { getValidationPaths } from '../utils/validation.utils';
+import { getValidationPaths, isOpenAiResponse } from '@offerly/helpers';
 import {
   OPENAI_RESPONSES_URL,
   OPENAI_TIMEOUT_MS,

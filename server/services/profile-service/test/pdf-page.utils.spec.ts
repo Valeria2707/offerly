@@ -9,10 +9,12 @@ describe('renderPdfPageWithLinks', () => {
           { str: 'Finance Tracker FE', transform: [1, 0, 0, 1, 0, 10] }
         ]
       }),
-      getAnnotations: jest.fn().mockResolvedValue([
-        { url: 'https://github.com/example/fin-track-fe' },
-        { url: 'https://github.com/example/fin-track-fe' }
-      ])
+      getAnnotations: jest
+        .fn()
+        .mockResolvedValue([
+          { url: 'https://github.com/example/fin-track-fe' },
+          { url: 'https://github.com/example/fin-track-fe' }
+        ])
     };
 
     await expect(renderPdfPageWithLinks(page)).resolves.toBe(

@@ -1,5 +1,5 @@
 import { VacancyDraftDto } from '../vacancy/dto/vacancy.dto';
-import { VacancyStatus } from '../vacancy/enums/vacancy-status.enum';
+import { VacancyLifecycle } from '../vacancy/enums/vacancy-lifecycle.enum';
 import { VacancyData, VacancyDraftData } from '../vacancy/vacancy.types';
 
 export function toVacancyData(input: VacancyDraftDto): VacancyData {
@@ -19,8 +19,7 @@ export function toVacancyData(input: VacancyDraftDto): VacancyData {
     educationRequirement: input.educationRequirement ?? null,
     languageRequirements: input.languageRequirements ?? [],
     sourceUrl: input.sourceUrl ?? null,
-    status: VacancyStatus.SAVED,
-    nextStep: null
+    lifecycle: VacancyLifecycle.ACTIVE
   };
 }
 

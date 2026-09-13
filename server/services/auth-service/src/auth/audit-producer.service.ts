@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer } from 'kafkajs';
 import { randomUUID } from 'node:crypto';
@@ -30,9 +35,15 @@ export class AuditProducerService implements OnModuleInit, OnModuleDestroy {
       data: { userId }
     };
     try {
-      await this.producer.send({ topic, messages: [{ key: userId, value: JSON.stringify(event) }] });
+      await this.producer.send({
+        topic,
+        messages: [{ key: userId, value: JSON.stringify(event) }]
+      });
     } catch (error: unknown) {
-      this.logger.error(`Failed to publish ${topic}`, error instanceof Error ? error.stack : undefined);
+      this.logger.error(
+        `Failed to publish ${topic}`,
+        error instanceof Error ? error.stack : undefined
+      );
     }
   }
 }

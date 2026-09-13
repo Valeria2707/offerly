@@ -1,10 +1,6 @@
 import { TransformFnParams } from 'class-transformer';
+import { normalizeUrl } from '@offerly/helpers';
 import { ProfileData } from '../profile/profile.types';
-
-export function normalizeUrl(url: string): string {
-  const trimmed = url.trim();
-  return /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
 
 export function normalizeUrlValue({ value }: TransformFnParams): unknown {
   return typeof value === 'string' ? normalizeUrl(value) : value;

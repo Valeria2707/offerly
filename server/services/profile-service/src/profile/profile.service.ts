@@ -2,11 +2,21 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CvTextExtractorService } from '../cv/cv-text-extractor.service';
 import { OpenAiCvParserService } from '../cv/openai-cv-parser.service';
 import { CV_SCHEMA_VERSION } from '../cv/cv.constants';
-import { getErrorCode } from '../utils/error.utils';
+import { calculateSha256, getErrorCode } from '@offerly/helpers';
 import { sanitizeFilename } from '../utils/file.utils';
-import { calculateSha256 } from '../utils/hash.utils';
-import { mergeProfileDraft, toCvImportResponse, toProfileData, toProfileResponse, updateProfileData } from '../utils/profile.utils';
-import { ApplyCvImportDto, CvImportResponseDto, ProfileResponseDto, UpdateProfileDto } from './dto/profile.dto';
+import {
+  mergeProfileDraft,
+  toCvImportResponse,
+  toProfileData,
+  toProfileResponse,
+  updateProfileData
+} from '../utils/profile.utils';
+import {
+  ApplyCvImportDto,
+  CvImportResponseDto,
+  ProfileResponseDto,
+  UpdateProfileDto
+} from './dto/profile.dto';
 import { CvImportStatus } from './enums/cv-import-status.enum';
 import { ProfileRepository } from './profile.repository';
 
@@ -22,13 +32,19 @@ export class ProfileService {
     return toProfileResponse(await this.repository.findOrCreateProfile(userId));
   }
 
-  async updateProfile(userId: string, input: UpdateProfileDto): Promise<ProfileResponseDto> {
+  async updateProfile(
+    userId: string,
+    input: UpdateProfileDto
+  ): Promise<ProfileResponseDto> {
     const profile = await this.repository.findOrCreateProfile(userId);
     profile.data = updateProfileData(profile.data, input);
     return toProfileResponse(await this.repository.saveProfile(profile));
   }
 
-  async importCv(userId: string, file: Express.Multer.File | undefined): Promise<CvImportResponseDto> {
+  async importCv(
+    userId: string,
+    file: Express.Multer.File | undefined
+  ): Promise<CvImportResponseDto> {
     if (!file) throw new BadRequestException('CV file is required');
 
     const cvImport = await this.repository.createImport({
@@ -57,11 +73,20 @@ export class ProfileService {
     }
   }
 
-  async getImport(userId: string, importId: string): Promise<CvImportResponseDto> {
-    return toCvImportResponse(await this.repository.findImport(userId, importId));
+  async getImport(
+    userId: string,
+    importId: string
+  ): Promise<CvImportResponseDto> {
+    return toCvImportResponse(
+      await this.repository.findImport(userId, importId)
+    );
   }
 
-  async applyImport(userId: string, importId: string, input: ApplyCvImportDto): Promise<ProfileResponseDto> {
+  async applyImport(
+    userId: string,
+    importId: string,
+    input: ApplyCvImportDto
+  ): Promise<ProfileResponseDto> {
     const cvImport = await this.repository.findImport(userId, importId);
     if (cvImport.status !== CvImportStatus.Ready || !cvImport.draftData) {
       throw new BadRequestException('Only a ready CV import can be applied');

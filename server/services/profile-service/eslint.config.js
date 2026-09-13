@@ -1,14 +1,5 @@
 const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsParser = require('@typescript-eslint/parser');
+const parser = require('@typescript-eslint/parser');
+const createEslintConfig = require('../../eslint.config.factory');
 
-module.exports = [
-  {
-    files: ['**/*.ts'],
-    languageOptions: { parser: tsParser, parserOptions: { project: './tsconfig.json' } },
-    plugins: { '@typescript-eslint': tseslint },
-    rules: {
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-explicit-any': 'error'
-    }
-  }
-];
+module.exports = createEslintConfig(tseslint, parser);

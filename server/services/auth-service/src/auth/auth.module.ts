@@ -21,7 +21,12 @@ import { GoogleAuthService } from './google-auth.service';
 @Module({
   imports: [
     PassportModule,
-    TypeOrmModule.forFeature([User, RevokedToken, PasswordResetToken, RefreshToken]),
+    TypeOrmModule.forFeature([
+      User,
+      RevokedToken,
+      PasswordResetToken,
+      RefreshToken
+    ]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -31,6 +36,16 @@ import { GoogleAuthService } from './google-auth.service';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, TokenRevocationService, AuditProducerService, UsersService, MailService, PasswordResetService, RefreshTokenService, GoogleAuthService]
+  providers: [
+    AuthService,
+    JwtStrategy,
+    TokenRevocationService,
+    AuditProducerService,
+    UsersService,
+    MailService,
+    PasswordResetService,
+    RefreshTokenService,
+    GoogleAuthService
+  ]
 })
 export class AuthModule {}

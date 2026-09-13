@@ -16,9 +16,15 @@ describe('RefreshTokenService', () => {
     const config = {
       getOrThrow: jest.fn().mockReturnValue(30)
     } as unknown as ConfigService;
-    const service = new RefreshTokenService(repository, config, {} as DataSource);
+    const service = new RefreshTokenService(
+      repository,
+      config,
+      {} as DataSource
+    );
 
-    const rawToken = await service.issue('16046d70-825d-4e38-a9f6-3c412ea70923');
+    const rawToken = await service.issue(
+      '16046d70-825d-4e38-a9f6-3c412ea70923'
+    );
 
     expect(rawToken.length).toBeGreaterThan(40);
     expect(saved[0].tokenHash).not.toBe(rawToken);

@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -11,10 +17,21 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: true
+  })
   passwordHash!: string | null;
 
-  @Column({ name: 'google_id', type: 'varchar', length: 255, unique: true, nullable: true })
+  @Column({
+    name: 'google_id',
+    type: 'varchar',
+    length: 255,
+    unique: true,
+    nullable: true
+  })
   googleId!: string | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })

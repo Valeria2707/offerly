@@ -11,24 +11,35 @@ export class CvTextExtractorService {
   private readonly maxCharacters: number;
 
   constructor(config: ConfigService) {
-    this.maxCharacters = config.getOrThrow<number>('CV_MAX_EXTRACTED_CHARACTERS');
+    this.maxCharacters = config.getOrThrow<number>(
+      'CV_MAX_EXTRACTED_CHARACTERS'
+    );
   }
 
   async extract(file: Express.Multer.File): Promise<string> {
     validateCvFileSignature(file);
 
     try {
-      const text = file.mimetype === PDF_MIME_TYPE
-        ? (await pdf(file.buffer, { pagerender: renderPdfPageWithLinks })).text
-        : (await mammoth.extractRawText({ buffer: file.buffer })).value;
-      const normalized = text.replace(/\u0000/g, '').replace(/[ \t]+\n/g, '\n').trim();
+      const text =
+        file.mimetype === PDF_MIME_TYPE
+          ? (await pdf(file.buffer, { pagerender: renderPdfPageWithLinks }))
+              .text
+          : (await mammoth.extractRawText({ buffer: file.buffer })).value;
+      const normalized = text
+        .replace(/\u0000/g, '')
+        .replace(/[ \t]+\n/g, '\n')
+        .trim();
 
       if (normalized.length < CV_MIN_EXTRACTED_CHARACTERS) {
-        throw new UnprocessableEntityException('The CV contains too little extractable text; scanned documents are not supported yet');
+        throw new UnprocessableEntityException(
+          'The CV contains too little extractable text; scanned documents are not supported yet'
+        );
       }
 
       if (normalized.length > this.maxCharacters) {
-        throw new UnprocessableEntityException('The CV contains more text than the configured processing limit');
+        throw new UnprocessableEntityException(
+          'The CV contains more text than the configured processing limit'
+        );
       }
 
       return normalized;

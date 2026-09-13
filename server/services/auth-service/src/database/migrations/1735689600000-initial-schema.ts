@@ -27,7 +27,9 @@ export class InitialSchema1735689600000 implements MigrationInterface {
         CONSTRAINT "FK_revoked_tokens_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE
       )
     `);
-    await queryRunner.query('CREATE INDEX "IDX_revoked_tokens_expires_at" ON "revoked_tokens" ("expires_at")');
+    await queryRunner.query(
+      'CREATE INDEX "IDX_revoked_tokens_expires_at" ON "revoked_tokens" ("expires_at")'
+    );
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

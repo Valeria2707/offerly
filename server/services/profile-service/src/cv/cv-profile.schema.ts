@@ -22,7 +22,15 @@ export const cvProfileJsonSchema = {
           }
         }
       },
-      required: ['fullName', 'headline', 'email', 'phone', 'location', 'summary', 'links']
+      required: [
+        'fullName',
+        'headline',
+        'email',
+        'phone',
+        'location',
+        'summary',
+        'links'
+      ]
     },
     preferences: {
       type: 'object',
@@ -40,7 +48,10 @@ export const cvProfileJsonSchema = {
       items: {
         type: 'object',
         additionalProperties: false,
-        properties: { name: { type: 'string' }, level: { type: ['string', 'null'] } },
+        properties: {
+          name: { type: 'string' },
+          level: { type: ['string', 'null'] }
+        },
         required: ['name', 'level']
       }
     },
@@ -50,47 +61,97 @@ export const cvProfileJsonSchema = {
         type: 'object',
         additionalProperties: false,
         properties: {
-          company: { type: 'string' }, title: { type: 'string' },
-          startDate: { type: ['string', 'null'] }, endDate: { type: ['string', 'null'] },
-          current: { type: 'boolean' }, location: { type: ['string', 'null'] },
+          company: { type: 'string' },
+          title: { type: 'string' },
+          startDate: { type: ['string', 'null'] },
+          endDate: { type: ['string', 'null'] },
+          current: { type: 'boolean' },
+          location: { type: ['string', 'null'] },
           description: { type: ['string', 'null'] },
           highlights: { type: 'array', items: { type: 'string' } },
           skills: { type: 'array', items: { type: 'string' } }
         },
-        required: ['company', 'title', 'startDate', 'endDate', 'current', 'location', 'description', 'highlights', 'skills']
+        required: [
+          'company',
+          'title',
+          'startDate',
+          'endDate',
+          'current',
+          'location',
+          'description',
+          'highlights',
+          'skills'
+        ]
       }
     },
     education: {
       type: 'array',
       items: {
-        type: 'object', additionalProperties: false,
+        type: 'object',
+        additionalProperties: false,
         properties: {
-          institution: { type: 'string' }, degree: { type: ['string', 'null'] }, field: { type: ['string', 'null'] },
-          startDate: { type: ['string', 'null'] }, endDate: { type: ['string', 'null'] }, description: { type: ['string', 'null'] }
+          institution: { type: 'string' },
+          degree: { type: ['string', 'null'] },
+          field: { type: ['string', 'null'] },
+          startDate: { type: ['string', 'null'] },
+          endDate: { type: ['string', 'null'] },
+          description: { type: ['string', 'null'] }
         },
-        required: ['institution', 'degree', 'field', 'startDate', 'endDate', 'description']
+        required: [
+          'institution',
+          'degree',
+          'field',
+          'startDate',
+          'endDate',
+          'description'
+        ]
       }
     },
     projects: {
       type: 'array',
       items: {
-        type: 'object', additionalProperties: false,
+        type: 'object',
+        additionalProperties: false,
         properties: {
-          name: { type: 'string' }, description: { type: ['string', 'null'] }, url: { type: ['string', 'null'] },
-          startDate: { type: ['string', 'null'] }, endDate: { type: ['string', 'null'] },
-          highlights: { type: 'array', items: { type: 'string' } }, skills: { type: 'array', items: { type: 'string' } }
+          name: { type: 'string' },
+          description: { type: ['string', 'null'] },
+          url: { type: ['string', 'null'] },
+          startDate: { type: ['string', 'null'] },
+          endDate: { type: ['string', 'null'] },
+          highlights: { type: 'array', items: { type: 'string' } },
+          skills: { type: 'array', items: { type: 'string' } }
         },
-        required: ['name', 'description', 'url', 'startDate', 'endDate', 'highlights', 'skills']
+        required: [
+          'name',
+          'description',
+          'url',
+          'startDate',
+          'endDate',
+          'highlights',
+          'skills'
+        ]
       }
     },
     languages: {
       type: 'array',
       items: {
-        type: 'object', additionalProperties: false,
-        properties: { name: { type: 'string' }, level: { type: ['string', 'null'] } },
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string' },
+          level: { type: ['string', 'null'] }
+        },
         required: ['name', 'level']
       }
     }
   },
-  required: ['basics', 'preferences', 'skills', 'experience', 'education', 'projects', 'languages']
+  required: [
+    'basics',
+    'preferences',
+    'skills',
+    'experience',
+    'education',
+    'projects',
+    'languages'
+  ]
 };

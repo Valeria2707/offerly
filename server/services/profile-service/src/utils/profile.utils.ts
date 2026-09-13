@@ -1,9 +1,17 @@
-import { CvImportResponseDto, ProfileDataDto, ProfileResponseDto, UpdateProfileDto } from '../profile/dto/profile.dto';
+import {
+  CvImportResponseDto,
+  ProfileDataDto,
+  ProfileResponseDto,
+  UpdateProfileDto
+} from '../profile/dto/profile.dto';
 import { CvImport } from '../profile/entities/cv-import.entity';
 import { Profile } from '../profile/entities/profile.entity';
 import { ProfileData } from '../profile/profile.types';
 
-export function mergeProfileDraft(current: ProfileData, draft: ProfileData): ProfileData {
+export function mergeProfileDraft(
+  current: ProfileData,
+  draft: ProfileData
+): ProfileData {
   return {
     ...current,
     basics: {
@@ -13,18 +21,25 @@ export function mergeProfileDraft(current: ProfileData, draft: ProfileData): Pro
       phone: draft.basics.phone ?? current.basics.phone,
       location: draft.basics.location ?? current.basics.location,
       summary: draft.basics.summary ?? current.basics.summary,
-      links: draft.basics.links.length > 0 ? draft.basics.links : current.basics.links
+      links:
+        draft.basics.links.length > 0
+          ? draft.basics.links
+          : current.basics.links
     },
     preferences: current.preferences,
     skills: draft.skills.length > 0 ? draft.skills : current.skills,
-    experience: draft.experience.length > 0 ? draft.experience : current.experience,
+    experience:
+      draft.experience.length > 0 ? draft.experience : current.experience,
     education: draft.education.length > 0 ? draft.education : current.education,
     projects: draft.projects.length > 0 ? draft.projects : current.projects,
     languages: draft.languages.length > 0 ? draft.languages : current.languages
   };
 }
 
-export function updateProfileData(current: ProfileData, update: UpdateProfileDto): ProfileData {
+export function updateProfileData(
+  current: ProfileData,
+  update: UpdateProfileDto
+): ProfileData {
   return {
     basics: { ...current.basics, ...update.basics },
     preferences: { ...current.preferences, ...update.preferences },

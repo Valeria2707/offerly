@@ -1,4 +1,4 @@
-import { VacancyStatus } from './enums/vacancy-status.enum';
+import { VacancyLifecycle } from './enums/vacancy-lifecycle.enum';
 export interface VacancyDraftData {
   title: string;
   company: string;
@@ -18,6 +18,5 @@ export interface VacancyDraftData {
 }
 
 export interface VacancyData extends VacancyDraftData {
-  status: VacancyStatus;
-  nextStep: string | null;
+  lifecycle: VacancyLifecycle;
 }

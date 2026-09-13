@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'refresh_tokens' })
@@ -23,7 +31,12 @@ export class RefreshToken {
   @Column({ name: 'revoked_at', type: 'timestamptz', nullable: true })
   revokedAt!: Date | null;
 
-  @Column({ name: 'replaced_by_token_hash', type: 'varchar', length: 64, nullable: true })
+  @Column({
+    name: 'replaced_by_token_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true
+  })
   replacedByTokenHash!: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

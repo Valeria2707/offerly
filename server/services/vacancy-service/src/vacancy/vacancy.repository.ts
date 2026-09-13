@@ -8,6 +8,9 @@ import { DataSource, Repository } from 'typeorm';
 import { Vacancy } from './entities/vacancy.entity';
 import { VacancyImport } from './entities/vacancy-import.entity';
 import { VacancyData, VacancyDraftData } from './vacancy.types';
+import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
+import { VACANCY_CREATED_TOPIC } from '../outbox/outbox.constants';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class VacancyRepository {
@@ -67,6 +70,23 @@ export class VacancyRepository {
       const vacancy = await manager.save(
         Vacancy,
         manager.create(Vacancy, { userId, ...data })
+      );
+      const occurredAt = new Date().toISOString();
+      await manager.save(
+        OutboxEvent,
+        manager.create(OutboxEvent, {
+          aggregateId: vacancy.id,
+          eventType: VACANCY_CREATED_TOPIC,
+          payload: {
+            eventId: randomUUID(),
+            eventType: VACANCY_CREATED_TOPIC,
+            occurredAt,
+            producer: 'vacancy-service',
+            data: { vacancyId: vacancy.id, userId }
+          },
+          publishedAt: null,
+          attempts: 0
+        })
       );
       vacancyImport.appliedAt = new Date();
       await manager.save(VacancyImport, vacancyImport);

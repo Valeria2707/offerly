@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { CvImportStatus } from '../enums/cv-import-status.enum';
 import { ProfileData } from '../profile.types';
 
@@ -28,7 +34,12 @@ export class CvImport {
   @Column({ name: 'model_name', type: 'varchar', length: 100, nullable: true })
   modelName!: string | null;
 
-  @Column({ name: 'schema_version', type: 'varchar', length: 20, default: '1.0' })
+  @Column({
+    name: 'schema_version',
+    type: 'varchar',
+    length: 20,
+    default: '1.0'
+  })
   schemaVersion!: string;
 
   @Column({ name: 'error_code', type: 'varchar', length: 50, nullable: true })

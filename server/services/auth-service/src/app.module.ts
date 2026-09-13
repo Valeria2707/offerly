@@ -18,11 +18,17 @@ import { RefreshTokensAndGoogle1735862400000 } from './database/migrations/17358
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('development', 'test', 'production').default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'test', 'production')
+          .default('development'),
         PORT: Joi.number().port().default(3000),
         JWT_SECRET: Joi.string().min(32).required(),
         JWT_EXPIRES_IN: Joi.string().default('15m'),
-        REFRESH_TOKEN_EXPIRES_IN_DAYS: Joi.number().integer().min(1).max(365).default(30),
+        REFRESH_TOKEN_EXPIRES_IN_DAYS: Joi.number()
+          .integer()
+          .min(1)
+          .max(365)
+          .default(30),
         GOOGLE_CLIENT_ID: Joi.string().allow('').default(''),
         AUTH_NAME: Joi.string().min(1).default('Admin'),
         AUTH_EMAIL: Joi.string().email().default('admin@example.com'),
@@ -53,7 +59,11 @@ import { RefreshTokensAndGoogle1735862400000 } from './database/migrations/17358
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
         entities: [User, RevokedToken, PasswordResetToken, RefreshToken],
-        migrations: [InitialSchema1735689600000, UserEmailAndPasswordReset1735776000000, RefreshTokensAndGoogle1735862400000],
+        migrations: [
+          InitialSchema1735689600000,
+          UserEmailAndPasswordReset1735776000000,
+          RefreshTokensAndGoogle1735862400000
+        ],
         migrationsRun: true,
         synchronize: false
       })

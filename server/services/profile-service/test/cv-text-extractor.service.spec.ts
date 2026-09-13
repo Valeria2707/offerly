@@ -4,7 +4,9 @@ import { Readable } from 'node:stream';
 import { CvTextExtractorService } from '../src/cv/cv-text-extractor.service';
 
 describe('CvTextExtractorService', () => {
-  const service = new CvTextExtractorService(new ConfigService({ CV_MAX_EXTRACTED_CHARACTERS: 100_000 }));
+  const service = new CvTextExtractorService(
+    new ConfigService({ CV_MAX_EXTRACTED_CHARACTERS: 100_000 })
+  );
 
   it('rejects a file whose content does not match the claimed PDF type', async () => {
     const file: Express.Multer.File = {
@@ -20,6 +22,8 @@ describe('CvTextExtractorService', () => {
       path: ''
     };
 
-    await expect(service.extract(file)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.extract(file)).rejects.toBeInstanceOf(
+      BadRequestException
+    );
   });
 });
