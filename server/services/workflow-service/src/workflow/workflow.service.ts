@@ -74,6 +74,7 @@ export class WorkflowService {
     userId: string,
     vacancyId: string
   ): Promise<ApplicationWorkflow> {
+    await this.createDefault(vacancyId, userId);
     const workflow = await this.workflows.findOne({
       where: { vacancyId, userId },
       relations: { stages: true },

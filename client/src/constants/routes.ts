@@ -7,9 +7,13 @@ export const ROUTES = {
   dashboard: "/dashboard",
   profile: "/profile",
   vacancies: "/vacancies",
+  stageTypes: "/stage-types",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
+
+export const vacancyRoute = (vacancyId: string) =>
+  `${ROUTES.vacancies}/${vacancyId}` as const;
 
 export const vacancyImportRoute = (importId: string) =>
   `${ROUTES.vacancies}/imports/${importId}` as const;

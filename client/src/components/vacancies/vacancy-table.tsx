@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { VacancyStatusBadge } from "@/components/vacancies/vacancy-status-badge";
+import { vacancyRoute } from "@/constants/routes";
 import { formatDaysAgo, initials } from "@/lib/utils";
 import type { Vacancy } from "@/types/vacancy";
 
@@ -33,7 +36,7 @@ export function VacancyTable({
           {vacancies.map((vacancy) => (
             <tr
               key={vacancy.id}
-              className="border-b border-border last:border-0"
+              className="relative border-b border-border transition-colors last:border-0 hover:bg-muted/60"
             >
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
@@ -41,7 +44,12 @@ export function VacancyTable({
                     {initials(vacancy.company)}
                   </span>
                   <span className="grid">
-                    <span className="font-medium">{vacancy.title}</span>
+                    <Link
+                      href={vacancyRoute(vacancy.id)}
+                      className="font-medium underline-offset-4 after:absolute after:inset-0 hover:underline focus-visible:underline focus-visible:outline-none"
+                    >
+                      {vacancy.title}
+                    </Link>
                     <span className="text-xs text-muted-foreground">
                       {[vacancy.company, vacancy.location]
                         .filter(Boolean)

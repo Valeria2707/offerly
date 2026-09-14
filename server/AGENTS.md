@@ -42,4 +42,5 @@
 - Passwords must be hashed with a modern password hashing function and must never be stored or logged in plain text.
 - JWTs must have a short explicit lifetime, issuer, audience, subject, and unique `jti` claim.
 - Protected endpoints must use a shared authentication guard; do not parse JWTs manually in controllers.
-- This MVP has no refresh tokens. Logout revokes the current access token until it expires. A distributed store is required before scaling the auth service to multiple replicas.
+- Access tokens are short-lived JWTs; refresh tokens are opaque, stored hashed, and rotated on every use. A reused refresh token must be treated as compromised.
+- Refresh tokens are returned in the response body of register, login, Google sign-in, and refresh. Logout revokes all refresh tokens of the user.

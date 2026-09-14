@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { NavItem } from "@/components/app/nav-item";
 import { LogoMark } from "@/components/brand/logo";
-import { APP_NAV_ITEMS } from "@/constants/navigation";
+import { APP_NAV_SECTIONS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
-import { cn, initials } from "@/lib/utils";
+import { initials } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -33,45 +34,20 @@ export function AppSidebar() {
           </span>
         </Link>
 
-        <nav className="mt-8 grid gap-1">
-          {APP_NAV_ITEMS.map((item) => {
-            const active = Boolean(item.href) && pathname === item.href;
-            const dot = (
-              <span
-                aria-hidden
-                className={cn("size-1.5 shrink-0 rounded-full", item.accent)}
-              />
-            );
+        <nav className="mt-8 grid gap-5">
+          {APP_NAV_SECTIONS.map((section, index) => (
+            <div key={section.title ?? index} className="grid gap-1">
+              {section.title && (
+                <h2 className="px-3 pb-1 font-mono text-[10px] tracking-[0.12em] text-subtle uppercase">
+                  {section.title}
+                </h2>
+              )}
 
-            if (!item.href) {
-              return (
-                <span
-                  key={item.label}
-                  className="flex cursor-default items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-subtle"
-                >
-                  {dot}
-                  {item.label}
-                </span>
-              );
-            }
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                  active
-                    ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                    : "text-subtle hover:bg-sidebar-accent/50 hover:text-foreground",
-                )}
-              >
-                {dot}
-                {item.label}
-              </Link>
-            );
-          })}
+              {section.items.map((item) => (
+                <NavItem key={item.label} item={item} pathname={pathname} />
+              ))}
+            </div>
+          ))}
         </nav>
       </div>
 

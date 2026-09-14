@@ -9,12 +9,14 @@ import {
   updateVacancyRequest,
   vacanciesRequest,
   vacancyImportRequest,
+  vacancyRequest,
 } from "@/api/vacancies";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type { VacancyDraft } from "@/types/vacancy";
 
 export const vacancyKeys = {
   list: ["vacancies"] as const,
+  detail: (vacancyId: string) => ["vacancies", vacancyId] as const,
   import: (importId: string) => ["vacancies", "imports", importId] as const,
 };
 
@@ -24,6 +26,16 @@ export function useVacancies() {
   return useQuery({
     queryKey: vacancyKeys.list,
     queryFn: () => vacanciesRequest(getAccessToken()!),
+    enabled: Boolean(accessToken),
+  });
+}
+
+export function useVacancy(vacancyId: string) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  return useQuery({
+    queryKey: vacancyKeys.detail(vacancyId),
+    queryFn: () => vacancyRequest(getAccessToken()!, vacancyId),
     enabled: Boolean(accessToken),
   });
 }

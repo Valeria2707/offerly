@@ -10,6 +10,12 @@ export const vacanciesRequest = (token: string) =>
     token,
   });
 
+export const vacancyRequest = (token: string, vacancyId: string) =>
+  apiRequest<Vacancy>(VACANCY_ROUTES.vacancy(vacancyId), {
+    ...withVacancyService,
+    token,
+  });
+
 export const vacancyImportRequest = (token: string, importId: string) =>
   apiRequest<VacancyImport>(VACANCY_ROUTES.vacancyImport(importId), {
     ...withVacancyService,

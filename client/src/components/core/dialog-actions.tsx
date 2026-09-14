@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 
 export function DialogActions({
   submitLabel,
+  variant = "default",
   pending,
   disabled,
   onCancel,
   onSubmit,
 }: {
   submitLabel: string;
+  variant?: "default" | "destructive";
   pending: boolean;
   disabled: boolean;
   onCancel: () => void;
@@ -20,7 +22,12 @@ export function DialogActions({
       <Button type="button" variant="secondary" onClick={onCancel}>
         Скасувати
       </Button>
-      <Button type="button" disabled={disabled || pending} onClick={onSubmit}>
+      <Button
+        type="button"
+        variant={variant}
+        disabled={disabled || pending}
+        onClick={onSubmit}
+      >
         {pending && <Loader2 className="animate-spin" />}
         {submitLabel}
       </Button>
