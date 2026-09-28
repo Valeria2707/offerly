@@ -57,6 +57,10 @@ export class Vacancy {
   languageRequirements!: string[];
   @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
   sourceUrl!: string | null;
+  @Column({ name: 'source_hash', type: 'char', length: 64, nullable: true })
+  sourceHash!: string | null;
+  @Column({ type: 'char', length: 64, nullable: true })
+  fingerprint!: string | null;
   @Column({
     type: 'enum',
     enum: VacancyLifecycle,

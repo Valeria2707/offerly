@@ -4,7 +4,12 @@ import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
 import { validateCvFileSignature } from '../utils/file.utils';
 import { renderPdfPageWithLinks } from '../utils/pdf-page.utils';
-import { CV_MIN_EXTRACTED_CHARACTERS, PDF_MIME_TYPE } from './cv.constants';
+import {
+  CV_MIN_EXTRACTED_CHARACTERS,
+  PDF_MIME_TYPE,
+  NULL_CHARACTERS_PATTERN,
+  WHITESPACE_BEFORE_NEWLINE_PATTERN
+} from './cv.constants';
 
 @Injectable()
 export class CvTextExtractorService {
@@ -26,8 +31,8 @@ export class CvTextExtractorService {
               .text
           : (await mammoth.extractRawText({ buffer: file.buffer })).value;
       const normalized = text
-        .replace(/\u0000/g, '')
-        .replace(/[ \t]+\n/g, '\n')
+        .replace(NULL_CHARACTERS_PATTERN, '')
+        .replace(WHITESPACE_BEFORE_NEWLINE_PATTERN, '\n')
         .trim();
 
       if (normalized.length < CV_MIN_EXTRACTED_CHARACTERS) {

@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { User } from './entities/user.entity';
 import { GoogleAuthService } from './google-auth.service';
+import { TOKEN_EXPIRY_PATTERN } from './auth.constants';
 
 @Injectable()
 export class AuthService {
@@ -87,7 +88,7 @@ export class AuthService {
   }
 
   private parseExpiry(value: string): number {
-    const match = /^(\d+)(s|m|h|d)$/.exec(value);
+    const match = TOKEN_EXPIRY_PATTERN.exec(value);
     if (!match)
       throw new Error('JWT_EXPIRES_IN must look like 30s, 15m, 1h, or 1d');
     const multipliers = { s: 1, m: 60, h: 3600, d: 86400 };

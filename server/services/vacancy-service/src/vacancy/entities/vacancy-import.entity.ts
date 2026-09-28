@@ -11,6 +11,10 @@ export class VacancyImport {
   @Column({ name: 'user_id', type: 'uuid' }) userId!: string;
   @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
   sourceUrl!: string | null;
+  @Column({ name: 'source_hash', type: 'char', length: 64, nullable: true })
+  sourceHash!: string | null;
+  @Column({ type: 'char', length: 64, nullable: true })
+  fingerprint!: string | null;
   @Column({ type: 'jsonb' }) draft!: VacancyDraftData;
   @Column({ name: 'applied_at', type: 'timestamptz', nullable: true })
   appliedAt!: Date | null;

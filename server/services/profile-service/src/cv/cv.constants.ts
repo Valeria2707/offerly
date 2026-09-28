@@ -3,6 +3,9 @@ export const DOCX_MIME_TYPE =
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 export const PDF_FILE_SIGNATURE = '%PDF-';
 export const ZIP_FILE_SIGNATURE = [0x50, 0x4b];
+export const FILENAME_CONTROL_CHARACTERS_PATTERN = /[\u0000-\u001f\u007f]/g;
+export const NULL_CHARACTERS_PATTERN = /\u0000/g;
+export const WHITESPACE_BEFORE_NEWLINE_PATTERN = /[ \t]+\n/g;
 
 export const CV_MIN_EXTRACTED_CHARACTERS = 80;
 export const CV_MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;

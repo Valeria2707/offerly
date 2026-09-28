@@ -5,37 +5,27 @@ import {
 import { LookupAddress } from 'node:dns';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import {
+  BLOCKED_IPV4_FIRST_OCTETS,
+  BLOCKED_IPV4_PREFIXES,
+  BLOCKED_IPV6_ADDRESSES,
+  BLOCKED_IPV6_PREFIXES
+} from './network.constants';
 
 function isPrivateIpv4(address: string): boolean {
-  const octets = address.split('.').map(Number);
-  return (
-    octets[0] === 10 ||
-    octets[0] === 127 ||
-    octets[0] === 0 ||
-    (octets[0] === 169 && octets[1] === 254) ||
-    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
-    (octets[0] === 192 && octets[1] === 168) ||
-    octets[0] >= 224
-  );
+  const [firstOctet, secondOctet] = address.split('.').map(Number);
+  if (BLOCKED_IPV4_FIRST_OCTETS.includes(firstOctet)) return true;
+  if (firstOctet >= 224) return true;
+  if (firstOctet === 172 && secondOctet >= 16 && secondOctet <= 31) return true;
+  return BLOCKED_IPV4_PREFIXES.some((prefix) => address.startsWith(prefix));
 }
 
 export function isPublicIp(address: string): boolean {
   if (isIP(address) === 4) return !isPrivateIpv4(address);
   if (isIP(address) !== 6) return false;
   const normalized = address.toLowerCase();
-  return (
-    normalized !== '::' &&
-    normalized !== '::1' &&
-    !normalized.startsWith('fc') &&
-    !normalized.startsWith('fd') &&
-    !normalized.startsWith('fe8') &&
-    !normalized.startsWith('fe9') &&
-    !normalized.startsWith('fea') &&
-    !normalized.startsWith('feb') &&
-    !normalized.startsWith('::ffff:127.') &&
-    !normalized.startsWith('::ffff:10.') &&
-    !normalized.startsWith('::ffff:192.168.')
-  );
+  if (BLOCKED_IPV6_ADDRESSES.includes(normalized)) return false;
+  return !BLOCKED_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 }
 
 export async function assertSafePublicUrl(rawUrl: string): Promise<URL> {

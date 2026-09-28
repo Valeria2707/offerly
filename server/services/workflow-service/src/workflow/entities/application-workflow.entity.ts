@@ -7,7 +7,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { WorkflowStage } from './workflow-stage.entity';
-@Entity({ schema: 'workflow', name: 'application_workflows' })
+@Entity({ name: 'application_workflows' })
 export class ApplicationWorkflow {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'vacancy_id', type: 'uuid', unique: true })

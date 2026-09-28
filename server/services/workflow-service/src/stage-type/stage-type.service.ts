@@ -1,17 +1,27 @@
 import {
   ForbiddenException,
   Injectable,
+  OnModuleInit,
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateStageTypeDto, UpdateStageTypeDto } from './dto/stage-type.dto';
 import { StageType } from './entities/stage-type.entity';
+import { SYSTEM_STAGE_TYPES } from './stage-type.constants';
 @Injectable()
-export class StageTypeService {
+export class StageTypeService implements OnModuleInit {
   constructor(
     @InjectRepository(StageType) readonly types: Repository<StageType>
   ) {}
+  async onModuleInit(): Promise<void> {
+    await this.types
+      .createQueryBuilder()
+      .insert()
+      .values(SYSTEM_STAGE_TYPES)
+      .orIgnore()
+      .execute();
+  }
   list(userId: string): Promise<StageType[]> {
     return this.types
       .createQueryBuilder('type')

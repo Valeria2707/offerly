@@ -1,6 +1,53 @@
 import { VacancyDraftDto } from '../vacancy/dto/vacancy.dto';
 import { VacancyLifecycle } from '../vacancy/enums/vacancy-lifecycle.enum';
 import { VacancyData, VacancyDraftData } from '../vacancy/vacancy.types';
+import { calculateSha256 } from '@offerly/helpers';
+import { TRAILING_SLASHES_PATTERN, WHITESPACE_PATTERN } from './text.constants';
+
+function normalizeFingerprintValue(value: string): string {
+  return value
+    .trim()
+    .replace(WHITESPACE_PATTERN, ' ')
+    .toLocaleLowerCase('en-US');
+}
+
+export function normalizeVacancySourceUrl(url: string): string {
+  const normalized = new URL(url.trim());
+  normalized.hash = '';
+  normalized.hostname = normalized.hostname.toLowerCase();
+  if (normalized.pathname !== '/')
+    normalized.pathname = normalized.pathname.replace(
+      TRAILING_SLASHES_PATTERN,
+      ''
+    );
+  normalized.searchParams.sort();
+  return normalized.toString();
+}
+
+export function createVacancySourceHash(content: string): string {
+  return calculateSha256(normalizeFingerprintValue(content));
+}
+
+export function createVacancyFingerprint(data: VacancyDraftData): string {
+  const values = [
+    data.title,
+    data.company,
+    data.location,
+    data.workFormat,
+    data.employmentType,
+    data.level,
+    data.salaryRange,
+    data.description,
+    data.experienceRequirement,
+    data.educationRequirement,
+    ...[...data.requiredSkills].sort(),
+    ...[...data.preferredSkills].sort(),
+    ...[...data.languageRequirements].sort()
+  ];
+  return calculateSha256(
+    values.map((value) => normalizeFingerprintValue(value ?? '')).join('\n')
+  );
+}
 
 export function toVacancyData(input: VacancyDraftDto): VacancyData {
   return {

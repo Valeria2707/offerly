@@ -24,6 +24,8 @@
 - Use TypeScript strict mode; do not use `any` unless the reason is documented locally.
 - Prefer small, single-purpose modules and dependency injection. Controllers handle transport only; business rules belong in services.
 - Use descriptive English names. Files use `kebab-case`; classes use `PascalCase`; variables and functions use `camelCase`.
+- Replace long chains of repeated comparisons with named collections and `includes`/`some`/`every`. Keep reusable constants in separate files; retain short logical conditions when they express distinct rules clearly.
+- Define regular expressions as descriptive named constants in `*.constants.ts` files. Reuse them in validators and helpers instead of writing inline patterns.
 - Validate environment variables at startup and fail fast with a useful message.
 - Return consistent errors through framework exceptions; do not leak stack traces or internal details.
 - Use structured logs with a correlation/request ID where possible.

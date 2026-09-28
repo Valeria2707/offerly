@@ -9,8 +9,14 @@ import {
   VacancyImportResponseDto,
   VacancyResponseDto
 } from './dto/vacancy.dto';
-import { resolveVacancyImportDraft } from '../utils/vacancy.utils';
+import {
+  createVacancyFingerprint,
+  createVacancySourceHash,
+  normalizeVacancySourceUrl,
+  resolveVacancyImportDraft
+} from '../utils/vacancy.utils';
 import { VacancyRepository } from './vacancy.repository';
+import { VacancyDraftData } from './vacancy.types';
 
 @Injectable()
 export class VacancyService {
@@ -43,19 +49,42 @@ export class VacancyService {
     userId: string,
     input: ImportVacancyUrlDto
   ): Promise<VacancyImportResponseDto> {
-    const page = await this.pages.fetch(input.url);
-    const draft = await this.parser.parse(page.content, page.url);
-    return this.repository.createImport(userId, page.url, draft);
+    const sourceUrl = normalizeVacancySourceUrl(input.url);
+    const urlDuplicate = await this.repository.findDuplicate(userId, sourceUrl);
+    if (urlDuplicate) return this.duplicateResponse(urlDuplicate.id);
+    const page = await this.pages.fetch(sourceUrl);
+    const sourceHash = createVacancySourceHash(page.content);
+    const contentDuplicate = await this.repository.findDuplicate(
+      userId,
+      sourceUrl,
+      sourceHash
+    );
+    if (contentDuplicate) return this.duplicateResponse(contentDuplicate.id);
+    const finalSourceUrl = normalizeVacancySourceUrl(page.url);
+    const draft = await this.parser.parse(page.content, finalSourceUrl);
+    return this.saveImport(userId, finalSourceUrl, page.content, draft);
   }
   async importText(
     userId: string,
     input: ImportVacancyTextDto
   ): Promise<VacancyImportResponseDto> {
-    const draft = await this.parser.parse(input.text.trim(), null);
-    return this.repository.createImport(userId, null, draft);
+    const content = input.text.trim();
+    const sourceHash = createVacancySourceHash(content);
+    const contentDuplicate = await this.repository.findDuplicate(
+      userId,
+      null,
+      sourceHash
+    );
+    if (contentDuplicate) return this.duplicateResponse(contentDuplicate.id);
+    const draft = await this.parser.parse(content, null);
+    return this.saveImport(userId, null, content, draft);
   }
-  getImport(userId: string, id: string): Promise<VacancyImportResponseDto> {
-    return this.repository.findImport(userId, id);
+  async getImport(
+    userId: string,
+    id: string
+  ): Promise<VacancyImportResponseDto> {
+    const vacancyImport = await this.repository.findImport(userId, id);
+    return this.importResponse(vacancyImport);
   }
   async applyImport(
     userId: string,
@@ -75,5 +104,49 @@ export class VacancyService {
       vacancyData
     );
     return vacancy;
+  }
+  async saveImport(
+    userId: string,
+    sourceUrl: string | null,
+    content: string,
+    draft: VacancyDraftData
+  ): Promise<VacancyImportResponseDto> {
+    const sourceHash = createVacancySourceHash(content);
+    const fingerprint = createVacancyFingerprint(draft);
+    const duplicate = await this.repository.findDuplicate(
+      userId,
+      sourceUrl,
+      sourceHash,
+      fingerprint
+    );
+    if (duplicate) return this.duplicateResponse(duplicate.id);
+    const vacancyImport = await this.repository.createImport(
+      userId,
+      sourceUrl,
+      sourceHash,
+      fingerprint,
+      draft
+    );
+    return this.importResponse(vacancyImport);
+  }
+  duplicateResponse(existingVacancyId: string): VacancyImportResponseDto {
+    return { isDuplicate: true, existingVacancyId };
+  }
+  importResponse(vacancyImport: {
+    id: string;
+    sourceUrl: string | null;
+    draft: VacancyDraftData;
+    appliedAt: Date | null;
+    createdAt: Date;
+  }): VacancyImportResponseDto {
+    return {
+      isDuplicate: false,
+      existingVacancyId: null,
+      id: vacancyImport.id,
+      sourceUrl: vacancyImport.sourceUrl,
+      draft: vacancyImport.draft,
+      appliedAt: vacancyImport.appliedAt,
+      createdAt: vacancyImport.createdAt
+    };
   }
 }

@@ -2,6 +2,7 @@ import { basename } from 'node:path';
 import { BadRequestException } from '@nestjs/common';
 import {
   DOCX_MIME_TYPE,
+  FILENAME_CONTROL_CHARACTERS_PATTERN,
   PDF_FILE_SIGNATURE,
   PDF_MIME_TYPE,
   ZIP_FILE_SIGNATURE
@@ -10,7 +11,7 @@ import {
 export function sanitizeFilename(filename: string): string {
   return (
     basename(filename)
-      .replace(/[\u0000-\u001f\u007f]/g, '')
+      .replace(FILENAME_CONTROL_CHARACTERS_PATTERN, '')
       .slice(0, 255) || 'cv'
   );
 }

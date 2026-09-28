@@ -191,6 +191,16 @@ export class WorkflowService {
       throw new ForbiddenException('Workflow does not belong to user');
     return workflow;
   }
+  async requireStage(
+    userId: string,
+    workflowId: string,
+    stageId: string
+  ): Promise<WorkflowStage> {
+    await this.requireWorkflow(userId, workflowId);
+    const stage = await this.stages.findOneBy({ id: stageId, workflowId });
+    if (!stage) throw new NotFoundException('Workflow stage not found');
+    return stage;
+  }
   async getById(userId: string, id: string): Promise<ApplicationWorkflow> {
     await this.requireWorkflow(userId, id);
     const workflow = await this.workflows.findOne({

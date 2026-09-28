@@ -1,6 +1,6 @@
+import { URL_SCHEME_PATTERN } from './url.constants';
+
 export function normalizeUrl(url: string): string {
   const trimmed = url.trim();
-  return /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
-    ? trimmed
-    : `https://${trimmed}`;
+  return URL_SCHEME_PATTERN.test(trimmed) ? trimmed : `https://${trimmed}`;
 }

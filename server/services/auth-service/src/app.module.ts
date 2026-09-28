@@ -9,9 +9,6 @@ import { PasswordResetToken } from './auth/entities/password-reset-token.entity'
 import { RefreshToken } from './auth/entities/refresh-token.entity';
 import { User } from './auth/entities/user.entity';
 import { HealthController } from './health.controller';
-import { InitialSchema1735689600000 } from './database/migrations/1735689600000-initial-schema';
-import { UserEmailAndPasswordReset1735776000000 } from './database/migrations/1735776000000-user-email-and-password-reset';
-import { RefreshTokensAndGoogle1735862400000 } from './database/migrations/1735862400000-refresh-tokens-and-google';
 
 @Module({
   imports: [
@@ -59,13 +56,7 @@ import { RefreshTokensAndGoogle1735862400000 } from './database/migrations/17358
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
         entities: [User, RevokedToken, PasswordResetToken, RefreshToken],
-        migrations: [
-          InitialSchema1735689600000,
-          UserEmailAndPasswordReset1735776000000,
-          RefreshTokensAndGoogle1735862400000
-        ],
-        migrationsRun: true,
-        synchronize: false
+        synchronize: true
       })
     }),
     AuthModule

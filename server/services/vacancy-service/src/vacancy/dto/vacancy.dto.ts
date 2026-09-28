@@ -13,10 +13,22 @@ import {
   ValidateNested
 } from 'class-validator';
 import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
+import {
+  NON_WHITESPACE_PATTERN,
+  POSTED_DATE_PATTERN
+} from '../vacancy.constants';
 
 export class VacancyDraftDto {
-  @ApiProperty() @IsString() @Length(1, 300) @Matches(/\S/) title!: string;
-  @ApiProperty() @IsString() @Length(1, 300) @Matches(/\S/) company!: string;
+  @ApiProperty()
+  @IsString()
+  @Length(1, 300)
+  @Matches(NON_WHITESPACE_PATTERN)
+  title!: string;
+  @ApiProperty()
+  @IsString()
+  @Length(1, 300)
+  @Matches(NON_WHITESPACE_PATTERN)
+  company!: string;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
   @IsString()
@@ -44,7 +56,7 @@ export class VacancyDraftDto {
   salaryRange?: string | null;
   @ApiPropertyOptional({ nullable: true, example: '2026-08-14' })
   @IsOptional()
-  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @Matches(POSTED_DATE_PATTERN)
   postedAt?: string | null;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
@@ -108,7 +120,7 @@ export class ImportVacancyTextDto {
   })
   @IsString()
   @Length(100, 100_000)
-  @Matches(/\S/)
+  @Matches(NON_WHITESPACE_PATTERN)
   text!: string;
 }
 
@@ -131,9 +143,15 @@ export class VacancyResponseDto extends VacancyDraftDto {
 }
 
 export class VacancyImportResponseDto {
-  @ApiProperty() id!: string;
-  @ApiProperty({ nullable: true }) sourceUrl!: string | null;
-  @ApiProperty({ type: VacancyDraftDto }) draft!: VacancyDraftDto;
-  @ApiProperty({ nullable: true }) appliedAt!: Date | null;
-  @ApiProperty() createdAt!: Date;
+  @ApiProperty({
+    description: 'True when this vacancy already exists for the current user'
+  })
+  isDuplicate!: boolean;
+  @ApiPropertyOptional({ nullable: true })
+  existingVacancyId?: string | null;
+  @ApiPropertyOptional() id?: string;
+  @ApiPropertyOptional({ nullable: true }) sourceUrl?: string | null;
+  @ApiPropertyOptional({ type: VacancyDraftDto }) draft?: VacancyDraftDto;
+  @ApiPropertyOptional({ nullable: true }) appliedAt?: Date | null;
+  @ApiPropertyOptional() createdAt?: Date;
 }

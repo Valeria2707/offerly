@@ -1,4 +1,5 @@
 import { load } from 'cheerio';
+import { WHITESPACE_PATTERN } from './text.constants';
 
 export function extractReadableJobPage(html: string): string {
   const document = load(html);
@@ -11,7 +12,7 @@ export function extractReadableJobPage(html: string): string {
     .filter(Boolean)
     .join('\n');
   const title = document('title').first().text().trim();
-  const body = document('body').text().replace(/\s+/g, ' ').trim();
+  const body = document('body').text().replace(WHITESPACE_PATTERN, ' ').trim();
   return [
     `Page title: ${title}`,
     `Visible content: ${body}`,

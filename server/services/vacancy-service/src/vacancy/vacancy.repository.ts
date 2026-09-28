@@ -11,6 +11,7 @@ import { VacancyData, VacancyDraftData } from './vacancy.types';
 import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
 import { VACANCY_CREATED_TOPIC } from '../outbox/outbox.constants';
 import { randomUUID } from 'node:crypto';
+import { createVacancyFingerprint } from '../utils/vacancy.utils';
 
 @Injectable()
 export class VacancyRepository {
@@ -40,11 +41,48 @@ export class VacancyRepository {
   createImport(
     userId: string,
     sourceUrl: string | null,
+    sourceHash: string,
+    fingerprint: string,
     draft: VacancyDraftData
   ): Promise<VacancyImport> {
     return this.imports.save(
-      this.imports.create({ userId, sourceUrl, draft, appliedAt: null })
+      this.imports.create({
+        userId,
+        sourceUrl,
+        sourceHash,
+        fingerprint,
+        draft,
+        appliedAt: null
+      })
     );
+  }
+  findDuplicate(
+    userId: string,
+    sourceUrl: string | null,
+    sourceHash?: string,
+    fingerprint?: string
+  ): Promise<Vacancy | null> {
+    const query = this.vacancies
+      .createQueryBuilder('vacancy')
+      .where('vacancy.userId = :userId', { userId });
+    const duplicateConditions: string[] = [];
+    const parameters: Record<string, string> = {};
+    if (sourceUrl) {
+      duplicateConditions.push('vacancy.sourceUrl = :sourceUrl');
+      parameters.sourceUrl = sourceUrl;
+    }
+    if (sourceHash) {
+      duplicateConditions.push('vacancy.sourceHash = :sourceHash');
+      parameters.sourceHash = sourceHash;
+    }
+    if (fingerprint) {
+      duplicateConditions.push('vacancy.fingerprint = :fingerprint');
+      parameters.fingerprint = fingerprint;
+    }
+    if (duplicateConditions.length === 0) return Promise.resolve(null);
+    return query
+      .andWhere(`(${duplicateConditions.join(' OR ')})`, parameters)
+      .getOne();
   }
   async findImport(userId: string, id: string): Promise<VacancyImport> {
     const vacancyImport = await this.imports.findOneBy({ id, userId });
@@ -69,7 +107,12 @@ export class VacancyRepository {
         );
       const vacancy = await manager.save(
         Vacancy,
-        manager.create(Vacancy, { userId, ...data })
+        manager.create(Vacancy, {
+          userId,
+          ...data,
+          sourceHash: vacancyImport.sourceHash,
+          fingerprint: createVacancyFingerprint(data)
+        })
       );
       const occurredAt = new Date().toISOString();
       await manager.save(

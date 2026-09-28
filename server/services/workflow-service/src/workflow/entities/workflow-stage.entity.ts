@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { StageCategory, StageStatus } from '../workflow.enums';
 import { ApplicationWorkflow } from './application-workflow.entity';
-@Entity({ schema: 'workflow', name: 'workflow_stages' })
+@Entity({ name: 'workflow_stages' })
 export class WorkflowStage {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'workflow_id', type: 'uuid' }) workflowId!: string;
@@ -21,11 +21,21 @@ export class WorkflowStage {
   @Column({ name: 'stage_type_id', type: 'uuid' }) stageTypeId!: string;
   @Column({ name: 'name_snapshot', type: 'varchar', length: 200 })
   name!: string;
-  @Column({ name: 'category_snapshot', type: 'enum', enum: StageCategory })
+  @Column({
+    name: 'category_snapshot',
+    type: 'enum',
+    enum: StageCategory,
+    enumName: 'stage_category_enum'
+  })
   category!: StageCategory;
   @Column({ type: 'integer' }) position!: number;
   @Column({ name: 'is_required', default: true }) isRequired!: boolean;
-  @Column({ type: 'enum', enum: StageStatus, default: StageStatus.NOT_STARTED })
+  @Column({
+    type: 'enum',
+    enum: StageStatus,
+    enumName: 'stage_status_enum',
+    default: StageStatus.NOT_STARTED
+  })
   status!: StageStatus;
   @Column({ name: 'scheduled_at', type: 'timestamptz', nullable: true })
   scheduledAt!: Date | null;

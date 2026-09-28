@@ -2,7 +2,7 @@
 
 NestJS microservice responsible for login, logout, and access-token authentication.
 
-Users and revoked access tokens are persisted in PostgreSQL through TypeORM. Database schema changes are applied with TypeORM migrations; schema synchronization is disabled.
+Users and revoked access tokens are persisted in PostgreSQL through TypeORM. During the current development phase, TypeORM synchronizes the schema from entities at startup.
 
 ## Endpoints
 

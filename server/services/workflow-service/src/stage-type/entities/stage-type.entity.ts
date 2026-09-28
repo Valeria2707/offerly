@@ -6,7 +6,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { StageCategory } from '../../workflow/workflow.enums';
-@Entity({ schema: 'workflow', name: 'stage_types' })
+@Entity({ name: 'stage_types' })
 export class StageType {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'owner_user_id', type: 'uuid', nullable: true })
@@ -14,7 +14,12 @@ export class StageType {
   @Column({ type: 'varchar', length: 100, nullable: true, unique: true })
   code!: string | null;
   @Column({ type: 'varchar', length: 200 }) name!: string;
-  @Column({ type: 'enum', enum: StageCategory }) category!: StageCategory;
+  @Column({
+    type: 'enum',
+    enum: StageCategory,
+    enumName: 'stage_category_enum'
+  })
+  category!: StageCategory;
   @Column({
     name: 'expected_duration_minutes',
     type: 'integer',
