@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
 @Entity({ schema: 'vacancy', name: 'vacancies' })
+@Index('IDX_vacancies_user_updated', ['userId', 'updatedAt'])
 export class Vacancy {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'user_id', type: 'uuid' }) userId!: string;

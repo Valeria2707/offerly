@@ -3,7 +3,7 @@ import { SharedAuthModule } from '@offerly/auth';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Joi from 'joi';
-import { InitialProfileSchema1788384000000 } from './database/migrations/1788384000000-initial-profile-schema';
+import { createDataSourceWithSchema } from './database/create-data-source';
 import { HealthController } from './health.controller';
 import { CvImport } from './profile/entities/cv-import.entity';
 import { Profile } from './profile/entities/profile.entity';
@@ -45,10 +45,10 @@ import { ProfileModule } from './profile/profile.module';
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
         entities: [Profile, CvImport],
-        migrations: [InitialProfileSchema1788384000000],
-        migrationsRun: true,
-        synchronize: false
-      })
+        synchronize: true
+      }),
+      dataSourceFactory: (options) =>
+        createDataSourceWithSchema(options!, 'profile')
     }),
     SharedAuthModule,
     ProfileModule

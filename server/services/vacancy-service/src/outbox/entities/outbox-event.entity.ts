@@ -2,10 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ schema: 'vacancy', name: 'outbox_events' })
+@Index('IDX_vacancy_outbox_pending', ['createdAt'], {
+  where: '"published_at" IS NULL'
+})
 export class OutboxEvent {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'aggregate_id', type: 'uuid' }) aggregateId!: string;

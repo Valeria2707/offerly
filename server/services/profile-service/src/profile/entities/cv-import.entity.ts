@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
@@ -9,6 +10,7 @@ import { CvImportStatus } from '../enums/cv-import-status.enum';
 import { ProfileData } from '../profile.types';
 
 @Entity({ schema: 'profile', name: 'cv_imports' })
+@Index('IDX_profile_cv_imports_user_id_created_at', ['userId', 'createdAt'])
 export class CvImport {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

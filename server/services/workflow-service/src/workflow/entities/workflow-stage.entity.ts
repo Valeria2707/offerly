@@ -8,6 +8,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { StageCategory, StageStatus } from '../workflow.enums';
+import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { ApplicationWorkflow } from './application-workflow.entity';
 @Entity({ schema: 'workflow', name: 'workflow_stages' })
 export class WorkflowStage {
@@ -16,16 +17,35 @@ export class WorkflowStage {
   @ManyToOne(() => ApplicationWorkflow, (workflow) => workflow.stages, {
     onDelete: 'CASCADE'
   })
-  @JoinColumn({ name: 'workflow_id' })
+  @JoinColumn({
+    name: 'workflow_id',
+    foreignKeyConstraintName: 'FK_workflow_stage_workflow'
+  })
   workflow!: ApplicationWorkflow;
   @Column({ name: 'stage_type_id', type: 'uuid' }) stageTypeId!: string;
+  @ManyToOne(() => StageType, { onDelete: 'RESTRICT' })
+  @JoinColumn({
+    name: 'stage_type_id',
+    foreignKeyConstraintName: 'FK_workflow_stage_type'
+  })
+  stageType!: StageType;
   @Column({ name: 'name_snapshot', type: 'varchar', length: 200 })
   name!: string;
-  @Column({ name: 'category_snapshot', type: 'enum', enum: StageCategory })
+  @Column({
+    name: 'category_snapshot',
+    type: 'enum',
+    enum: StageCategory,
+    enumName: 'stage_category_enum'
+  })
   category!: StageCategory;
   @Column({ type: 'integer' }) position!: number;
   @Column({ name: 'is_required', default: true }) isRequired!: boolean;
-  @Column({ type: 'enum', enum: StageStatus, default: StageStatus.NOT_STARTED })
+  @Column({
+    type: 'enum',
+    enum: StageStatus,
+    enumName: 'stage_status_enum',
+    default: StageStatus.NOT_STARTED
+  })
   status!: StageStatus;
   @Column({ name: 'scheduled_at', type: 'timestamptz', nullable: true })
   scheduledAt!: Date | null;

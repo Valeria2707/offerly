@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedAuthModule } from '@offerly/auth';
-import { InitialWorkflowSchema1789251000000 } from './database/migrations/1789251000000-initial-workflow-schema';
+import { createDataSourceWithSchema } from './database/create-data-source';
+import { seedStageTypes } from './database/seed-stage-types';
 import { HealthController } from './health.controller';
 import { EventsModule } from './events/events.module';
 import { StageType } from './stage-type/entities/stage-type.entity';
@@ -23,10 +24,16 @@ import { WorkflowModule } from './workflow/workflow.module';
         username: c.getOrThrow<string>('DATABASE_USER'),
         password: c.getOrThrow<string>('DATABASE_PASSWORD'),
         entities: [StageType, ApplicationWorkflow, WorkflowStage],
-        migrations: [InitialWorkflowSchema1789251000000],
-        migrationsRun: true,
-        synchronize: false
-      })
+        synchronize: true
+      }),
+      dataSourceFactory: async (options) => {
+        const dataSource = await createDataSourceWithSchema(
+          options!,
+          'workflow'
+        );
+        await seedStageTypes(dataSource);
+        return dataSource;
+      }
     }),
     SharedAuthModule,
     StageTypeModule,

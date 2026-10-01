@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { VacancyDraftData } from '../vacancy.types';
 @Entity({ schema: 'vacancy', name: 'vacancy_imports' })
+@Index('IDX_vacancy_imports_user', ['userId'])
 export class VacancyImport {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'user_id', type: 'uuid' }) userId!: string;

@@ -3,18 +3,25 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn
 } from 'typeorm';
 import { StageCategory } from '../../workflow/workflow.enums';
 @Entity({ schema: 'workflow', name: 'stage_types' })
+@Unique('UQ_workflow_stage_type_code', ['code'])
 export class StageType {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'owner_user_id', type: 'uuid', nullable: true })
   ownerUserId!: string | null;
-  @Column({ type: 'varchar', length: 100, nullable: true, unique: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   code!: string | null;
   @Column({ type: 'varchar', length: 200 }) name!: string;
-  @Column({ type: 'enum', enum: StageCategory }) category!: StageCategory;
+  @Column({
+    type: 'enum',
+    enum: StageCategory,
+    enumName: 'stage_category_enum'
+  })
+  category!: StageCategory;
   @Column({
     name: 'expected_duration_minutes',
     type: 'integer',

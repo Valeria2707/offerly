@@ -3,10 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn
 } from 'typeorm';
 
 @Entity({ name: 'users' })
+@Unique('UQ_users_email', ['email'])
+@Unique('UQ_users_google_id', ['googleId'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -14,7 +17,7 @@ export class User {
   @Column({ type: 'varchar', length: 150 })
   name!: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({ type: 'varchar', length: 255 })
   email!: string;
 
   @Column({
@@ -29,7 +32,6 @@ export class User {
     name: 'google_id',
     type: 'varchar',
     length: 255,
-    unique: true,
     nullable: true
   })
   googleId!: string | null;
