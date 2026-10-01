@@ -7,6 +7,7 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
@@ -31,12 +32,17 @@ export class UpdateStageDto {
     string | null;
   @ApiPropertyOptional() @IsOptional() @IsDateString() deadlineAt?:
     string | null;
-  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(5000) note?:
-    string | null;
   @ApiPropertyOptional()
   @IsOptional()
   @IsUrl({ require_protocol: true })
   artifactUrl?: string | null;
+}
+export class StageNoteDto {
+  @ApiProperty({ maxLength: 5000 })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(5000)
+  content!: string;
 }
 export class StageGroupDto {
   @ApiProperty({ type: [String] })

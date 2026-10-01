@@ -11,9 +11,11 @@ import { isCompleteStageOrder } from '../utils/workflow-order.utils';
 import {
   AddStageDto,
   ReorderStagesDto,
+  StageNoteDto,
   UpdateStageDto
 } from './dto/workflow.dto';
 import { ApplicationWorkflow } from './entities/application-workflow.entity';
+import { StageNote } from './entities/stage-note.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 import { StageStatus } from './workflow.enums';
 const DEFAULT_STAGE_CODES = [
@@ -23,6 +25,9 @@ const DEFAULT_STAGE_CODES = [
   'final_interview',
   'offer'
 ];
+const WORKFLOW_ORDER = {
+  stages: { position: 'ASC', createdAt: 'ASC', notes: { createdAt: 'ASC' } }
+} as const;
 @Injectable()
 export class WorkflowService {
   constructor(
@@ -31,6 +36,7 @@ export class WorkflowService {
     @InjectRepository(WorkflowStage)
     readonly stages: Repository<WorkflowStage>,
     @InjectRepository(StageType) readonly types: Repository<StageType>,
+    @InjectRepository(StageNote) readonly notes: Repository<StageNote>,
     readonly dataSource: DataSource
   ) {}
   async createDefault(vacancyId: string, userId: string): Promise<void> {
@@ -63,7 +69,6 @@ export class WorkflowService {
             completedAt: index === 0 ? new Date() : null,
             scheduledAt: null,
             deadlineAt: null,
-            note: null,
             artifactUrl: null
           });
         })
@@ -77,8 +82,8 @@ export class WorkflowService {
     await this.createDefault(vacancyId, userId);
     const workflow = await this.workflows.findOne({
       where: { vacancyId, userId },
-      relations: { stages: true },
-      order: { stages: { position: 'ASC', createdAt: 'ASC' } }
+      relations: { stages: { notes: true } },
+      order: WORKFLOW_ORDER
     });
     if (!workflow) throw new NotFoundException('Workflow not found');
     return workflow;
@@ -111,7 +116,6 @@ export class WorkflowService {
         scheduledAt: null,
         deadlineAt: null,
         completedAt: null,
-        note: null,
         artifactUrl: null
       })
     );
@@ -181,6 +185,50 @@ export class WorkflowService {
     });
     return this.getById(userId, workflowId);
   }
+  async addNote(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    input: StageNoteDto
+  ): Promise<StageNote> {
+    await this.requireStage(userId, workflowId, stageId);
+    return this.notes.save(
+      this.notes.create({ stageId, content: input.content.trim() })
+    );
+  }
+  async updateNote(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    noteId: string,
+    input: StageNoteDto
+  ): Promise<StageNote> {
+    await this.requireStage(userId, workflowId, stageId);
+    const note = await this.notes.findOneBy({ id: noteId, stageId });
+    if (!note) throw new NotFoundException('Stage note not found');
+    note.content = input.content.trim();
+    return this.notes.save(note);
+  }
+  async removeNote(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    noteId: string
+  ): Promise<void> {
+    await this.requireStage(userId, workflowId, stageId);
+    const result = await this.notes.delete({ id: noteId, stageId });
+    if (!result.affected) throw new NotFoundException('Stage note not found');
+  }
+  async requireStage(
+    userId: string,
+    workflowId: string,
+    stageId: string
+  ): Promise<WorkflowStage> {
+    await this.requireWorkflow(userId, workflowId);
+    const stage = await this.stages.findOneBy({ id: stageId, workflowId });
+    if (!stage) throw new NotFoundException('Workflow stage not found');
+    return stage;
+  }
   async requireWorkflow(
     userId: string,
     id: string
@@ -195,8 +243,8 @@ export class WorkflowService {
     await this.requireWorkflow(userId, id);
     const workflow = await this.workflows.findOne({
       where: { id, userId },
-      relations: { stages: true },
-      order: { stages: { position: 'ASC', createdAt: 'ASC' } }
+      relations: { stages: { notes: true } },
+      order: WORKFLOW_ORDER
     });
     if (!workflow) throw new NotFoundException('Workflow not found');
     return workflow;

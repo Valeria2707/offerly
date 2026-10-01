@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags
@@ -24,10 +25,12 @@ import { AuthenticatedRequest, JwtAuthGuard } from '@offerly/auth';
 import {
   AddStageDto,
   ReorderStagesDto,
+  StageNoteDto,
   UpdateStageDto
 } from './dto/workflow.dto';
 import { WorkflowService } from './workflow.service';
 import { ApplicationWorkflow } from './entities/application-workflow.entity';
+import { StageNote } from './entities/stage-note.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 @ApiTags('workflows')
 @ApiBearerAuth()
@@ -85,5 +88,49 @@ export class WorkflowController {
     @Body() input: ReorderStagesDto
   ): Promise<ApplicationWorkflow> {
     return this.service.reorder(req.user.sub, workflowId, input);
+  }
+  @Post(':workflowId/stages/:stageId/notes')
+  @ApiOperation({ summary: 'Add a note to a workflow stage' })
+  @ApiCreatedResponse({ type: StageNote })
+  @ApiNotFoundResponse({ description: 'Workflow or stage not found' })
+  addNote(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Body() input: StageNoteDto
+  ): Promise<StageNote> {
+    return this.service.addNote(req.user.sub, workflowId, stageId, input);
+  }
+  @Patch(':workflowId/stages/:stageId/notes/:noteId')
+  @ApiOperation({ summary: 'Edit a stage note' })
+  @ApiOkResponse({ type: StageNote })
+  @ApiNotFoundResponse({ description: 'Workflow, stage or note not found' })
+  updateNote(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Param('noteId', ParseUUIDPipe) noteId: string,
+    @Body() input: StageNoteDto
+  ): Promise<StageNote> {
+    return this.service.updateNote(
+      req.user.sub,
+      workflowId,
+      stageId,
+      noteId,
+      input
+    );
+  }
+  @Delete(':workflowId/stages/:stageId/notes/:noteId')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a stage note' })
+  @ApiNoContentResponse()
+  @ApiNotFoundResponse({ description: 'Workflow, stage or note not found' })
+  removeNote(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Param('noteId', ParseUUIDPipe) noteId: string
+  ): Promise<void> {
+    return this.service.removeNote(req.user.sub, workflowId, stageId, noteId);
   }
 }

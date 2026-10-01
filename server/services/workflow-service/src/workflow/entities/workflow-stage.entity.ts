@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { StageCategory, StageStatus } from '../workflow.enums';
 import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { ApplicationWorkflow } from './application-workflow.entity';
+import { StageNote } from './stage-note.entity';
 @Entity({ schema: 'workflow', name: 'workflow_stages' })
 export class WorkflowStage {
   @PrimaryGeneratedColumn('uuid') id!: string;
@@ -53,7 +55,8 @@ export class WorkflowStage {
   deadlineAt!: Date | null;
   @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
   completedAt!: Date | null;
-  @Column({ type: 'text', nullable: true }) note!: string | null;
+  @OneToMany(() => StageNote, (note) => note.stage)
+  notes!: StageNote[];
   @Column({
     name: 'artifact_url',
     type: 'varchar',
