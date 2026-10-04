@@ -16,7 +16,7 @@ export function AppSidebar() {
   const logout = useLogout();
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col justify-between bg-sidebar px-3 py-6">
+    <aside className="sticky top-0 flex h-dvh w-56 shrink-0 flex-col justify-between overflow-y-auto bg-sidebar px-3 py-6">
       <div>
         <Link
           href={ROUTES.dashboard}

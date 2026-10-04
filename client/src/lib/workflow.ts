@@ -48,14 +48,14 @@ export function stageTypeMeta(type: StageType): string {
     .join(" · ");
 }
 
-export function swappedStageIds(
+export function movedStageIds(
   stages: WorkflowStage[],
-  index: number,
-  offset: number,
+  from: number,
+  to: number,
 ): string[] {
   const ids = stages.map((stage) => stage.id);
-  const target = index + offset;
-  [ids[index], ids[target]] = [ids[target], ids[index]];
+  const [moved] = ids.splice(from, 1);
+  ids.splice(to, 0, moved);
   return ids;
 }
 

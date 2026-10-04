@@ -139,15 +139,6 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false,
     true,
     true
-  ),
-  stage(
-    'rejection',
-    'Rejection',
-    StageCategory.ADMINISTRATIVE,
-    null,
-    false,
-    false,
-    false
   )
 ];
 

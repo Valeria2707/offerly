@@ -20,7 +20,7 @@ export const STAGE_STATUS_LABELS: Record<StageStatus, string> = {
   in_progress: "Триває",
   awaiting_result: "Очікую результат",
   completed: "Пройдено",
-  cancelled: "Скасовано",
+  cancelled: "Відмова",
   skipped: "Пропущено",
 };
 
@@ -30,7 +30,7 @@ export const STAGE_STATUS_CLASSES: Record<StageStatus, string> = {
   in_progress: "bg-warning-muted text-warning",
   awaiting_result: "bg-warning-muted text-warning",
   completed: "bg-success-muted text-success",
-  cancelled: "bg-muted text-subtle",
+  cancelled: "bg-rejected-muted text-rejected",
   skipped: "bg-muted text-subtle",
 };
 

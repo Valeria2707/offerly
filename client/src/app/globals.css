@@ -28,6 +28,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-rejected: var(--rejected);
+  --color-rejected-muted: var(--rejected-muted);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -80,6 +82,8 @@
   --terracotta: #c4692a;
 
   --destructive: #b34a4a;
+  --rejected: #c0433f;
+  --rejected-muted: #fae2df;
   --success: #0f5a45;
   --success-muted: #e8f3ee;
   --warning: #a1521f;

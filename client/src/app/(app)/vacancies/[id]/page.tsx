@@ -30,7 +30,7 @@ import {
 import { ApiError } from "@/lib/api-client";
 import { hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
-import { currentStageIndex, stageName, swappedStageIds } from "@/lib/workflow";
+import { currentStageIndex, movedStageIds, stageName } from "@/lib/workflow";
 import type { StageStatus, WorkflowStage } from "@/types/workflow";
 
 export default function VacancyWorkflowPage({
@@ -81,12 +81,12 @@ export default function VacancyWorkflowPage({
     );
   };
 
-  const move = (index: number, offset: number) => {
+  const reorder = (from: number, to: number) => {
     if (!workflow) return;
     reorderStages.mutate(
       {
         workflowId: workflow.id,
-        stageIds: swappedStageIds(workflow.stages, index, offset),
+        stageIds: movedStageIds(workflow.stages, from, to),
       },
       { onError: notify },
     );
@@ -181,7 +181,7 @@ export default function VacancyWorkflowPage({
               selectedId={selected.id}
               pending={pending}
               onSelect={setSelectedId}
-              onMove={move}
+              onReorder={reorder}
             />
 
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
