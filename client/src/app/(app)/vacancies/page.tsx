@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
+import { ConfirmDialog } from "@/components/core/confirm-dialog";
 import {
   AddVacancyPanel,
   type VacancyImportInput,
@@ -14,20 +16,35 @@ import { VacancyListSkeleton } from "@/components/vacancies/vacancy-list-skeleto
 import { VacancySearchInput } from "@/components/vacancies/vacancy-search-input";
 import { VacancyStats } from "@/components/vacancies/vacancy-stats";
 import { VacancyTable } from "@/components/vacancies/vacancy-table";
-import { vacancyImportRoute } from "@/constants/routes";
+import { ROUTES, vacancyImportRoute } from "@/constants/routes";
 import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import { CLOSED_STATUSES } from "@/constants/vacancy";
-import { useImportVacancy, useVacancies } from "@/hooks/use-vacancies";
+import {
+  useDeleteVacancy,
+  useImportVacancy,
+  useUpdateVacancy,
+  useVacancies,
+} from "@/hooks/use-vacancies";
 import { ApiError } from "@/lib/api-client";
 import { filterVacancies } from "@/lib/vacancy-search";
+import type { Vacancy } from "@/types/vacancy";
 
 export default function VacanciesPage() {
   const router = useRouter();
   const { data: vacancies, isPending, error } = useVacancies();
   const importVacancy = useImportVacancy();
+  const updateVacancy = useUpdateVacancy();
+  const deleteVacancy = useDeleteVacancy();
 
   const [importSource, setImportSource] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [toDelete, setToDelete] = useState<Vacancy | null>(null);
+
+  const notify = (cause: unknown) =>
+    toast.error(
+      cause instanceof ApiError ? cause.message : DEFAULT_API_ERROR_MESSAGE,
+      { id: "vacancy-error" },
+    );
 
   const startImport = (input: VacancyImportInput) => {
     setImportSource("url" in input ? input.url : null);
@@ -42,11 +59,15 @@ export default function VacanciesPage() {
     });
   };
 
-  const closed =
-    vacancies?.filter((vacancy) => CLOSED_STATUSES.includes(vacancy.status)) ??
-    [];
-  const active = (vacancies?.length ?? 0) - closed.length;
-  const visible = filterVacancies(vacancies ?? [], query);
+  const current = (vacancies ?? []).filter(
+    (vacancy) => vacancy.lifecycle !== "archived",
+  );
+  const archivedCount = (vacancies?.length ?? 0) - current.length;
+  const closed = current.filter((vacancy) =>
+    CLOSED_STATUSES.includes(vacancy.status),
+  );
+  const active = current.length - closed.length;
+  const visible = filterVacancies(current, query);
 
   return (
     <>
@@ -70,6 +91,15 @@ export default function VacanciesPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {archivedCount > 0 && (
+              <Link
+                href={ROUTES.vacancyArchive}
+                className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Архів · {archivedCount}
+              </Link>
+            )}
+
             <VacancySearchInput value={query} onChange={setQuery} />
 
             <AddVacancyPanel
@@ -81,19 +111,43 @@ export default function VacanciesPage() {
 
         <FormError error={error} />
 
+        {toDelete && (
+          <ConfirmDialog
+            title="Видалити вакансію?"
+            description={`«${toDelete.title}» зникне назавжди разом з етапами, підготовкою та замітками. Щоб лише прибрати зі списку — архівуйте.`}
+            confirmLabel="Видалити"
+            pending={deleteVacancy.isPending}
+            onCancel={() => setToDelete(null)}
+            onConfirm={() =>
+              deleteVacancy.mutate(toDelete.id, {
+                onSuccess: () => setToDelete(null),
+                onError: notify,
+              })
+            }
+          />
+        )}
+
         {isPending ? (
           <VacancyListSkeleton />
         ) : (
           vacancies && (
             <>
-              <VacancyStats vacancies={vacancies} />
+              <VacancyStats vacancies={current} />
               <VacancyTable
                 vacancies={visible}
+                pending={updateVacancy.isPending || deleteVacancy.isPending}
                 emptyMessage={
                   query
                     ? `Нічого не знайдено за запитом «${query}».`
                     : "Поки жодної вакансії. Додайте першу за посиланням або текстом."
                 }
+                onToggleArchive={(vacancy) =>
+                  updateVacancy.mutate(
+                    { vacancyId: vacancy.id, patch: { lifecycle: "archived" } },
+                    { onError: notify },
+                  )
+                }
+                onDelete={setToDelete}
               />
             </>
           )

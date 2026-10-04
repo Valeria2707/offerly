@@ -50,7 +50,7 @@ export function PreparationSummary({
         </div>
       </div>
 
-      <Button render={<Link href={href} />}>
+      <Button nativeButton={false} render={<Link href={href} />}>
         {answered > 0 ? "Продовжити підготовку" : "Почати підготовку"}
         <ArrowRight />
       </Button>

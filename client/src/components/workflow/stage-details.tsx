@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 
 import { DateField } from "@/components/core/date-field";
 import { IconButton } from "@/components/core/icon-button";
+import { LinkField } from "@/components/core/link-field";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import {
 
 type StageDetailsProps = {
   stage: WorkflowStage;
+  withArtifact: boolean;
   pending: boolean;
   onUpdate: (patch: WorkflowStagePatch) => void;
   onRemove: () => void;
@@ -33,6 +35,7 @@ type StageDetailsProps = {
 
 export function StageDetails({
   stage,
+  withArtifact,
   pending,
   onUpdate,
   onRemove,
@@ -45,6 +48,17 @@ export function StageDetails({
     stage.deadlineAt && `дедлайн ${formatStageDate(stage.deadlineAt)}`,
     stage.completedAt && `завершено ${formatStageDate(stage.completedAt)}`,
   ].filter(Boolean);
+
+  const artifact = (withArtifact || stage.artifactUrl) && (
+    <LinkField
+      label="Посилання на артефакт"
+      name="артефакт"
+      emptyLabel="посилання на роботу"
+      value={stage.artifactUrl}
+      disabled={pending}
+      onChange={(artifactUrl) => onUpdate({ artifactUrl })}
+    />
+  );
 
   return (
     <section className="grid gap-3 rounded-xl bg-card px-5 py-4 ring-1 ring-foreground/10">
@@ -92,12 +106,17 @@ export function StageDetails({
       </header>
 
       {isClosed ? (
-        history.length > 0 && (
+        (history.length > 0 || artifact) && (
           <>
             <div className="h-px bg-border" />
-            <p className="font-mono text-[11px] text-subtle">
-              {history.join(" · ")}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {history.length > 0 && (
+                <p className="font-mono text-[11px] text-subtle">
+                  {history.join(" · ")}
+                </p>
+              )}
+              {artifact}
+            </div>
           </>
         )
       ) : (
@@ -122,6 +141,8 @@ export function StageDetails({
               disabled={pending}
               onChange={(deadlineAt) => onUpdate({ deadlineAt })}
             />
+
+            {artifact}
           </div>
         </>
       )}

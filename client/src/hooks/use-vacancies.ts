@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   applyVacancyImportRequest,
+  deleteVacancyRequest,
   importVacancyTextRequest,
   importVacancyUrlRequest,
   updateVacancyRequest,
@@ -12,7 +13,7 @@ import {
   vacancyRequest,
 } from "@/api/vacancies";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
-import type { VacancyDraft } from "@/types/vacancy";
+import type { VacancyDraft, VacancyPatch } from "@/types/vacancy";
 
 export const vacancyKeys = {
   list: ["vacancies"] as const,
@@ -82,11 +83,24 @@ export function useUpdateVacancy() {
   return useMutation({
     mutationFn: ({
       vacancyId,
-      draft,
+      patch,
     }: {
       vacancyId: string;
-      draft: VacancyDraft;
-    }) => updateVacancyRequest(getAccessToken()!, vacancyId, draft),
+      patch: VacancyPatch;
+    }) => updateVacancyRequest(getAccessToken()!, vacancyId, patch),
+    onSuccess: (_vacancy, { vacancyId }) => {
+      queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
+      queryClient.invalidateQueries({ queryKey: vacancyKeys.detail(vacancyId) });
+    },
+  });
+}
+
+export function useDeleteVacancy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vacancyId: string) =>
+      deleteVacancyRequest(getAccessToken()!, vacancyId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
     },

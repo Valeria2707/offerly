@@ -7,6 +7,7 @@ export const ROUTES = {
   dashboard: "/dashboard",
   profile: "/profile",
   vacancies: "/vacancies",
+  vacancyArchive: "/vacancies/archive",
   stageTypes: "/stage-types",
 } as const;
 

@@ -1,6 +1,11 @@
 import { VACANCY_API_BASE_URL, VACANCY_ROUTES } from "@/constants/api";
 import { apiRequest } from "@/lib/api-client";
-import type { Vacancy, VacancyDraft, VacancyImport } from "@/types/vacancy";
+import type {
+  Vacancy,
+  VacancyDraft,
+  VacancyImport,
+  VacancyPatch,
+} from "@/types/vacancy";
 
 const withVacancyService = { baseUrl: VACANCY_API_BASE_URL };
 
@@ -53,11 +58,18 @@ export const applyVacancyImportRequest = (
 export const updateVacancyRequest = (
   token: string,
   vacancyId: string,
-  draft: VacancyDraft,
+  patch: VacancyPatch,
 ) =>
   apiRequest<Vacancy>(VACANCY_ROUTES.vacancy(vacancyId), {
     ...withVacancyService,
     method: "PATCH",
-    body: draft,
+    body: patch,
+    token,
+  });
+
+export const deleteVacancyRequest = (token: string, vacancyId: string) =>
+  apiRequest<void>(VACANCY_ROUTES.vacancy(vacancyId), {
+    ...withVacancyService,
+    method: "DELETE",
     token,
   });

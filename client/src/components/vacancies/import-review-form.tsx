@@ -48,7 +48,7 @@ export function ImportReviewForm({
     };
 
     if (duplicate) {
-      updateVacancy.mutate({ vacancyId: duplicate.id, draft }, options);
+      updateVacancy.mutate({ vacancyId: duplicate.id, patch: draft }, options);
       return;
     }
 

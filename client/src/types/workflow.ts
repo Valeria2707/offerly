@@ -73,6 +73,7 @@ export type WorkflowStagePatch = {
   status?: StageStatus;
   scheduledAt?: string | null;
   deadlineAt?: string | null;
+  artifactUrl?: string | null;
 };
 
 export type ApplicationWorkflow = {

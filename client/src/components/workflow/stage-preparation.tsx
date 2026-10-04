@@ -19,6 +19,7 @@ import {
   usePreparation,
 } from "@/hooks/use-preparation";
 import { ApiError } from "@/lib/api-client";
+import { formatDaysAgo } from "@/lib/utils";
 import { resolvePreparationType } from "@/lib/preparation";
 import { preparationCards } from "@/lib/preparation-cards";
 import type { StageType } from "@/types/workflow";
@@ -63,15 +64,21 @@ export function StagePreparation({
         </h2>
 
         {preparation ? (
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={remove.isPending}
-            onClick={() => remove.mutate(undefined, { onError: notify })}
-          >
-            <RefreshCw />
-            Згенерувати заново
-          </Button>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] tracking-wider text-subtle">
+              згенеровано {formatDaysAgo(preparation.createdAt)}
+            </span>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={remove.isPending}
+              onClick={() => remove.mutate(undefined, { onError: notify })}
+            >
+              <RefreshCw />
+              Згенерувати заново
+            </Button>
+          </div>
         ) : (
           expectedType && (
             <span className="font-mono text-[10px] tracking-wider text-subtle uppercase">

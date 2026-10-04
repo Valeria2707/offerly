@@ -188,6 +188,7 @@ export default function VacancyWorkflowPage({
               <div className="grid gap-6">
                 <StageDetails
                   stage={selected}
+                  withArtifact={selectedType?.producesArtifact ?? false}
                   pending={pending}
                   onUpdate={updateSelected}
                   onRemove={() => setStageToRemove(selected)}
