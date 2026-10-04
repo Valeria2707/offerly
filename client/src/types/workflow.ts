@@ -69,6 +69,12 @@ export type WorkflowStage = {
   updatedAt: string;
 };
 
+export type WorkflowStagePatch = {
+  status?: StageStatus;
+  scheduledAt?: string | null;
+  deadlineAt?: string | null;
+};
+
 export type ApplicationWorkflow = {
   id: string;
   vacancyId: string;

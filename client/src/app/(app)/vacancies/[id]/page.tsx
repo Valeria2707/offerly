@@ -31,7 +31,7 @@ import { ApiError } from "@/lib/api-client";
 import { hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
 import { currentStageIndex, movedStageIds, stageName } from "@/lib/workflow";
-import type { StageStatus, WorkflowStage } from "@/types/workflow";
+import type { WorkflowStage, WorkflowStagePatch } from "@/types/workflow";
 
 export default function VacancyWorkflowPage({
   params,
@@ -73,10 +73,10 @@ export default function VacancyWorkflowPage({
     (type) => type.id === selected?.stageTypeId,
   );
 
-  const changeStatus = (status: StageStatus) => {
+  const updateSelected = (patch: WorkflowStagePatch) => {
     if (!workflow || !selected) return;
     updateStage.mutate(
-      { workflowId: workflow.id, stageId: selected.id, status },
+      { workflowId: workflow.id, stageId: selected.id, patch },
       { onError: notify },
     );
   };
@@ -189,7 +189,7 @@ export default function VacancyWorkflowPage({
                 <StageDetails
                   stage={selected}
                   pending={pending}
-                  onStatusChange={changeStatus}
+                  onUpdate={updateSelected}
                   onRemove={() => setStageToRemove(selected)}
                 />
 

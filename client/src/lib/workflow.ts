@@ -33,6 +33,23 @@ export function formatStageDate(iso: string | null): string | null {
     : `${DATE_FORMAT.format(date)} · ${time}`;
 }
 
+export function toDateTimeInput(iso: string | null): string {
+  if (!iso) return "";
+
+  const date = new Date(iso);
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function toDateInput(iso: string | null): string {
+  return toDateTimeInput(iso).slice(0, 10);
+}
+
+export function fromDateInput(value: string): string | null {
+  return value ? new Date(value).toISOString() : null;
+}
+
 export function formatDuration(minutes: number | null): string | null {
   return minutes ? `${minutes} хв` : null;
 }

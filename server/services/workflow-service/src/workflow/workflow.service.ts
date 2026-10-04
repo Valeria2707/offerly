@@ -18,6 +18,11 @@ import { ApplicationWorkflow } from './entities/application-workflow.entity';
 import { StageNote } from './entities/stage-note.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 import { StageStatus } from './workflow.enums';
+const CLOSING_STATUSES = new Set([
+  StageStatus.COMPLETED,
+  StageStatus.CANCELLED
+]);
+
 const DEFAULT_STAGE_CODES = [
   'submitted',
   'hr_screening',
@@ -143,10 +148,10 @@ export class WorkflowService {
             ? new Date(input.deadlineAt)
             : null
     });
-    if (input.status === StageStatus.COMPLETED && !stage.completedAt)
-      stage.completedAt = new Date();
-    if (input.status && input.status !== StageStatus.COMPLETED)
-      stage.completedAt = null;
+    if (input.status) {
+      if (CLOSING_STATUSES.has(input.status)) stage.completedAt ??= new Date();
+      else stage.completedAt = null;
+    }
     return this.stages.save(stage);
   }
   async removeStage(

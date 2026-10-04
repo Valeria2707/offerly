@@ -16,7 +16,7 @@ import {
   vacancyWorkflowRequest,
 } from "@/api/workflow";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
-import type { StageStatus, StageTypeDraft } from "@/types/workflow";
+import type { StageTypeDraft, WorkflowStagePatch } from "@/types/workflow";
 
 export const workflowKeys = {
   stageTypes: ["stage-types"] as const,
@@ -118,18 +118,13 @@ export function useUpdateWorkflowStage(vacancyId: string) {
     mutationFn: ({
       workflowId,
       stageId,
-      status,
+      patch,
     }: {
       workflowId: string;
       stageId: string;
-      status: StageStatus;
+      patch: WorkflowStagePatch;
     }) =>
-      updateWorkflowStageRequest(
-        getAccessToken()!,
-        workflowId,
-        stageId,
-        status,
-      ),
+      updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, patch),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),

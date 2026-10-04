@@ -3,10 +3,10 @@ import { apiRequest } from "@/lib/api-client";
 import type {
   ApplicationWorkflow,
   StageNote,
-  StageStatus,
   StageType,
   StageTypeDraft,
   WorkflowStage,
+  WorkflowStagePatch,
 } from "@/types/workflow";
 
 const withWorkflowService = { baseUrl: WORKFLOW_API_BASE_URL };
@@ -54,12 +54,12 @@ export const updateWorkflowStageRequest = (
   token: string,
   workflowId: string,
   stageId: string,
-  status: StageStatus,
+  patch: WorkflowStagePatch,
 ) =>
   apiRequest<WorkflowStage>(WORKFLOW_ROUTES.stage(workflowId, stageId), {
     ...withWorkflowService,
     method: "PATCH",
-    body: { status },
+    body: patch,
     token,
   });
 
