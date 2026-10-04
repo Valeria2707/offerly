@@ -47,6 +47,18 @@ export const WORKFLOW_ROUTES = {
   stage: (workflowId: string, stageId: string) =>
     `/workflows/${workflowId}/stages/${stageId}`,
   stagesOrder: (workflowId: string) => `/workflows/${workflowId}/stages/order`,
+  stageNotes: (workflowId: string, stageId: string) =>
+    `/workflows/${workflowId}/stages/${stageId}/notes`,
+  stageNote: (workflowId: string, stageId: string, noteId: string) =>
+    `/workflows/${workflowId}/stages/${stageId}/notes/${noteId}`,
+  preparation: (workflowId: string, stageId: string) =>
+    `/workflows/${workflowId}/stages/${stageId}/preparation`,
+  preparationAnswer: (
+    workflowId: string,
+    stageId: string,
+    questionId: string,
+  ) =>
+    `/workflows/${workflowId}/stages/${stageId}/preparation/questions/${questionId}`,
 } as const;
 
 export const API_ERROR_MESSAGES: Record<number, string> = {

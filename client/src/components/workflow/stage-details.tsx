@@ -66,7 +66,7 @@ export function StageDetails({
           >
             <SelectTrigger
               aria-label={`Статус етапу «${name}»`}
-              className="w-52 rounded-lg border-transparent bg-muted text-xs shadow-none"
+              className="w-48 rounded-lg border-transparent bg-muted text-xs shadow-none"
             >
               <SelectValue>
                 {(status: StageStatus) => STAGE_STATUS_LABELS[status]}

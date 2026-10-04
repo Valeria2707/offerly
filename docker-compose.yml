@@ -125,6 +125,10 @@ services:
       context: ./server
       dockerfile: services/workflow-service/Dockerfile
     environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      VACANCY_SERVICE_URL: http://vacancy-service:3003
+      PROFILE_SERVICE_URL: http://profile-service:3002
       PORT: 3004
       JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-now}
       DATABASE_HOST: postgres

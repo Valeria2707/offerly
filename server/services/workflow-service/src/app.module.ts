@@ -1,3 +1,6 @@
+import { PreparationModule } from './preparation/preparation.module';
+import { StagePreparationData } from './preparation/entities/stage-preparation.entity';
+import { StageNote } from './workflow/entities/stage-note.entity';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,7 +26,13 @@ import { WorkflowModule } from './workflow/workflow.module';
         database: c.getOrThrow<string>('DATABASE_NAME'),
         username: c.getOrThrow<string>('DATABASE_USER'),
         password: c.getOrThrow<string>('DATABASE_PASSWORD'),
-        entities: [StageType, ApplicationWorkflow, WorkflowStage],
+        entities: [
+          StageType,
+          ApplicationWorkflow,
+          WorkflowStage,
+          StageNote,
+          StagePreparationData
+        ],
         synchronize: true
       }),
       dataSourceFactory: async (options) => {
@@ -38,7 +47,8 @@ import { WorkflowModule } from './workflow/workflow.module';
     SharedAuthModule,
     StageTypeModule,
     WorkflowModule,
-    EventsModule
+    EventsModule,
+    PreparationModule
   ],
   controllers: [HealthController]
 })

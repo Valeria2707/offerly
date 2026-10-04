@@ -1,0 +1,6 @@
+export enum PreparationType {
+  CV_COVER_LETTER = 'CV_COVER_LETTER',
+  HR_SCREENING = 'HR_SCREENING',
+  TECHNICAL = 'TECHNICAL',
+  CUSTOM = 'CUSTOM'
+}

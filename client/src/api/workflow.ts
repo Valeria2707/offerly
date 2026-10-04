@@ -2,6 +2,7 @@ import { WORKFLOW_API_BASE_URL, WORKFLOW_ROUTES } from "@/constants/api";
 import { apiRequest } from "@/lib/api-client";
 import type {
   ApplicationWorkflow,
+  StageNote,
   StageStatus,
   StageType,
   StageTypeDraft,
@@ -71,6 +72,48 @@ export const reorderWorkflowStagesRequest = (
     ...withWorkflowService,
     method: "PUT",
     body: { groups: stageIds.map((stageId) => ({ stageIds: [stageId] })) },
+    token,
+  });
+
+export const addStageNoteRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  content: string,
+) =>
+  apiRequest<StageNote>(WORKFLOW_ROUTES.stageNotes(workflowId, stageId), {
+    ...withWorkflowService,
+    method: "POST",
+    body: { content },
+    token,
+  });
+
+export const updateStageNoteRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  noteId: string,
+  content: string,
+) =>
+  apiRequest<StageNote>(
+    WORKFLOW_ROUTES.stageNote(workflowId, stageId, noteId),
+    {
+      ...withWorkflowService,
+      method: "PATCH",
+      body: { content },
+      token,
+    },
+  );
+
+export const removeStageNoteRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  noteId: string,
+) =>
+  apiRequest<void>(WORKFLOW_ROUTES.stageNote(workflowId, stageId, noteId), {
+    ...withWorkflowService,
+    method: "DELETE",
     token,
   });
 

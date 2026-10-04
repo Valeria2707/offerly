@@ -43,6 +43,14 @@ export type StageTypeDraft = {
   producesArtifact: boolean;
 };
 
+export type StageNote = {
+  id: string;
+  stageId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type WorkflowStage = {
   id: string;
   workflowId: string;
@@ -55,7 +63,7 @@ export type WorkflowStage = {
   scheduledAt: string | null;
   deadlineAt: string | null;
   completedAt: string | null;
-  note: string | null;
+  notes: StageNote[];
   artifactUrl: string | null;
   createdAt: string;
   updatedAt: string;

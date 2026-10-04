@@ -10,13 +10,17 @@ import { ConfirmDialog } from "@/components/core/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { AddStageDialog } from "@/components/workflow/add-stage-dialog";
 import { StageDetails } from "@/components/workflow/stage-details";
+import { StageNotes } from "@/components/workflow/stage-notes";
+import { StagePreparation } from "@/components/workflow/stage-preparation";
 import { StageStepper } from "@/components/workflow/stage-stepper";
 import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
 import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import { ROUTES } from "@/constants/routes";
 import { useVacancy } from "@/hooks/use-vacancies";
 import {
+  useAddStageNote,
   useAddWorkflowStages,
+  useRemoveStageNote,
   useRemoveWorkflowStage,
   useReorderWorkflowStages,
   useStageTypes,
@@ -24,6 +28,7 @@ import {
   useVacancyWorkflow,
 } from "@/hooks/use-workflow";
 import { ApiError } from "@/lib/api-client";
+import { hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
 import { currentStageIndex, stageName, swappedStageIds } from "@/lib/workflow";
 import type { StageStatus, WorkflowStage } from "@/types/workflow";
@@ -49,6 +54,8 @@ export default function VacancyWorkflowPage({
   const reorderStages = useReorderWorkflowStages(id);
   const updateStage = useUpdateWorkflowStage(id);
   const removeStage = useRemoveWorkflowStage(id);
+  const addNote = useAddStageNote(id);
+  const removeNote = useRemoveStageNote(id);
 
   const notify = (cause: unknown) =>
     toast.error(
@@ -57,16 +64,19 @@ export default function VacancyWorkflowPage({
     );
 
   const stages = workflow?.stages ?? [];
-
   const selected =
     stages.find((stage) => stage.id === selectedId) ??
     stages[currentStageIndex(stages)] ??
     stages[0];
 
-  const changeStatus = (stageId: string, status: StageStatus) => {
-    if (!workflow) return;
+  const selectedType = stageTypes?.find(
+    (type) => type.id === selected?.stageTypeId,
+  );
+
+  const changeStatus = (status: StageStatus) => {
+    if (!workflow || !selected) return;
     updateStage.mutate(
-      { workflowId: workflow.id, stageId, status },
+      { workflowId: workflow.id, stageId: selected.id, status },
       { onError: notify },
     );
   };
@@ -152,7 +162,7 @@ export default function VacancyWorkflowPage({
       {stageToRemove && (
         <ConfirmDialog
           title="Видалити етап?"
-          description={`«${stageName(stageToRemove.name)}» зникне зі списку етапів цієї заявки.`}
+          description={`«${stageName(stageToRemove.name)}» зникне зі списку етапів цієї заявки разом із підготовкою та замітками.`}
           confirmLabel="Видалити"
           pending={removeStage.isPending}
           onCancel={() => setStageToRemove(null)}
@@ -163,6 +173,7 @@ export default function VacancyWorkflowPage({
       {isPending ? (
         <WorkflowSkeleton />
       ) : (
+        workflow &&
         selected && (
           <>
             <StageStepper
@@ -173,12 +184,44 @@ export default function VacancyWorkflowPage({
               onMove={move}
             />
 
-            <StageDetails
-              stage={selected}
-              pending={pending}
-              onStatusChange={(status) => changeStatus(selected.id, status)}
-              onRemove={() => setStageToRemove(selected)}
-            />
+            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+              <div className="grid gap-6">
+                <StageDetails
+                  stage={selected}
+                  pending={pending}
+                  onStatusChange={changeStatus}
+                  onRemove={() => setStageToRemove(selected)}
+                />
+
+                {selectedType && hasPreparation(selectedType) && (
+                  <StagePreparation
+                    key={selected.id}
+                    vacancyId={id}
+                    workflowId={workflow.id}
+                    stageId={selected.id}
+                    stageType={selectedType}
+                  />
+                )}
+              </div>
+
+              <StageNotes
+                key={selected.id}
+                notes={selected.notes}
+                pending={addNote.isPending || removeNote.isPending}
+                onAdd={(content) =>
+                  addNote.mutate(
+                    { workflowId: workflow.id, stageId: selected.id, content },
+                    { onError: notify },
+                  )
+                }
+                onRemove={(noteId) =>
+                  removeNote.mutate(
+                    { workflowId: workflow.id, stageId: selected.id, noteId },
+                    { onError: notify },
+                  )
+                }
+              />
+            </div>
           </>
         )
       )}

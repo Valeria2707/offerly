@@ -15,6 +15,9 @@ export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 export const vacancyRoute = (vacancyId: string) =>
   `${ROUTES.vacancies}/${vacancyId}` as const;
 
+export const stagePreparationRoute = (vacancyId: string, stageId: string) =>
+  `${ROUTES.vacancies}/${vacancyId}/stages/${stageId}/preparation` as const;
+
 export const vacancyImportRoute = (importId: string) =>
   `${ROUTES.vacancies}/imports/${importId}` as const;
 

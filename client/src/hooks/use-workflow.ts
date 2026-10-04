@@ -3,11 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  addStageNoteRequest,
   addWorkflowStageRequest,
   createStageTypeRequest,
   deleteStageTypeRequest,
+  removeStageNoteRequest,
   removeWorkflowStageRequest,
   reorderWorkflowStagesRequest,
+  updateStageNoteRequest,
   stageTypesRequest,
   updateWorkflowStageRequest,
   vacancyWorkflowRequest,
@@ -146,6 +149,80 @@ export function useRemoveWorkflowStage(vacancyId: string) {
       workflowId: string;
       stageId: string;
     }) => removeWorkflowStageRequest(getAccessToken()!, workflowId, stageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+
+export function useAddStageNote(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      content,
+    }: {
+      workflowId: string;
+      stageId: string;
+      content: string;
+    }) => addStageNoteRequest(getAccessToken()!, workflowId, stageId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+export function useUpdateStageNote(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      noteId,
+      content,
+    }: {
+      workflowId: string;
+      stageId: string;
+      noteId: string;
+      content: string;
+    }) =>
+      updateStageNoteRequest(
+        getAccessToken()!,
+        workflowId,
+        stageId,
+        noteId,
+        content,
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+export function useRemoveStageNote(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      noteId,
+    }: {
+      workflowId: string;
+      stageId: string;
+      noteId: string;
+    }) =>
+      removeStageNoteRequest(getAccessToken()!, workflowId, stageId, noteId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
