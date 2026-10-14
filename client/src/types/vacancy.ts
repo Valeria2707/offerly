@@ -1,17 +1,3 @@
-export const VACANCY_STATUSES = [
-  "saved",
-  "applied",
-  "hr",
-  "interview",
-  "technical",
-  "final",
-  "offer",
-  "rejected",
-  "closed",
-] as const;
-
-export type VacancyStatus = (typeof VACANCY_STATUSES)[number];
-
 export const VACANCY_LIFECYCLES = ["active", "archived", "closed"] as const;
 
 export type VacancyLifecycle = (typeof VACANCY_LIFECYCLES)[number];
@@ -36,9 +22,7 @@ export type VacancyDraft = {
 
 export type Vacancy = VacancyDraft & {
   id: string;
-  status: VacancyStatus;
   lifecycle: VacancyLifecycle;
-  nextStep: string | null;
   createdAt: string;
   updatedAt: string;
 };

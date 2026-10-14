@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
+import { VacancySummary } from "@/components/vacancies/vacancy-summary";
 import { Button } from "@/components/ui/button";
 import { AddStageDialog } from "@/components/workflow/add-stage-dialog";
 import { StageDetails } from "@/components/workflow/stage-details";
@@ -205,23 +206,27 @@ export default function VacancyWorkflowPage({
                 )}
               </div>
 
-              <StageNotes
-                key={selected.id}
-                notes={selected.notes}
-                pending={addNote.isPending || removeNote.isPending}
-                onAdd={(content) =>
-                  addNote.mutate(
-                    { workflowId: workflow.id, stageId: selected.id, content },
-                    { onError: notify },
-                  )
-                }
-                onRemove={(noteId) =>
-                  removeNote.mutate(
-                    { workflowId: workflow.id, stageId: selected.id, noteId },
-                    { onError: notify },
-                  )
-                }
-              />
+              <div className="grid gap-6">
+                {vacancy && <VacancySummary vacancy={vacancy} />}
+
+                <StageNotes
+                  key={selected.id}
+                  notes={selected.notes}
+                  pending={addNote.isPending || removeNote.isPending}
+                  onAdd={(content) =>
+                    addNote.mutate(
+                      { workflowId: workflow.id, stageId: selected.id, content },
+                      { onError: notify },
+                    )
+                  }
+                  onRemove={(noteId) =>
+                    removeNote.mutate(
+                      { workflowId: workflow.id, stageId: selected.id, noteId },
+                      { onError: notify },
+                    )
+                  }
+                />
+              </div>
             </div>
           </>
         )

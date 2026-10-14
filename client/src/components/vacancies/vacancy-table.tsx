@@ -2,13 +2,16 @@ import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { IconButton } from "@/components/core/icon-button";
-import { VacancyStatusBadge } from "@/components/vacancies/vacancy-status-badge";
+import { VacancyStageCell } from "@/components/vacancies/vacancy-stage-cell";
 import { vacancyRoute } from "@/constants/routes";
 import { formatDaysAgo, initials } from "@/lib/utils";
+import { formatStageDate } from "@/lib/workflow";
 import type { Vacancy } from "@/types/vacancy";
+import type { WorkflowSummary } from "@/types/workflow";
 
 type VacancyTableProps = {
   vacancies: Vacancy[];
+  summaries?: Map<string, WorkflowSummary>;
   emptyMessage: string;
   pending?: boolean;
   onToggleArchive?: (vacancy: Vacancy) => void;
@@ -17,6 +20,7 @@ type VacancyTableProps = {
 
 export function VacancyTable({
   vacancies,
+  summaries,
   emptyMessage,
   pending,
   onToggleArchive,
@@ -39,7 +43,7 @@ export function VacancyTable({
           <tr className="border-b border-border text-left font-mono text-[10px] tracking-[0.12em] text-subtle uppercase">
             <th className="px-6 py-3 font-normal">Вакансія</th>
             <th className="px-4 py-3 font-normal">Етап</th>
-            <th className="px-4 py-3 font-normal">Наступний крок</th>
+            <th className="px-4 py-3 font-normal">Коли</th>
             <th className="px-6 py-3 font-normal">Оновлено</th>
             {hasActions && (
               <th className="px-4 py-3 font-normal sr-only">Дії</th>
@@ -78,11 +82,14 @@ export function VacancyTable({
                 </td>
 
                 <td className="px-4 py-4">
-                  <VacancyStatusBadge status={vacancy.status} />
+                  <VacancyStageCell summary={summaries?.get(vacancy.id)} />
                 </td>
 
-                <td className="px-4 py-4 text-muted-foreground">
-                  {vacancy.nextStep ?? "—"}
+                <td className="px-4 py-4 font-mono text-xs text-muted-foreground">
+                  {formatStageDate(
+                    summaries?.get(vacancy.id)?.currentStage?.scheduledAt ??
+                      null,
+                  ) ?? "—"}
                 </td>
 
                 <td className="px-6 py-4 font-mono text-xs text-subtle">

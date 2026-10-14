@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseGuards
 } from '@nestjs/common';
@@ -22,6 +23,10 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { AuthenticatedRequest, JwtAuthGuard } from '@offerly/auth';
+import {
+  WorkflowSummaryDto,
+  WorkflowSummaryQueryDto
+} from './dto/workflow-summary.dto';
 import {
   AddStageDto,
   ReorderStagesDto,
@@ -38,6 +43,18 @@ import { WorkflowStage } from './entities/workflow-stage.entity';
 @Controller('workflows')
 export class WorkflowController {
   constructor(readonly service: WorkflowService) {}
+  @Get('summary')
+  @ApiOperation({
+    summary: 'Current stage of many vacancies at once, for the vacancy list'
+  })
+  @ApiOkResponse({ type: [WorkflowSummaryDto] })
+  summary(
+    @Req() req: AuthenticatedRequest,
+    @Query() query: WorkflowSummaryQueryDto
+  ): Promise<WorkflowSummaryDto[]> {
+    return this.service.summaries(req.user.sub, query.vacancyIds);
+  }
+
   @Get('vacancies/:vacancyId')
   @ApiOperation({ summary: 'Get the workflow owned by the current user' })
   @ApiOkResponse({ type: ApplicationWorkflow })

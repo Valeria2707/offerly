@@ -43,6 +43,8 @@ export const WORKFLOW_ROUTES = {
   stageTypes: "/stage-types",
   stageType: (id: string) => `/stage-types/${id}`,
   vacancyWorkflow: (vacancyId: string) => `/workflows/vacancies/${vacancyId}`,
+  workflowSummary: (vacancyIds: string[]) =>
+    `/workflows/summary?vacancyIds=${vacancyIds.join(",")}`,
   stages: (workflowId: string) => `/workflows/${workflowId}/stages`,
   stage: (workflowId: string, stageId: string) =>
     `/workflows/${workflowId}/stages/${stageId}`,

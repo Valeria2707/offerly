@@ -14,6 +14,7 @@ import {
   stageTypesRequest,
   updateWorkflowStageRequest,
   vacancyWorkflowRequest,
+  workflowSummariesRequest,
 } from "@/api/workflow";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type { StageTypeDraft, WorkflowStagePatch } from "@/types/workflow";
@@ -21,6 +22,8 @@ import type { StageTypeDraft, WorkflowStagePatch } from "@/types/workflow";
 export const workflowKeys = {
   stageTypes: ["stage-types"] as const,
   vacancy: (vacancyId: string) => ["workflows", vacancyId] as const,
+  summary: (vacancyIds: string[]) =>
+    ["workflows", "summary", vacancyIds] as const,
 };
 
 export function useStageTypes() {
@@ -54,6 +57,18 @@ export function useDeleteStageType() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workflowKeys.stageTypes });
     },
+  });
+}
+
+export function useWorkflowSummaries(vacancyIds: string[]) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  return useQuery({
+    queryKey: workflowKeys.summary(vacancyIds),
+    queryFn: () => workflowSummariesRequest(getAccessToken()!, vacancyIds),
+    enabled: Boolean(accessToken) && vacancyIds.length > 0,
+    select: (summaries) =>
+      new Map(summaries.map((summary) => [summary.vacancyId, summary])),
   });
 }
 
@@ -151,7 +166,6 @@ export function useRemoveWorkflowStage(vacancyId: string) {
     },
   });
 }
-
 
 export function useAddStageNote(vacancyId: string) {
   const queryClient = useQueryClient();

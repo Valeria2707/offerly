@@ -76,6 +76,24 @@ export type WorkflowStagePatch = {
   artifactUrl?: string | null;
 };
 
+export type StageBrief = {
+  id: string;
+  name: string;
+  category: StageCategory;
+  status: StageStatus;
+  scheduledAt: string | null;
+  deadlineAt: string | null;
+};
+
+export type WorkflowSummary = {
+  vacancyId: string;
+  stageCount: number;
+  completedCount: number;
+  rejected: boolean;
+  offered: boolean;
+  currentStage: StageBrief | null;
+};
+
 export type ApplicationWorkflow = {
   id: string;
   vacancyId: string;

@@ -7,6 +7,7 @@ import type {
   StageTypeDraft,
   WorkflowStage,
   WorkflowStagePatch,
+  WorkflowSummary,
 } from "@/types/workflow";
 
 const withWorkflowService = { baseUrl: WORKFLOW_API_BASE_URL };
@@ -29,6 +30,15 @@ export const deleteStageTypeRequest = (token: string, stageTypeId: string) =>
   apiRequest<void>(WORKFLOW_ROUTES.stageType(stageTypeId), {
     ...withWorkflowService,
     method: "DELETE",
+    token,
+  });
+
+export const workflowSummariesRequest = (
+  token: string,
+  vacancyIds: string[],
+) =>
+  apiRequest<WorkflowSummary[]>(WORKFLOW_ROUTES.workflowSummary(vacancyIds), {
+    ...withWorkflowService,
     token,
   });
 

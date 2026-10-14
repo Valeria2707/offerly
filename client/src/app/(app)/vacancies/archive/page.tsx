@@ -16,6 +16,7 @@ import {
   useUpdateVacancy,
   useVacancies,
 } from "@/hooks/use-vacancies";
+import { useWorkflowSummaries } from "@/hooks/use-workflow";
 import { ApiError } from "@/lib/api-client";
 import type { Vacancy } from "@/types/vacancy";
 
@@ -34,6 +35,9 @@ export default function VacancyArchivePage() {
 
   const archived = (vacancies ?? []).filter(
     (vacancy) => vacancy.lifecycle === "archived",
+  );
+  const { data: summaries } = useWorkflowSummaries(
+    archived.map((vacancy) => vacancy.id),
   );
 
   return (
@@ -80,6 +84,7 @@ export default function VacancyArchivePage() {
       ) : (
         <VacancyTable
           vacancies={archived}
+          summaries={summaries}
           pending={updateVacancy.isPending || deleteVacancy.isPending}
           emptyMessage="Архів порожній."
           onToggleArchive={(vacancy) =>

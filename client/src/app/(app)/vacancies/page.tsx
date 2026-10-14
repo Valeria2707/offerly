@@ -18,13 +18,13 @@ import { VacancyStats } from "@/components/vacancies/vacancy-stats";
 import { VacancyTable } from "@/components/vacancies/vacancy-table";
 import { ROUTES, vacancyImportRoute } from "@/constants/routes";
 import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
-import { CLOSED_STATUSES } from "@/constants/vacancy";
 import {
   useDeleteVacancy,
   useImportVacancy,
   useUpdateVacancy,
   useVacancies,
 } from "@/hooks/use-vacancies";
+import { useWorkflowSummaries } from "@/hooks/use-workflow";
 import { ApiError } from "@/lib/api-client";
 import { filterVacancies } from "@/lib/vacancy-search";
 import type { Vacancy } from "@/types/vacancy";
@@ -35,6 +35,9 @@ export default function VacanciesPage() {
   const importVacancy = useImportVacancy();
   const updateVacancy = useUpdateVacancy();
   const deleteVacancy = useDeleteVacancy();
+  const { data: summaries } = useWorkflowSummaries(
+    (vacancies ?? []).map((vacancy) => vacancy.id),
+  );
 
   const [importSource, setImportSource] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -63,10 +66,6 @@ export default function VacanciesPage() {
     (vacancy) => vacancy.lifecycle !== "archived",
   );
   const archivedCount = (vacancies?.length ?? 0) - current.length;
-  const closed = current.filter((vacancy) =>
-    CLOSED_STATUSES.includes(vacancy.status),
-  );
-  const active = current.length - closed.length;
   const visible = filterVacancies(current, query);
 
   return (
@@ -86,7 +85,7 @@ export default function VacanciesPage() {
             <p className="text-sm text-muted-foreground">
               {isPending
                 ? "завантаження…"
-                : `${active} активних · ${closed.length} закритих`}
+                : `${current.length} у списку · ${archivedCount} в архіві`}
             </p>
           </div>
 
@@ -132,9 +131,13 @@ export default function VacanciesPage() {
         ) : (
           vacancies && (
             <>
-              <VacancyStats vacancies={current} />
+              <VacancyStats
+                total={current.length}
+                summaries={[...(summaries?.values() ?? [])]}
+              />
               <VacancyTable
                 vacancies={visible}
+                summaries={summaries}
                 pending={updateVacancy.isPending || deleteVacancy.isPending}
                 emptyMessage={
                   query

@@ -1,25 +1,28 @@
-import { INTERVIEW_STATUSES } from "@/constants/vacancy";
 import { cn } from "@/lib/utils";
-import type { Vacancy } from "@/types/vacancy";
+import type { WorkflowSummary } from "@/types/workflow";
 
-export function VacancyStats({ vacancies }: { vacancies: Vacancy[] }) {
-  const countBy = (match: (vacancy: Vacancy) => boolean) =>
-    vacancies.filter(match).length;
+export function VacancyStats({
+  total,
+  summaries,
+}: {
+  total: number;
+  summaries: WorkflowSummary[];
+}) {
+  const inProgress = summaries.filter(
+    (summary) => summary.currentStage && !summary.rejected,
+  ).length;
 
   const cards = [
-    { label: "Подано", value: countBy((item) => item.status === "applied") },
-    {
-      label: "Співбесіди",
-      value: countBy((item) => INTERVIEW_STATUSES.includes(item.status)),
-    },
+    { label: "Вакансій", value: total },
+    { label: "У процесі", value: inProgress },
     {
       label: "Відмови",
-      value: countBy((item) => item.status === "rejected"),
-      className: "text-destructive",
+      value: summaries.filter((summary) => summary.rejected).length,
+      className: "text-rejected",
     },
     {
       label: "Оффери",
-      value: countBy((item) => item.status === "offer"),
+      value: summaries.filter((summary) => summary.offered).length,
       className: "text-success",
       cardClassName: "bg-success-muted ring-success/20",
     },

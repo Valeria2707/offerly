@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { StageType } from '../stage-type/entities/stage-type.entity';
 import { isCompleteStageOrder } from '../utils/workflow-order.utils';
+import { toWorkflowSummary } from '../utils/workflow-summary.utils';
+import { WorkflowSummaryDto } from './dto/workflow-summary.dto';
 import {
   AddStageDto,
   ReorderStagesDto,
@@ -80,6 +82,19 @@ export class WorkflowService {
       );
     });
   }
+
+  async summaries(
+    userId: string,
+    vacancyIds: string[]
+  ): Promise<WorkflowSummaryDto[]> {
+    const workflows = await this.workflows.find({
+      where: { userId, vacancyId: In(vacancyIds) },
+      relations: { stages: { stageType: true } },
+      order: WORKFLOW_ORDER
+    });
+    return workflows.map(toWorkflowSummary);
+  }
+
   async getByVacancy(
     userId: string,
     vacancyId: string
