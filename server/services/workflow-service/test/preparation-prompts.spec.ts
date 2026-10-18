@@ -14,6 +14,7 @@ const context = (
 ): PreparationContext => ({
   stage: { name, category: 'technical', code },
   instructions,
+  pastQuestions: [],
   vacancy: {
     title: 'Frontend Developer',
     company: 'Acme',

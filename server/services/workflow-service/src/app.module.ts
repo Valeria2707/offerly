@@ -1,6 +1,7 @@
 import { PreparationModule } from './preparation/preparation.module';
 import { StagePreparationData } from './preparation/entities/stage-preparation.entity';
 import { StageNote } from './workflow/entities/stage-note.entity';
+import { StageQuestion } from './workflow/entities/stage-question.entity';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -31,6 +32,7 @@ import { WorkflowModule } from './workflow/workflow.module';
           ApplicationWorkflow,
           WorkflowStage,
           StageNote,
+          StageQuestion,
           StagePreparationData
         ],
         synchronize: true

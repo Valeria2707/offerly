@@ -44,6 +44,23 @@ export class StageNoteDto {
   @MaxLength(5000)
   content!: string;
 }
+export class StageQuestionDto {
+  @ApiProperty({ maxLength: 2000 })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2000)
+  question!: string;
+  @ApiPropertyOptional({ maxLength: 5000, nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  answer?: string | null;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  wasHard?: boolean;
+}
+
 export class StageGroupDto {
   @ApiProperty({ type: [String] })
   @IsArray()

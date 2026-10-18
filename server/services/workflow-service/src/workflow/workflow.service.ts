@@ -14,10 +14,12 @@ import {
   AddStageDto,
   ReorderStagesDto,
   StageNoteDto,
+  StageQuestionDto,
   UpdateStageDto
 } from './dto/workflow.dto';
 import { ApplicationWorkflow } from './entities/application-workflow.entity';
 import { StageNote } from './entities/stage-note.entity';
+import { StageQuestion } from './entities/stage-question.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 import { StageStatus } from './workflow.enums';
 const CLOSING_STATUSES = new Set([
@@ -44,6 +46,8 @@ export class WorkflowService {
     readonly stages: Repository<WorkflowStage>,
     @InjectRepository(StageType) readonly types: Repository<StageType>,
     @InjectRepository(StageNote) readonly notes: Repository<StageNote>,
+    @InjectRepository(StageQuestion)
+    readonly questions: Repository<StageQuestion>,
     readonly dataSource: DataSource
   ) {}
   async createDefault(vacancyId: string, userId: string): Promise<void> {
@@ -102,7 +106,7 @@ export class WorkflowService {
     await this.createDefault(vacancyId, userId);
     const workflow = await this.workflows.findOne({
       where: { vacancyId, userId },
-      relations: { stages: { notes: true } },
+      relations: { stages: { notes: true, questions: true } },
       order: WORKFLOW_ORDER
     });
     if (!workflow) throw new NotFoundException('Workflow not found');
@@ -205,6 +209,48 @@ export class WorkflowService {
     });
     return this.getById(userId, workflowId);
   }
+  async addQuestion(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    input: StageQuestionDto
+  ): Promise<StageQuestion> {
+    await this.requireStage(userId, workflowId, stageId);
+    return this.questions.save(
+      this.questions.create({
+        stageId,
+        question: input.question.trim(),
+        answer: input.answer?.trim() || null,
+        wasHard: input.wasHard ?? false
+      })
+    );
+  }
+  async updateQuestion(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    questionId: string,
+    input: StageQuestionDto
+  ): Promise<StageQuestion> {
+    await this.requireStage(userId, workflowId, stageId);
+    const question = await this.questions.findOneBy({ id: questionId, stageId });
+    if (!question) throw new NotFoundException('Stage question not found');
+    question.question = input.question.trim();
+    question.answer = input.answer?.trim() || null;
+    question.wasHard = input.wasHard ?? false;
+    return this.questions.save(question);
+  }
+  async removeQuestion(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    questionId: string
+  ): Promise<void> {
+    await this.requireStage(userId, workflowId, stageId);
+    const result = await this.questions.delete({ id: questionId, stageId });
+    if (!result.affected)
+      throw new NotFoundException('Stage question not found');
+  }
   async addNote(
     userId: string,
     workflowId: string,
@@ -263,7 +309,7 @@ export class WorkflowService {
     await this.requireWorkflow(userId, id);
     const workflow = await this.workflows.findOne({
       where: { id, userId },
-      relations: { stages: { notes: true } },
+      relations: { stages: { notes: true, questions: true } },
       order: WORKFLOW_ORDER
     });
     if (!workflow) throw new NotFoundException('Workflow not found');

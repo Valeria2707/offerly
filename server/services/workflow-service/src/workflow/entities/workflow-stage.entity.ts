@@ -12,6 +12,7 @@ import { StageCategory, StageStatus } from '../workflow.enums';
 import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { ApplicationWorkflow } from './application-workflow.entity';
 import { StageNote } from './stage-note.entity';
+import { StageQuestion } from './stage-question.entity';
 @Entity({ schema: 'workflow', name: 'workflow_stages' })
 export class WorkflowStage {
   @PrimaryGeneratedColumn('uuid') id!: string;
@@ -57,6 +58,8 @@ export class WorkflowStage {
   completedAt!: Date | null;
   @OneToMany(() => StageNote, (note) => note.stage)
   notes!: StageNote[];
+  @OneToMany(() => StageQuestion, (question) => question.stage)
+  questions!: StageQuestion[];
   @Column({
     name: 'artifact_url',
     type: 'varchar',

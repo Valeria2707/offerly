@@ -31,11 +31,13 @@ import {
   AddStageDto,
   ReorderStagesDto,
   StageNoteDto,
+  StageQuestionDto,
   UpdateStageDto
 } from './dto/workflow.dto';
 import { WorkflowService } from './workflow.service';
 import { ApplicationWorkflow } from './entities/application-workflow.entity';
 import { StageNote } from './entities/stage-note.entity';
+import { StageQuestion } from './entities/stage-question.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 @ApiTags('workflows')
 @ApiBearerAuth()
@@ -105,6 +107,56 @@ export class WorkflowController {
     @Body() input: ReorderStagesDto
   ): Promise<ApplicationWorkflow> {
     return this.service.reorder(req.user.sub, workflowId, input);
+  }
+  @Post(':workflowId/stages/:stageId/questions')
+  @ApiOperation({ summary: 'Record a question the candidate was asked' })
+  @ApiCreatedResponse({ type: StageQuestion })
+  @ApiNotFoundResponse({ description: 'Workflow or stage not found' })
+  addQuestion(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Body() input: StageQuestionDto
+  ): Promise<StageQuestion> {
+    return this.service.addQuestion(req.user.sub, workflowId, stageId, input);
+  }
+  @Patch(':workflowId/stages/:stageId/questions/:questionId')
+  @ApiOperation({ summary: 'Edit a recorded question' })
+  @ApiOkResponse({ type: StageQuestion })
+  @ApiNotFoundResponse({
+    description: 'Workflow, stage or question not found'
+  })
+  updateQuestion(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Param('questionId', ParseUUIDPipe) questionId: string,
+    @Body() input: StageQuestionDto
+  ): Promise<StageQuestion> {
+    return this.service.updateQuestion(
+      req.user.sub,
+      workflowId,
+      stageId,
+      questionId,
+      input
+    );
+  }
+  @Delete(':workflowId/stages/:stageId/questions/:questionId')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Remove a recorded question' })
+  @ApiNoContentResponse()
+  removeQuestion(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Param('questionId', ParseUUIDPipe) questionId: string
+  ): Promise<void> {
+    return this.service.removeQuestion(
+      req.user.sub,
+      workflowId,
+      stageId,
+      questionId
+    );
   }
   @Post(':workflowId/stages/:stageId/notes')
   @ApiOperation({ summary: 'Add a note to a workflow stage' })

@@ -12,11 +12,21 @@ export type PreparationData =
   | { type: PreparationType.TECHNICAL; content: TechnicalContent }
   | { type: PreparationType.CUSTOM; content: CustomContent };
 
+export interface PastQuestion {
+  question: string;
+  answer: string | null;
+  wasHard: boolean;
+  stageName: string;
+  category: string;
+  sameVacancy: boolean;
+}
+
 export interface PreparationContext {
   vacancy: Record<string, unknown>;
   profile: Record<string, unknown>;
   stage: { name: string; category: string; code: string | null };
   instructions: string;
+  pastQuestions: PastQuestion[];
 }
 
 export interface StackAnalysis {

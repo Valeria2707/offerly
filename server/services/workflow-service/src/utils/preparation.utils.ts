@@ -4,6 +4,7 @@ import { QuestionAnswerItem } from '../preparation/dto/preparation-content.dto';
 import { QUESTION_KEYS } from '../preparation/preparation.constants';
 import { PreparationType } from '../preparation/preparation.enums';
 import {
+  PastQuestion,
   PreparationContext,
   PreparationData,
   StackAnalysis
@@ -96,6 +97,24 @@ export function describeStack(stack: StackAnalysis): string {
   ]
     .filter(Boolean)
     .join('\n');
+}
+
+export function describePastQuestions(questions: PastQuestion[]): string {
+  if (!questions.length) return '';
+
+  const lines = questions.map((item) => {
+    const where = item.sameVacancy
+      ? `${item.stageName}, same company`
+      : `${item.stageName}, another company`;
+    const hard = item.wasHard ? ' — the candidate struggled here' : '';
+    return `- [${where}] ${item.question}${hard}`;
+  });
+
+  return [
+    'Questions this candidate was really asked at earlier interviews:',
+    ...lines,
+    'Use them as evidence of what this market actually asks. Cover the topics the candidate struggled with, and do not repeat word for word a question they already answered well.'
+  ].join('\n');
 }
 
 export function questionItems(data: PreparationData): QuestionAnswerItem[] {

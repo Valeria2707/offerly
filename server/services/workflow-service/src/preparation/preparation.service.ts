@@ -10,6 +10,13 @@ import { WorkflowService } from '../workflow/workflow.service';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
 import { questionItems } from '../utils/preparation.utils';
 import { GeneratePreparationDto } from './dto/preparation.dto';
+import { StageQuestion } from '../workflow/entities/stage-question.entity';
+import { StageCategory } from '../workflow/workflow.enums';
+import {
+  PAST_QUESTIONS_LIMIT,
+  PAST_QUESTION_MAX_LENGTH
+} from './preparation.constants';
+import { PastQuestion } from './preparation.types';
 import { StagePreparationData } from './entities/stage-preparation.entity';
 import { PreparationContextService } from './services/preparation-context.service';
 import { PreparationStrategyFactory } from './strategies/preparation-strategy.factory';
@@ -20,6 +27,8 @@ export class PreparationService {
   constructor(
     @InjectRepository(StagePreparationData)
     private readonly preparations: Repository<StagePreparationData>,
+    @InjectRepository(StageQuestion)
+    private readonly questions: Repository<StageQuestion>,
     private readonly workflows: WorkflowService,
     private readonly context: PreparationContextService,
     private readonly factory: PreparationStrategyFactory,
@@ -66,10 +75,10 @@ export class PreparationService {
       );
     this.generating.add(stageId);
     try {
-      const context = await this.context.load(
-        workflow.vacancyId,
-        authorization
-      );
+      const [context, pastQuestions] = await Promise.all([
+        this.context.load(workflow.vacancyId, authorization),
+        this.pastQuestions(userId, workflowId, stageId, stage.category)
+      ]);
       const data = await this.factory.getStrategy(type).generate({
         ...context,
         stage: {
@@ -77,7 +86,8 @@ export class PreparationService {
           category: stage.category,
           code: stageType.code
         },
-        instructions: instructions || `Prepare for ${stage.name}`
+        instructions: instructions || `Prepare for ${stage.name}`,
+        pastQuestions
       });
       return await this.dataSource.transaction(async (manager) => {
         await this.lockStage(manager, workflowId, stageId);
@@ -98,6 +108,52 @@ export class PreparationService {
       this.generating.delete(stageId);
     }
   }
+
+  async pastQuestions(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    category: StageCategory
+  ): Promise<PastQuestion[]> {
+    const questions = await this.questions
+      .createQueryBuilder('question')
+      .innerJoin('question.stage', 'stage')
+      .innerJoin('stage.workflow', 'workflow')
+      .where('workflow.userId = :userId', { userId })
+      .andWhere('stage.id <> :stageId', { stageId })
+      .andWhere(
+        '(stage.workflowId = :workflowId OR stage.category = :category)',
+        {
+          workflowId,
+          category
+        }
+      )
+
+      .orderBy('stage.workflowId = :workflowId', 'DESC')
+      .addOrderBy('question.createdAt', 'DESC')
+      .limit(PAST_QUESTIONS_LIMIT)
+      .select([
+        'question.id',
+        'question.question',
+        'question.answer',
+        'question.wasHard',
+        'stage.id',
+        'stage.name',
+        'stage.category',
+        'stage.workflowId'
+      ])
+      .getMany();
+
+    return questions.map((item) => ({
+      question: item.question.slice(0, PAST_QUESTION_MAX_LENGTH),
+      answer: item.answer,
+      wasHard: item.wasHard,
+      stageName: item.stage.name,
+      category: item.stage.category,
+      sameVacancy: item.stage.workflowId === workflowId
+    }));
+  }
+
   async answer(
     userId: string,
     workflowId: string,

@@ -51,6 +51,22 @@ export type StageNote = {
   updatedAt: string;
 };
 
+export type StageQuestion = {
+  id: string;
+  stageId: string;
+  question: string;
+  answer: string | null;
+  wasHard: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StageQuestionDraft = {
+  question: string;
+  answer?: string | null;
+  wasHard?: boolean;
+};
+
 export type WorkflowStage = {
   id: string;
   workflowId: string;
@@ -64,6 +80,7 @@ export type WorkflowStage = {
   deadlineAt: string | null;
   completedAt: string | null;
   notes: StageNote[];
+  questions: StageQuestion[];
   artifactUrl: string | null;
   createdAt: string;
   updatedAt: string;

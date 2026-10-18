@@ -13,6 +13,7 @@ import { AddStageDialog } from "@/components/workflow/add-stage-dialog";
 import { StageDetails } from "@/components/workflow/stage-details";
 import { StageNotes } from "@/components/workflow/stage-notes";
 import { StagePreparation } from "@/components/workflow/stage-preparation";
+import { StageQuestions } from "@/components/workflow/stage-questions";
 import { StageStepper } from "@/components/workflow/stage-stepper";
 import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
 import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
@@ -20,11 +21,14 @@ import { ROUTES } from "@/constants/routes";
 import { useVacancy } from "@/hooks/use-vacancies";
 import {
   useAddStageNote,
+  useAddStageQuestion,
   useAddWorkflowStages,
   useRemoveStageNote,
+  useRemoveStageQuestion,
   useRemoveWorkflowStage,
   useReorderWorkflowStages,
   useStageTypes,
+  useUpdateStageQuestion,
   useUpdateWorkflowStage,
   useVacancyWorkflow,
 } from "@/hooks/use-workflow";
@@ -32,7 +36,11 @@ import { ApiError } from "@/lib/api-client";
 import { hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
 import { currentStageIndex, movedStageIds, stageName } from "@/lib/workflow";
-import type { WorkflowStage, WorkflowStagePatch } from "@/types/workflow";
+import type {
+  StageQuestionDraft,
+  WorkflowStage,
+  WorkflowStagePatch,
+} from "@/types/workflow";
 
 export default function VacancyWorkflowPage({
   params,
@@ -57,6 +65,9 @@ export default function VacancyWorkflowPage({
   const removeStage = useRemoveWorkflowStage(id);
   const addNote = useAddStageNote(id);
   const removeNote = useRemoveStageNote(id);
+  const addQuestion = useAddStageQuestion(id);
+  const updateQuestion = useUpdateStageQuestion(id);
+  const removeQuestion = useRemoveStageQuestion(id);
 
   const notify = (cause: unknown) =>
     toast.error(
@@ -98,6 +109,54 @@ export default function VacancyWorkflowPage({
     removeStage.mutate(
       { workflowId: workflow.id, stageId: stageToRemove.id },
       { onSuccess: () => setStageToRemove(null), onError: notify },
+    );
+  };
+
+  const createStages = (stageTypeIds: string[]) => {
+    if (!workflow) return;
+    addStages.mutate(
+      { workflowId: workflow.id, stageTypeIds },
+      { onSuccess: () => setIsAdding(false), onError: notify },
+    );
+  };
+
+  const createQuestion = (draft: StageQuestionDraft) => {
+    if (!workflow || !selected) return;
+    addQuestion.mutate(
+      { workflowId: workflow.id, stageId: selected.id, draft },
+      { onError: notify },
+    );
+  };
+
+  const saveQuestion = (questionId: string, draft: StageQuestionDraft) => {
+    if (!workflow || !selected) return;
+    updateQuestion.mutate(
+      { workflowId: workflow.id, stageId: selected.id, questionId, draft },
+      { onError: notify },
+    );
+  };
+
+  const deleteQuestion = (questionId: string) => {
+    if (!workflow || !selected) return;
+    removeQuestion.mutate(
+      { workflowId: workflow.id, stageId: selected.id, questionId },
+      { onError: notify },
+    );
+  };
+
+  const createNote = (content: string) => {
+    if (!workflow || !selected) return;
+    addNote.mutate(
+      { workflowId: workflow.id, stageId: selected.id, content },
+      { onError: notify },
+    );
+  };
+
+  const deleteNote = (noteId: string) => {
+    if (!workflow || !selected) return;
+    removeNote.mutate(
+      { workflowId: workflow.id, stageId: selected.id, noteId },
+      { onError: notify },
     );
   };
 
@@ -151,12 +210,7 @@ export default function VacancyWorkflowPage({
           stageTypes={stageTypes}
           pending={addStages.isPending}
           onClose={() => setIsAdding(false)}
-          onAdd={(stageTypeIds) =>
-            addStages.mutate(
-              { workflowId: workflow.id, stageTypeIds },
-              { onSuccess: () => setIsAdding(false), onError: notify },
-            )
-          }
+          onAdd={createStages}
         />
       )}
 
@@ -204,6 +258,19 @@ export default function VacancyWorkflowPage({
                     stageType={selectedType}
                   />
                 )}
+
+                <StageQuestions
+                  key={`questions-${selected.id}`}
+                  questions={selected.questions}
+                  pending={
+                    addQuestion.isPending ||
+                    updateQuestion.isPending ||
+                    removeQuestion.isPending
+                  }
+                  onAdd={createQuestion}
+                  onUpdate={saveQuestion}
+                  onRemove={deleteQuestion}
+                />
               </div>
 
               <div className="grid gap-6">
@@ -213,18 +280,8 @@ export default function VacancyWorkflowPage({
                   key={selected.id}
                   notes={selected.notes}
                   pending={addNote.isPending || removeNote.isPending}
-                  onAdd={(content) =>
-                    addNote.mutate(
-                      { workflowId: workflow.id, stageId: selected.id, content },
-                      { onError: notify },
-                    )
-                  }
-                  onRemove={(noteId) =>
-                    removeNote.mutate(
-                      { workflowId: workflow.id, stageId: selected.id, noteId },
-                      { onError: notify },
-                    )
-                  }
+                  onAdd={createNote}
+                  onRemove={deleteNote}
                 />
               </div>
             </div>

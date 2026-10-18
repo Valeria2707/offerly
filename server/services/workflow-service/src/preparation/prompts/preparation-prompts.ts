@@ -1,6 +1,7 @@
 import { PreparationContext, StackAnalysis } from '../preparation.types';
 import {
   analyzeStack,
+  describePastQuestions,
   describeStack,
   formatList
 } from '../../utils/preparation.utils';
@@ -19,6 +20,9 @@ import {
   UNKNOWN_LEVEL_HINT
 } from './preparation-prompts.constants';
 
+const section = (parts: string[]): string =>
+  parts.filter(Boolean).join('\n\n');
+
 const stageFocus = (
   focusByCode: Record<string, string>,
   code: string | null,
@@ -32,13 +36,14 @@ const levelHint = (stack: StackAnalysis): string =>
 
 export function cvPrompt(context: PreparationContext): string {
   const stack = analyzeStack(context);
-  return [
+  return section([
     CV_STAGE_INTRO,
     describeStack(stack),
+    describePastQuestions(context.pastQuestions),
     CV_TIPS_INSTRUCTIONS,
     CV_KEYWORDS_INSTRUCTIONS,
     `coverLetterDraft: 150-250 words addressed to ${stack.company}. Structure: why this role and company (use facts from the vacancy description), 2-3 strongest matching achievements from the profile tied to the required stack, one sentence that addresses the main gap with willingness to learn if gaps exist, short closing. No placeholders like [Company]; no clichés; no facts that are not in the profile.`
-  ].join('\n\n');
+  ]);
 }
 
 export function hrPrompt(context: PreparationContext): string {
@@ -48,13 +53,14 @@ export function hrPrompt(context: PreparationContext): string {
     context.stage.code,
     `Soft-skills interview "${context.stage.name}": experience, motivation, teamwork and self-presentation.`
   );
-  return [
+  return section([
     `STAGE: ${context.stage.name}. ${focus}`,
     describeStack(stack),
     `elevatorPitch: 60-90 seconds, first person, built only from the profile: current role and years of experience, 2 achievements that use the required stack (${formatList(stack.requiredSkills)}), why ${stack.role} at ${stack.company} is the logical next step.`,
+    describePastQuestions(context.pastQuestions),
     HR_QUESTIONS_INSTRUCTIONS,
     HR_QUESTIONS_TO_ASK_INSTRUCTIONS
-  ].join('\n\n');
+  ]);
 }
 
 export function technicalPrompt(context: PreparationContext): string {
@@ -64,14 +70,15 @@ export function technicalPrompt(context: PreparationContext): string {
     context.stage.code,
     `Technical stage "${context.stage.name}": adapt questions and tasks to what this stage name implies.`
   );
-  return [
+  return section([
     `STAGE: ${context.stage.name}. ${focus}`,
     describeStack(stack),
     levelHint(stack),
+    describePastQuestions(context.pastQuestions),
     TECH_TARGET_STACK_INSTRUCTIONS,
     `theoreticalQuestions (10-15): real interview questions for ${formatList(stack.requiredSkills)} at the level of this vacancy; spend at least a third of them on the gaps (${formatList(stack.missingRequiredSkills)}). Mention the technology in each question when it is not obvious. expectedAnswer: a concise but technically correct answer with key terms, a short example or code idea when helpful. tips: what the interviewer is looking for, a common mistake, or how to connect the answer to the candidate's own experience from the profile.`,
     TECH_CODING_TASKS_INSTRUCTIONS
-  ].join('\n\n');
+  ]);
 }
 
 export function customPrompt(context: PreparationContext): string {
@@ -81,10 +88,11 @@ export function customPrompt(context: PreparationContext): string {
     context.stage.code,
     `A stage defined by the user (category: ${context.stage.category}).`
   );
-  return [
+  return section([
     `STAGE: ${context.stage.name}. ${focus}`,
     `The user's description of what will happen is the main source of truth: "${context.instructions}". Follow it closely; use the category only as a hint.`,
     describeStack(stack),
+    describePastQuestions(context.pastQuestions),
     CUSTOM_ITEMS_INSTRUCTIONS
-  ].join('\n\n');
+  ]);
 }

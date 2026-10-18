@@ -4,20 +4,27 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   addStageNoteRequest,
+  addStageQuestionRequest,
   addWorkflowStageRequest,
   createStageTypeRequest,
   deleteStageTypeRequest,
   removeStageNoteRequest,
+  removeStageQuestionRequest,
   removeWorkflowStageRequest,
   reorderWorkflowStagesRequest,
   updateStageNoteRequest,
+  updateStageQuestionRequest,
   stageTypesRequest,
   updateWorkflowStageRequest,
   vacancyWorkflowRequest,
   workflowSummariesRequest,
 } from "@/api/workflow";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
-import type { StageTypeDraft, WorkflowStagePatch } from "@/types/workflow";
+import type {
+  StageQuestionDraft,
+  StageTypeDraft,
+  WorkflowStagePatch,
+} from "@/types/workflow";
 
 export const workflowKeys = {
   stageTypes: ["stage-types"] as const,
@@ -232,6 +239,85 @@ export function useRemoveStageNote(vacancyId: string) {
       noteId: string;
     }) =>
       removeStageNoteRequest(getAccessToken()!, workflowId, stageId, noteId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+export function useAddStageQuestion(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      draft,
+    }: {
+      workflowId: string;
+      stageId: string;
+      draft: StageQuestionDraft;
+    }) =>
+      addStageQuestionRequest(getAccessToken()!, workflowId, stageId, draft),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+export function useUpdateStageQuestion(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      questionId,
+      draft,
+    }: {
+      workflowId: string;
+      stageId: string;
+      questionId: string;
+      draft: StageQuestionDraft;
+    }) =>
+      updateStageQuestionRequest(
+        getAccessToken()!,
+        workflowId,
+        stageId,
+        questionId,
+        draft,
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+    },
+  });
+}
+
+export function useRemoveStageQuestion(vacancyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      questionId,
+    }: {
+      workflowId: string;
+      stageId: string;
+      questionId: string;
+    }) =>
+      removeStageQuestionRequest(
+        getAccessToken()!,
+        workflowId,
+        stageId,
+        questionId,
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),

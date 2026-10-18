@@ -53,6 +53,10 @@ export const WORKFLOW_ROUTES = {
     `/workflows/${workflowId}/stages/${stageId}/notes`,
   stageNote: (workflowId: string, stageId: string, noteId: string) =>
     `/workflows/${workflowId}/stages/${stageId}/notes/${noteId}`,
+  stageQuestions: (workflowId: string, stageId: string) =>
+    `/workflows/${workflowId}/stages/${stageId}/questions`,
+  stageQuestion: (workflowId: string, stageId: string, questionId: string) =>
+    `/workflows/${workflowId}/stages/${stageId}/questions/${questionId}`,
   preparation: (workflowId: string, stageId: string) =>
     `/workflows/${workflowId}/stages/${stageId}/preparation`,
   preparationAnswer: (

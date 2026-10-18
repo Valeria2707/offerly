@@ -57,3 +57,6 @@ export const CLOSED_STAGE_STATUSES: StageStatus[] = [
 ];
 
 export const MAX_STAGE_DURATION_MINUTES = 1440;
+
+export const QUESTION_MAX_LENGTH = 2000;
+export const ANSWER_MAX_LENGTH = 5000;

@@ -37,7 +37,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     'Submitted',
     StageCategory.ADMINISTRATIVE,
     null,
-    false,
+    true,
     false,
     false
   ),

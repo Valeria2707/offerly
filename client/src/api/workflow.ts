@@ -3,6 +3,8 @@ import { apiRequest } from "@/lib/api-client";
 import type {
   ApplicationWorkflow,
   StageNote,
+  StageQuestion,
+  StageQuestionDraft,
   StageType,
   StageTypeDraft,
   WorkflowStage,
@@ -84,6 +86,40 @@ export const reorderWorkflowStagesRequest = (
     body: { groups: stageIds.map((stageId) => ({ stageIds: [stageId] })) },
     token,
   });
+
+export const addStageQuestionRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  draft: StageQuestionDraft,
+) =>
+  apiRequest<StageQuestion>(
+    WORKFLOW_ROUTES.stageQuestions(workflowId, stageId),
+    { ...withWorkflowService, method: "POST", body: draft, token },
+  );
+
+export const updateStageQuestionRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  questionId: string,
+  draft: StageQuestionDraft,
+) =>
+  apiRequest<StageQuestion>(
+    WORKFLOW_ROUTES.stageQuestion(workflowId, stageId, questionId),
+    { ...withWorkflowService, method: "PATCH", body: draft, token },
+  );
+
+export const removeStageQuestionRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  questionId: string,
+) =>
+  apiRequest<void>(
+    WORKFLOW_ROUTES.stageQuestion(workflowId, stageId, questionId),
+    { ...withWorkflowService, method: "DELETE", token },
+  );
 
 export const addStageNoteRequest = (
   token: string,

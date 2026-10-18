@@ -54,6 +54,9 @@ export const QUESTION_KEYS: Record<PreparationType, string | null> = {
   [PreparationType.CUSTOM]: 'items'
 };
 
+export const PAST_QUESTIONS_LIMIT = 40;
+export const PAST_QUESTION_MAX_LENGTH = 300;
+
 export const INSTRUCTIONS_MAX_LENGTH = 5000;
 export const USER_ANSWER_MAX_LENGTH = 10_000;
 export const TEXT_MAX_LENGTH = 5000;
