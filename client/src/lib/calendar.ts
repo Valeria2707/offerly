@@ -1,0 +1,113 @@
+import {
+  addDays,
+  differenceInCalendarDays,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
+import { uk } from "date-fns/locale";
+
+import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
+import type { CalendarEvent } from "@/types/calendar";
+
+const WEEK_OPTIONS = { weekStartsOn: 1, locale: uk } as const;
+
+export type CalendarEntry = {
+  key: string;
+  kind: "meeting" | "deadline";
+  at: Date;
+  event: CalendarEvent;
+};
+
+export function monthTitle(month: Date): string {
+  return format(month, "LLLL yyyy", { locale: uk });
+}
+
+export function dayTitle(day: Date): string {
+  return format(day, "EEEE, d MMMM", { locale: uk });
+}
+
+export function eventTime(value: Date): string {
+  return format(value, "HH:mm");
+}
+
+export function monthGrid(month: Date): Date[] {
+  return eachDayOfInterval({
+    start: startOfWeek(startOfMonth(month), WEEK_OPTIONS),
+    end: endOfWeek(endOfMonth(month), WEEK_OPTIONS),
+  });
+}
+
+export function monthRange(month: Date): { from: string; to: string } {
+  const days = monthGrid(month);
+
+  return {
+    from: days[0].toISOString(),
+    to: addDays(days[days.length - 1], 1).toISOString(),
+  };
+}
+
+export function toEntries(events: CalendarEvent[]): CalendarEntry[] {
+  const entries: CalendarEntry[] = [];
+
+  for (const event of events) {
+    if (event.scheduledAt)
+      entries.push({
+        key: `meeting-${event.stageId}`,
+        kind: "meeting",
+        at: new Date(event.scheduledAt),
+        event,
+      });
+
+    if (event.deadlineAt)
+      entries.push({
+        key: `deadline-${event.stageId}`,
+        kind: "deadline",
+        at: new Date(event.deadlineAt),
+        event,
+      });
+  }
+
+  return entries.sort((left, right) => left.at.getTime() - right.at.getTime());
+}
+
+export function isFinished(event: CalendarEvent): boolean {
+  return CLOSED_STAGE_STATUSES.includes(event.status);
+}
+
+export function isOverdue(entry: CalendarEntry, now: Date): boolean {
+  return (
+    entry.kind === "meeting" &&
+    entry.at.getTime() < now.getTime() &&
+    !isFinished(entry.event)
+  );
+}
+
+export function entriesOfDay(
+  entries: CalendarEntry[],
+  day: Date,
+): CalendarEntry[] {
+  return entries.filter((entry) => isSameDay(entry.at, day));
+}
+
+export function entriesOfWeek(
+  entries: CalendarEntry[],
+  now: Date,
+): CalendarEntry[] {
+  return entries.filter((entry) => {
+    const days = differenceInCalendarDays(entry.at, now);
+    return days >= 0 && days < 7 && !isFinished(entry.event);
+  });
+}
+
+export function relativeDay(days: number): string {
+  if (days === 0) return "сьогодні";
+  if (days === 1) return "завтра";
+  if (days === -1) return "вчора";
+
+  return days > 0 ? `через ${days} дн.` : `${Math.abs(days)} дн. тому`;
+}

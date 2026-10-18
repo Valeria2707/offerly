@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 export function NavItem({
   item,
   pathname,
+  badge,
 }: {
   item: AppNavItem;
   pathname: string;
+  badge?: number;
 }) {
   const dot = (
     <span
@@ -41,6 +43,11 @@ export function NavItem({
     >
       {dot}
       {item.label}
+      {badge ? (
+        <span className="ml-auto flex size-4.5 items-center justify-center rounded-full bg-terracotta font-mono text-[10px] font-semibold text-primary-foreground">
+          {badge}
+        </span>
+      ) : null}
     </Link>
   );
 }

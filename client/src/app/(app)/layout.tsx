@@ -20,9 +20,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   if (!hydrated || !accessToken) return null;
 
   return (
-    <div className="flex min-h-full flex-1">
+    <div className="flex h-dvh overflow-hidden">
       <AppSidebar />
-      <main className="relative min-w-0 flex-1 px-10 py-8">{children}</main>
+      <main className="relative min-w-0 flex-1 overflow-y-auto px-10 py-8">
+        {children}
+      </main>
     </div>
   );
 }

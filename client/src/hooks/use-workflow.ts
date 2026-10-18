@@ -151,6 +151,7 @@ export function useUpdateWorkflowStage(vacancyId: string) {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
 }

@@ -8,6 +8,7 @@ export const ROUTES = {
   profile: "/profile",
   vacancies: "/vacancies",
   vacancyArchive: "/vacancies/archive",
+  calendar: "/calendar",
   stageTypes: "/stage-types",
 } as const;
 
@@ -15,6 +16,9 @@ export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 
 export const vacancyRoute = (vacancyId: string) =>
   `${ROUTES.vacancies}/${vacancyId}` as const;
+
+export const vacancyStageRoute = (vacancyId: string, stageId: string) =>
+  `${ROUTES.vacancies}/${vacancyId}?stage=${stageId}` as const;
 
 export const stagePreparationRoute = (vacancyId: string, stageId: string) =>
   `${ROUTES.vacancies}/${vacancyId}/stages/${stageId}/preparation` as const;

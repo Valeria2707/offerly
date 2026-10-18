@@ -1,3 +1,8 @@
+import { CalendarModule } from './calendar/calendar.module';
+import { ReminderSettings } from './calendar/entities/reminder-settings.entity';
+import { SentReminder } from './calendar/entities/sent-reminder.entity';
+import { OutboxEvent } from './outbox/entities/outbox-event.entity';
+import { OutboxModule } from './outbox/outbox.module';
 import { PreparationModule } from './preparation/preparation.module';
 import { StagePreparationData } from './preparation/entities/stage-preparation.entity';
 import { StageNote } from './workflow/entities/stage-note.entity';
@@ -33,7 +38,10 @@ import { WorkflowModule } from './workflow/workflow.module';
           WorkflowStage,
           StageNote,
           StageQuestion,
-          StagePreparationData
+          StagePreparationData,
+          ReminderSettings,
+          SentReminder,
+          OutboxEvent
         ],
         synchronize: true
       }),
@@ -50,7 +58,9 @@ import { WorkflowModule } from './workflow/workflow.module';
     StageTypeModule,
     WorkflowModule,
     EventsModule,
-    PreparationModule
+    PreparationModule,
+    CalendarModule,
+    OutboxModule
   ],
   controllers: [HealthController]
 })

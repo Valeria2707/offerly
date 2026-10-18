@@ -8,15 +8,17 @@ import { LogoMark } from "@/components/brand/logo";
 import { APP_NAV_SECTIONS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
+import { useReminders } from "@/hooks/use-calendar";
 import { initials } from "@/lib/utils";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
   const logout = useLogout();
+  const { data: reminders } = useReminders();
 
   return (
-    <aside className="sticky top-0 flex h-dvh w-56 shrink-0 flex-col justify-between overflow-y-auto bg-sidebar px-3 py-6">
+    <aside className="flex h-full w-56 shrink-0 flex-col justify-between overflow-y-auto bg-sidebar px-3 py-6">
       <div>
         <Link
           href={ROUTES.dashboard}
@@ -44,7 +46,16 @@ export function AppSidebar() {
               )}
 
               {section.items.map((item) => (
-                <NavItem key={item.label} item={item} pathname={pathname} />
+                <NavItem
+                  key={item.label}
+                  item={item}
+                  pathname={pathname}
+                  badge={
+                    item.href === ROUTES.calendar
+                      ? reminders?.length
+                      : undefined
+                  }
+                />
               ))}
             </div>
           ))}

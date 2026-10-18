@@ -12,7 +12,8 @@ async function bootstrap(): Promise<void> {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true
+      transform: true,
+      transformOptions: { exposeUnsetFields: false }
     })
   );
   if (

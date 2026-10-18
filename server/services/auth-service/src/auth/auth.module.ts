@@ -46,6 +46,7 @@ import { GoogleAuthService } from './google-auth.service';
     PasswordResetService,
     RefreshTokenService,
     GoogleAuthService
-  ]
+  ],
+  exports: [UsersService, MailService]
 })
 export class AuthModule {}

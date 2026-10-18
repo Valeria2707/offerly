@@ -39,7 +39,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Server state lives in React Query, session state in zustand. Never duplicate server data into the store.
 - `apiRequest` is the only place that talks to the network.
 - Query keys live next to their hooks as a `*Keys` object.
-- 401 handling is centralised in `query-client.ts`; individual hooks must not repeat it.
+- 401 handling is centralised in `api-client.ts`: it refreshes once and ends the session only when the refresh fails. Individual hooks must not repeat it, and a 401 from one endpoint must not clear the session.
 - State that must outlive a conditional render belongs in the page, not in the component that unmounts.
 
 ## Styling

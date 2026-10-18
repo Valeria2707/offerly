@@ -29,6 +29,7 @@ type StageDetailsProps = {
   stage: WorkflowStage;
   withArtifact: boolean;
   pending: boolean;
+  frozen: boolean;
   onUpdate: (patch: WorkflowStagePatch) => void;
   onRemove: () => void;
 };
@@ -37,6 +38,7 @@ export function StageDetails({
   stage,
   withArtifact,
   pending,
+  frozen,
   onUpdate,
   onRemove,
 }: StageDetailsProps) {
@@ -72,7 +74,7 @@ export function StageDetails({
 
         <Select
           value={stage.status}
-          disabled={pending}
+          disabled={pending || frozen}
           onValueChange={(status) =>
             onUpdate({ status: status as StageStatus })
           }
@@ -80,6 +82,11 @@ export function StageDetails({
           <SelectTrigger
             size="sm"
             aria-label={`Статус етапу «${name}»`}
+            title={
+              frozen
+                ? "Вакансія закрита відмовою — зніміть її на тому етапі"
+                : undefined
+            }
             className="w-44 rounded-lg border-transparent bg-muted text-xs shadow-none"
           >
             <SelectValue>

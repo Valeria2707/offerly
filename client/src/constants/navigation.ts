@@ -9,7 +9,7 @@ export const APP_NAV_SECTIONS = [
     title: "Пошук роботи",
     items: [
       { label: "Мої вакансії", accent: "bg-primary", href: ROUTES.vacancies },
-      { label: "Нагадування", accent: "bg-terracotta", href: null },
+      { label: "Календар", accent: "bg-terracotta", href: ROUTES.calendar },
       { label: "Аналітика", accent: "bg-ai", href: null },
     ],
   },

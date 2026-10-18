@@ -5,7 +5,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, Not, Repository } from 'typeorm';
 import { StageType } from '../stage-type/entities/stage-type.entity';
 import { isCompleteStageOrder } from '../utils/workflow-order.utils';
 import { toWorkflowSummary } from '../utils/workflow-summary.utils';
@@ -153,6 +153,17 @@ export class WorkflowService {
     await this.requireWorkflow(userId, workflowId);
     const stage = await this.stages.findOneBy({ id: stageId, workflowId });
     if (!stage) throw new NotFoundException('Workflow stage not found');
+    if (
+      input.status &&
+      (await this.stages.existsBy({
+        workflowId,
+        id: Not(stageId),
+        status: StageStatus.CANCELLED
+      }))
+    )
+      throw new BadRequestException(
+        'Vacancy was rejected: other stage statuses are frozen'
+      );
     Object.assign(stage, input, {
       scheduledAt:
         input.scheduledAt === undefined
@@ -233,7 +244,10 @@ export class WorkflowService {
     input: StageQuestionDto
   ): Promise<StageQuestion> {
     await this.requireStage(userId, workflowId, stageId);
-    const question = await this.questions.findOneBy({ id: questionId, stageId });
+    const question = await this.questions.findOneBy({
+      id: questionId,
+      stageId
+    });
     if (!question) throw new NotFoundException('Stage question not found');
     question.question = input.question.trim();
     question.answer = input.answer?.trim() || null;

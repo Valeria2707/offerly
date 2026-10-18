@@ -8,6 +8,8 @@ import { RevokedToken } from './auth/entities/revoked-token.entity';
 import { PasswordResetToken } from './auth/entities/password-reset-token.entity';
 import { RefreshToken } from './auth/entities/refresh-token.entity';
 import { User } from './auth/entities/user.entity';
+import { SentNotification } from './events/entities/sent-notification.entity';
+import { EventsModule } from './events/events.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -55,11 +57,18 @@ import { HealthController } from './health.controller';
         database: config.getOrThrow<string>('DATABASE_NAME'),
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
-        entities: [User, RevokedToken, PasswordResetToken, RefreshToken],
+        entities: [
+          User,
+          RevokedToken,
+          PasswordResetToken,
+          RefreshToken,
+          SentNotification
+        ],
         synchronize: true
       })
     }),
-    AuthModule
+    AuthModule,
+    EventsModule
   ],
   controllers: [HealthController]
 })

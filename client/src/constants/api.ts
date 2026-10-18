@@ -67,6 +67,15 @@ export const WORKFLOW_ROUTES = {
     `/workflows/${workflowId}/stages/${stageId}/preparation/questions/${questionId}`,
 } as const;
 
+export const CALENDAR_ROUTES = {
+  calendar: (from: string, to: string) => `/calendar?from=${from}&to=${to}`,
+  reminders: "/calendar/reminders",
+  settings: "/calendar/settings",
+  subscription: "/calendar/subscription",
+  subscriptionFeed: (token: string) =>
+    `${WORKFLOW_API_BASE_URL}/calendar/subscription.ics?token=${token}`,
+} as const;
+
 export const API_ERROR_MESSAGES: Record<number, string> = {
   400: "Перевірте введені дані.",
   401: "Невірний email або пароль.",

@@ -58,6 +58,10 @@ export class UsersService implements OnApplicationBootstrap {
     return this.users.findOneBy({ email: this.normalizeEmail(email) });
   }
 
+  findById(id: string): Promise<User | null> {
+    return this.users.findOneBy({ id });
+  }
+
   async updatePassword(userId: string, password: string): Promise<void> {
     await this.users.update(
       { id: userId },

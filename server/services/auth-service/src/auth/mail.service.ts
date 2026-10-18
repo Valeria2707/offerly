@@ -32,4 +32,13 @@ export class MailService {
       html: `<p>Вітаємо, ${name}.</p><p><a href="${resetUrl}">Встановити новий пароль</a></p><p>Посилання діє 30 хвилин.</p>`
     });
   }
+
+  async send(email: string, subject: string, html: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: this.config.getOrThrow<string>('SMTP_FROM'),
+      to: email,
+      subject,
+      html
+    });
+  }
 }

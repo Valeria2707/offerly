@@ -46,3 +46,29 @@ Repeated generation returns 409 instead of replacing saved work. Generation runs
 ### Verification
 
 Build the shared `@offerly/auth` and `@offerly/helpers` packages before installing/building this service, as the Dockerfile does. Run `npm run lint`, `npm test`, and `npm run build`. The test suite covers strategy selection, nested output validation, provider/context failures, ownership, concurrent generation conflicts, answer updates, TypeORM relation metadata, and HTTP endpoints with the real JWT guard. HTTP tests open an ephemeral loopback port. AI, repositories and upstream services are mocked; live PostgreSQL cascade/locking behavior and live AI output require an environment integration check.
+
+## Calendar and reminders
+
+`CalendarModule` exposes every stage that carries a date, the reminders derived from those dates, and a personal iCalendar subscription. Prefix: `/api/v1/calendar`.
+
+| Method | Path | Auth | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/` | JWT | Stages whose `scheduledAt` or `deadlineAt` falls inside `from`/`to` |
+| `GET` | `/reminders` | JWT | What needs attention now, filtered by the user's active rules |
+| `GET` | `/settings` | JWT | Reminder rules, quiet hours, notification email, subscription token |
+| `PATCH` | `/settings` | JWT | Change any of the above |
+| `POST` | `/subscription` | JWT | Issue the subscription token once; repeated calls return the same one |
+| `GET` | `/subscription.ics?token=` | none | iCalendar feed for calendar clients, which cannot send a bearer token |
+
+Reminders are derived, never stored. `utils/reminders.utils.ts` is a pure function over open stages and is shared by the HTTP endpoint and the mailer, so the UI and the emails can never disagree:
+
+| Kind | Condition |
+| --- | --- |
+| `record_result` | `scheduledAt` is in the past while the stage is still scheduled or in progress |
+| `interview_today` | `scheduledAt` is today |
+| `deadline_soon` | `deadlineAt` is within two days |
+| `silence` | the stage awaits a result and has not changed for ten days |
+
+Email is not sent from this service. When a reminder comes due the worker writes a `workflow.reminder.due.v1` event to `outbox_events` in the same transaction as the `sent_reminders` row, so a crash can neither lose nor duplicate a message. `OutboxPublisherService` ships it to Kafka, and auth-service delivers it: only auth-service knows the user's email address, so the address never leaves the service that owns it.
+
+The worker wakes every fifteen minutes using `setInterval`, the same pattern as the vacancy outbox publisher, and queues two kinds of message: a reminder the day before an interview and a Monday digest. Quiet hours suppress queueing entirely. `reminder_settings.email_enabled` is the user's opt-in; the address itself is not stored here.

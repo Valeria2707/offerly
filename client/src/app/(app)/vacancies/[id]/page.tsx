@@ -2,7 +2,8 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { use, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
@@ -15,6 +16,7 @@ import { StageNotes } from "@/components/workflow/stage-notes";
 import { StagePreparation } from "@/components/workflow/stage-preparation";
 import { StageQuestions } from "@/components/workflow/stage-questions";
 import { StageStepper } from "@/components/workflow/stage-stepper";
+import { WorkflowReminders } from "@/components/workflow/workflow-reminders";
 import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
 import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import { ROUTES } from "@/constants/routes";
@@ -57,6 +59,9 @@ export default function VacancyWorkflowPage({
     null,
   );
   const [isAdding, setIsAdding] = useState(false);
+  const now = useMemo(() => new Date(), []);
+  // Календар веде сюди з конкретним етапом: ?stage=<id>.
+  const requestedStageId = useSearchParams().get("stage");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const addStages = useAddWorkflowStages(id);
@@ -77,7 +82,7 @@ export default function VacancyWorkflowPage({
 
   const stages = workflow?.stages ?? [];
   const selected =
-    stages.find((stage) => stage.id === selectedId) ??
+    stages.find((stage) => stage.id === (selectedId ?? requestedStageId)) ??
     stages[currentStageIndex(stages)] ??
     stages[0];
 
@@ -245,6 +250,10 @@ export default function VacancyWorkflowPage({
                   stage={selected}
                   withArtifact={selectedType?.producesArtifact ?? false}
                   pending={pending}
+                  frozen={stages.some(
+                    (stage) =>
+                      stage.status === "cancelled" && stage.id !== selected.id,
+                  )}
                   onUpdate={updateSelected}
                   onRemove={() => setStageToRemove(selected)}
                 />
@@ -274,6 +283,8 @@ export default function VacancyWorkflowPage({
               </div>
 
               <div className="grid gap-6">
+                <WorkflowReminders stages={stages} now={now} />
+
                 {vacancy && <VacancySummary vacancy={vacancy} />}
 
                 <StageNotes

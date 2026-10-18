@@ -99,7 +99,9 @@ export default function StagePreparationPage({
         {vacancy?.company ? ` · ${vacancy.company}` : ""}
       </Link>
 
-      <FormError error={error} />
+      <FormError
+        error={error instanceof ApiError && error.status === 404 ? null : error}
+      />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="grid gap-4 rounded-xl bg-card p-6 ring-1 ring-foreground/10">
