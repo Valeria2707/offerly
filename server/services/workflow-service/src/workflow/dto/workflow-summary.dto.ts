@@ -20,11 +20,18 @@ export class WorkflowSummaryQueryDto {
 
 export class StageBriefDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: 'Catalog code; null for personal stage types'
+  })
+  code!: string | null;
   @ApiProperty() name!: string;
   @ApiProperty({ enum: StageCategory }) category!: StageCategory;
   @ApiProperty({ enum: StageStatus }) status!: StageStatus;
   @ApiProperty({ nullable: true, type: Date }) scheduledAt!: Date | null;
   @ApiProperty({ nullable: true, type: Date }) deadlineAt!: Date | null;
+  @ApiProperty({ nullable: true, type: Date }) completedAt!: Date | null;
 }
 
 export class WorkflowSummaryDto {
@@ -40,4 +47,11 @@ export class WorkflowSummaryDto {
     description: 'First stage that is not finished yet'
   })
   currentStage!: StageBriefDto | null;
+  @ApiPropertyOptional({
+    type: StageBriefDto,
+    nullable: true,
+    description:
+      'Furthest stage the candidate has reached (any status except not started or skipped)'
+  })
+  reachedStage!: StageBriefDto | null;
 }

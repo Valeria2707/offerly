@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 
 import {
   addStageNoteRequest,
@@ -19,6 +24,8 @@ import {
   vacancyWorkflowRequest,
   workflowSummariesRequest,
 } from "@/api/workflow";
+import type { BoardColumn } from "@/constants/board";
+import { planMove } from "@/lib/board";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type {
   StageQuestionDraft,
@@ -33,6 +40,13 @@ export const workflowKeys = {
   summary: (vacancyIds: string[]) =>
     ["workflows", "summary", vacancyIds] as const,
 };
+
+function invalidateStages(queryClient: QueryClient, vacancyId: string) {
+  queryClient.invalidateQueries({ queryKey: workflowKeys.vacancy(vacancyId) });
+  queryClient.invalidateQueries({ queryKey: ["workflows", "summary"] });
+  queryClient.invalidateQueries({ queryKey: ["calendar"] });
+  queryClient.invalidateQueries({ queryKey: ["analytics"] });
+}
 
 export function useStageTypes() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -107,11 +121,7 @@ export function useAddWorkflowStages(vacancyId: string) {
       for (const stageTypeId of stageTypeIds)
         await addWorkflowStageRequest(token, workflowId, stageTypeId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: workflowKeys.vacancy(vacancyId),
-      });
-    },
+    onSuccess: () => invalidateStages(queryClient, vacancyId),
   });
 }
 
@@ -126,11 +136,7 @@ export function useReorderWorkflowStages(vacancyId: string) {
       workflowId: string;
       stageIds: string[];
     }) => reorderWorkflowStagesRequest(getAccessToken()!, workflowId, stageIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: workflowKeys.vacancy(vacancyId),
-      });
-    },
+    onSuccess: () => invalidateStages(queryClient, vacancyId),
   });
 }
 
@@ -148,12 +154,7 @@ export function useUpdateWorkflowStage(vacancyId: string) {
       patch: WorkflowStagePatch;
     }) =>
       updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, patch),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: workflowKeys.vacancy(vacancyId),
-      });
-      queryClient.invalidateQueries({ queryKey: ["calendar"] });
-    },
+    onSuccess: () => invalidateStages(queryClient, vacancyId),
   });
 }
 
@@ -174,13 +175,38 @@ export function useRecordStageResult() {
       updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, {
         status,
       }),
-    onSuccess: (_stage, { vacancyId }) => {
-      queryClient.invalidateQueries({
+    onSuccess: (_stage, { vacancyId }) =>
+      invalidateStages(queryClient, vacancyId),
+  });
+}
+
+export function useMoveOnBoard() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      vacancyId,
+      target,
+      codes,
+    }: {
+      vacancyId: string;
+      target: BoardColumn;
+      codes: Map<string, string | null>;
+    }) => {
+      const token = getAccessToken()!;
+      const workflow = await queryClient.fetchQuery({
         queryKey: workflowKeys.vacancy(vacancyId),
+        queryFn: () => vacancyWorkflowRequest(token, vacancyId),
+        staleTime: 0,
       });
-      queryClient.invalidateQueries({ queryKey: ["workflows", "summary"] });
-      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+
+      for (const step of planMove(workflow.stages, codes, target))
+        await updateWorkflowStageRequest(token, workflow.id, step.stageId, {
+          status: step.status,
+        });
     },
+    onSettled: (_result, _error, { vacancyId }) =>
+      invalidateStages(queryClient, vacancyId),
   });
 }
 
@@ -195,11 +221,7 @@ export function useRemoveWorkflowStage(vacancyId: string) {
       workflowId: string;
       stageId: string;
     }) => removeWorkflowStageRequest(getAccessToken()!, workflowId, stageId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: workflowKeys.vacancy(vacancyId),
-      });
-    },
+    onSuccess: () => invalidateStages(queryClient, vacancyId),
   });
 }
 

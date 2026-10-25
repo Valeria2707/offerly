@@ -16,7 +16,10 @@ import { VacancyImportProgress } from "@/components/vacancies/vacancy-import-pro
 import { VacancyListSkeleton } from "@/components/vacancies/vacancy-list-skeleton";
 import { VacancySearchInput } from "@/components/vacancies/vacancy-search-input";
 import { VacancyStats } from "@/components/vacancies/vacancy-stats";
+import { VacancyBoard } from "@/components/vacancies/vacancy-board";
 import { VacancyTable } from "@/components/vacancies/vacancy-table";
+import { VacancyViewToggle } from "@/components/vacancies/vacancy-view-toggle";
+import type { BoardColumn } from "@/constants/board";
 import { ROUTES, vacancyImportRoute } from "@/constants/routes";
 import {
   useDeleteVacancy,
@@ -24,8 +27,15 @@ import {
   useUpdateVacancy,
   useVacancies,
 } from "@/hooks/use-vacancies";
-import { useWorkflowSummaries } from "@/hooks/use-workflow";
+import { useReminders } from "@/hooks/use-calendar";
 import { useErrorMessage } from "@/hooks/use-error-message";
+import { useVacancyView } from "@/hooks/use-vacancy-view";
+import {
+  useMoveOnBoard,
+  useStageTypes,
+  useWorkflowSummaries,
+} from "@/hooks/use-workflow";
+import { MissingBoardStageError } from "@/lib/board";
 import { filterVacancies } from "@/lib/vacancy-search";
 import type { Vacancy } from "@/types/vacancy";
 
@@ -44,9 +54,32 @@ export default function VacanciesPage() {
   const [importSource, setImportSource] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [toDelete, setToDelete] = useState<Vacancy | null>(null);
+  const [view, setView] = useVacancyView();
+
+  const { data: reminders } = useReminders();
+  const { data: stageTypes } = useStageTypes();
+  const moveOnBoard = useMoveOnBoard();
 
   const notify = (cause: unknown) =>
     toast.error(errorMessage(cause), { id: "vacancy-error" });
+
+  const moveVacancy = (vacancy: Vacancy, target: BoardColumn) =>
+    moveOnBoard.mutate(
+      {
+        vacancyId: vacancy.id,
+        target,
+        codes: new Map((stageTypes ?? []).map((type) => [type.id, type.code])),
+      },
+      {
+        onError: (cause) =>
+          toast.error(
+            cause instanceof MissingBoardStageError
+              ? t("board.noStage", { target: t(`board.columns.${target}`) })
+              : errorMessage(cause),
+            { id: "vacancy-board-error" },
+          ),
+      },
+    );
 
   const startImport = (input: VacancyImportInput) => {
     setImportSource("url" in input ? input.url : null);
@@ -100,6 +133,8 @@ export default function VacanciesPage() {
 
             <VacancySearchInput value={query} onChange={setQuery} />
 
+            <VacancyViewToggle value={view} onChange={setView} />
+
             <AddVacancyPanel
               pending={importVacancy.isPending}
               onImport={startImport}
@@ -130,27 +165,43 @@ export default function VacanciesPage() {
         ) : (
           vacancies && (
             <>
-              <VacancyStats
-                total={current.length}
-                summaries={[...(summaries?.values() ?? [])]}
-              />
-              <VacancyTable
-                vacancies={visible}
-                summaries={summaries}
-                pending={updateVacancy.isPending || deleteVacancy.isPending}
-                emptyMessage={
-                  query
-                    ? t("notFound", { query })
-                    : t("empty")
-                }
-                onToggleArchive={(vacancy) =>
-                  updateVacancy.mutate(
-                    { vacancyId: vacancy.id, patch: { lifecycle: "archived" } },
-                    { onError: notify },
-                  )
-                }
-                onDelete={setToDelete}
-              />
+              {view === "list" && (
+                <VacancyStats
+                  total={current.length}
+                  summaries={[...(summaries?.values() ?? [])]}
+                />
+              )}
+              {view === "board" ? (
+                <VacancyBoard
+                  vacancies={visible}
+                  summaries={summaries}
+                  reminders={reminders ?? []}
+                  movingId={
+                    moveOnBoard.isPending
+                      ? (moveOnBoard.variables?.vacancyId ?? null)
+                      : null
+                  }
+                  onMove={moveVacancy}
+                />
+              ) : (
+                <VacancyTable
+                  vacancies={visible}
+                  summaries={summaries}
+                  pending={updateVacancy.isPending || deleteVacancy.isPending}
+                  emptyMessage={
+                    query
+                      ? t("notFound", { query })
+                      : t("empty")
+                  }
+                  onToggleArchive={(vacancy) =>
+                    updateVacancy.mutate(
+                      { vacancyId: vacancy.id, patch: { lifecycle: "archived" } },
+                      { onError: notify },
+                    )
+                  }
+                  onDelete={setToDelete}
+                />
+              )}
             </>
           )
         )}

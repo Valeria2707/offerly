@@ -117,6 +117,7 @@ export function useRescheduleStage() {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
+      queryClient.invalidateQueries({ queryKey: ["workflows", "summary"] });
     },
   });
 }

@@ -6,6 +6,8 @@ Stages sharing the same `position` run in parallel. The reorder endpoint accepts
 
 Each stage of a vacancy workflow has its own list of notes (`stage_notes`), managed via `POST|PATCH|DELETE /workflows/:workflowId/stages/:stageId/notes[/:noteId]` and returned inside every stage of the workflow response.
 
+`GET /workflows/summary?vacancyIds=` returns, per vacancy, the first unfinished stage (`currentStage`) and the furthest reached one (`reachedStage`: any status except `not_started` and `skipped`, so a rejection counts). Each brief carries the catalog `code` and `completedAt`; the frontend board places vacancies into columns by `reachedStage`.
+
 Swagger is available at `http://localhost:3004/docs` outside production.
 
 ## Stage preparation

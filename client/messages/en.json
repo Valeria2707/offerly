@@ -529,6 +529,26 @@
       "update": "Update vacancy",
       "add": "Add vacancy",
       "cancel": "Cancel"
+    },
+    "view": {
+      "label": "Vacancy list view",
+      "list": "List",
+      "board": "Board"
+    },
+    "board": {
+      "columns": {
+        "submitted": "Applied",
+        "screening": "Screening",
+        "technical": "Technical",
+        "final": "Final",
+        "offer": "Offer",
+        "rejected": "Rejected"
+      },
+      "dropHere": "Drop here",
+      "silent": "silent for {days} d",
+      "deadline": "due {date}",
+      "awaiting": "awaiting result",
+      "noStage": "This vacancy has no unfinished stage for “{target}” — add one on the vacancy page."
     }
   },
   "profile": {

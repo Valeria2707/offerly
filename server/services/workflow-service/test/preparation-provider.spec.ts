@@ -11,7 +11,8 @@ const context = {
   vacancy: { title: 'Developer' },
   profile: {},
   stage: { name: 'Submitted', category: 'administrative', code: 'submitted' },
-  instructions: ''
+  instructions: '',
+  pastQuestions: []
 };
 describe('preparation provider boundary', () => {
   afterEach(() => jest.restoreAllMocks());

@@ -22,6 +22,7 @@ import { CvPreparationStrategy } from '../src/preparation/strategies/cv-preparat
 import { HrPreparationStrategy } from '../src/preparation/strategies/hr-preparation.strategy';
 import { PreparationStrategyFactory } from '../src/preparation/strategies/preparation-strategy.factory';
 import { TechnicalPreparationStrategy } from '../src/preparation/strategies/technical-preparation.strategy';
+import { StageQuestion } from '../src/workflow/entities/stage-question.entity';
 
 const hrContent = {
   elevatorPitch: 'My experience',
@@ -216,9 +217,22 @@ function fixture(): {
       callback: (value: typeof manager) => Promise<unknown>
     ): Promise<unknown> => callback(manager)
   };
+  const questionQuery: Record<string, unknown> = { getMany: async () => [] };
+  for (const method of [
+    'innerJoin',
+    'where',
+    'andWhere',
+    'orderBy',
+    'addOrderBy',
+    'limit',
+    'select'
+  ])
+    questionQuery[method] = () => questionQuery;
+  const questions = { createQueryBuilder: () => questionQuery };
   return {
     service: new PreparationService(
       preparations as unknown as Repository<StagePreparationData>,
+      questions as unknown as Repository<StageQuestion>,
       workflows as unknown as WorkflowService,
       { load } as unknown as PreparationContextService,
       factory,

@@ -95,11 +95,13 @@ export type WorkflowStagePatch = {
 
 export type StageBrief = {
   id: string;
+  code: string | null;
   name: string;
   category: StageCategory;
   status: StageStatus;
   scheduledAt: string | null;
   deadlineAt: string | null;
+  completedAt: string | null;
 };
 
 export type WorkflowSummary = {
@@ -109,6 +111,7 @@ export type WorkflowSummary = {
   rejected: boolean;
   offered: boolean;
   currentStage: StageBrief | null;
+  reachedStage: StageBrief | null;
 };
 
 export type ApplicationWorkflow = {

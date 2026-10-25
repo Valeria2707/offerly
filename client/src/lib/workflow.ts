@@ -6,7 +6,12 @@ import {
   SYSTEM_STAGE_KEYS,
   type SystemStageName,
 } from "@/constants/workflow";
-import type { StageType, WorkflowStage } from "@/types/workflow";
+import type {
+  StageBrief,
+  StageType,
+  WorkflowStage,
+  WorkflowSummary,
+} from "@/types/workflow";
 
 type StageTypeMetaT = ReturnType<typeof useTranslations<"stageTypes.meta">>;
 
@@ -85,4 +90,12 @@ export function currentStageIndex(stages: WorkflowStage[]): number {
   return stages.findIndex(
     (stage) => !CLOSED_STAGE_STATUSES.includes(stage.status),
   );
+}
+
+export function displayStage(
+  summary: WorkflowSummary | undefined,
+): StageBrief | null {
+  if (!summary) return null;
+  if (summary.rejected || summary.offered) return summary.reachedStage;
+  return summary.currentStage;
 }
