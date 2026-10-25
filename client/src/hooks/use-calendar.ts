@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addDays, startOfDay } from "date-fns";
 
 import {
   calendarEventsRequest,
@@ -21,6 +22,7 @@ export const calendarKeys = {
   month: (from: string) => ["calendar", "month", from] as const,
   reminders: ["calendar", "reminders"] as const,
   settings: ["calendar", "settings"] as const,
+  upcoming: (days: number) => ["calendar", "upcoming", days] as const,
 };
 
 export function useCalendarMonth(month: Date) {
@@ -30,6 +32,23 @@ export function useCalendarMonth(month: Date) {
   return useQuery({
     queryKey: calendarKeys.month(from),
     queryFn: () => calendarEventsRequest(getAccessToken()!, from, to),
+    enabled: Boolean(accessToken),
+  });
+}
+
+export function useUpcomingEvents(days: number) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  return useQuery({
+    queryKey: calendarKeys.upcoming(days),
+    queryFn: () => {
+      const from = startOfDay(new Date());
+      return calendarEventsRequest(
+        getAccessToken()!,
+        from.toISOString(),
+        addDays(from, days).toISOString(),
+      );
+    },
     enabled: Boolean(accessToken),
   });
 }

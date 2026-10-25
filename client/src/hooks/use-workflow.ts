@@ -22,6 +22,7 @@ import {
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type {
   StageQuestionDraft,
+  StageStatus,
   StageTypeDraft,
   WorkflowStagePatch,
 } from "@/types/workflow";
@@ -151,6 +152,33 @@ export function useUpdateWorkflowStage(vacancyId: string) {
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+    },
+  });
+}
+
+export function useRecordStageResult() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      workflowId,
+      stageId,
+      status,
+    }: {
+      vacancyId: string;
+      workflowId: string;
+      stageId: string;
+      status: StageStatus;
+    }) =>
+      updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, {
+        status,
+      }),
+    onSuccess: (_stage, { vacancyId }) => {
+      queryClient.invalidateQueries({
+        queryKey: workflowKeys.vacancy(vacancyId),
+      });
+      queryClient.invalidateQueries({ queryKey: ["workflows", "summary"] });
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
