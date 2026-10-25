@@ -9,6 +9,7 @@ export const ROUTES = {
   vacancies: "/vacancies",
   vacancyArchive: "/vacancies/archive",
   calendar: "/calendar",
+  analytics: "/analytics",
   stageTypes: "/stage-types",
 } as const;
 

@@ -72,3 +72,23 @@ Reminders are derived, never stored. `utils/reminders.utils.ts` is a pure functi
 Email is not sent from this service. When a reminder comes due the worker writes a `workflow.reminder.due.v1` event to `outbox_events` in the same transaction as the `sent_reminders` row, so a crash can neither lose nor duplicate a message. `OutboxPublisherService` ships it to Kafka, and auth-service delivers it: only auth-service knows the user's email address, so the address never leaves the service that owns it.
 
 The worker wakes every fifteen minutes using `setInterval`, the same pattern as the vacancy outbox publisher, and queues two kinds of message: a reminder the day before an interview and a Monday digest. Quiet hours suppress queueing entirely. `reminder_settings.email_enabled` is the user's opt-in; the address itself is not stored here.
+
+## Analytics
+
+`AnalyticsModule` exposes `GET /api/v1/analytics?period=7|30|90` (JWT). Omit `period` for the whole history. The response is computed on every request and nothing is stored.
+
+Workflows and stages are read from this service's own tables. The vacancy list and the profile are fetched from vacancy-service and profile-service through their authenticated REST APIs with the caller's bearer token, the same way preparation does. A failed upstream call returns 503; an expired token returns 401.
+
+All calculations live in `utils/analytics.utils.ts` as pure functions:
+
+| Block | Rule |
+| --- | --- |
+| Summary | Vacancies added in the period, the previous period of the same length, active and awaiting processes, offers per added vacancy, average days from adding to an offer or rejection |
+| Funnel | Added → reached a screening stage → reached a technical stage → reached a behavioral (final) stage → offer completed. "Reached" means any status except `not_started` and `skipped` |
+| Outcomes | Offer completed; rejected or archived; a stage awaits a result; everything else is in progress |
+| Weekly | Monday-based UTC weeks (4–13 for a period, 12 for the whole history): vacancies added and stages completed |
+| Categories | Completed versus cancelled stages for each category |
+| Skills | Top required skills of the period, case-insensitive, marked when present in the profile |
+| Work format | Vacancies grouped by `workFormat`; unknown is `null` |
+
+The `submitted` stage is completed automatically when a workflow is created, so it is excluded from weekly activity and category results.

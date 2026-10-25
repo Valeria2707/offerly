@@ -76,6 +76,11 @@ export const CALENDAR_ROUTES = {
     `${WORKFLOW_API_BASE_URL}/calendar/subscription.ics?token=${token}`,
 } as const;
 
+export const ANALYTICS_ROUTES = {
+  analytics: (period: number | null) =>
+    period ? `/analytics?period=${period}` : "/analytics",
+} as const;
+
 export const API_ERROR_MESSAGES: Record<number, string> = {
   400: "Перевірте введені дані.",
   401: "Невірний email або пароль.",

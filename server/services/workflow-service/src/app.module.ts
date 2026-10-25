@@ -1,3 +1,4 @@
+import { AnalyticsModule } from './analytics/analytics.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { ReminderSettings } from './calendar/entities/reminder-settings.entity';
 import { SentReminder } from './calendar/entities/sent-reminder.entity';
@@ -60,6 +61,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     EventsModule,
     PreparationModule,
     CalendarModule,
+    AnalyticsModule,
     OutboxModule
   ],
   controllers: [HealthController]

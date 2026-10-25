@@ -15,7 +15,7 @@ export function initials(name: string | undefined) {
     .join("");
 }
 
-function pluralizeDays(days: number) {
+export function pluralizeDays(days: number) {
   const lastTwo = days % 100;
   if (lastTwo >= 11 && lastTwo <= 14) return "днів";
 
