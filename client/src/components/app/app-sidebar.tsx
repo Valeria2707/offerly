@@ -63,15 +63,21 @@ export function AppSidebar() {
       </div>
 
       <div className="mt-6 flex items-center gap-2.5 border-t border-sidebar-border px-2 pt-4">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-[10px] text-primary-foreground">
-          {initials(user?.name)}
-        </span>
-        <span className="grid min-w-0 flex-1">
-          <span className="truncate text-sm font-medium">{user?.name}</span>
-          <span className="truncate font-mono text-[10px] text-subtle">
-            {user?.email}
+        <Link
+          href={ROUTES.profile}
+          aria-label="Відкрити профіль"
+          className="flex min-w-0 flex-1 items-center gap-2.5"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-[10px] text-primary-foreground">
+            {initials(user?.name)}
           </span>
-        </span>
+          <span className="grid min-w-0 flex-1">
+            <span className="truncate text-sm font-medium">{user?.name}</span>
+            <span className="truncate font-mono text-[10px] text-subtle">
+              {user?.email}
+            </span>
+          </span>
+        </Link>
         <button
           type="button"
           disabled={logout.isPending}
