@@ -7,7 +7,8 @@ export const DEADLINE_DAYS = 2;
 export const FINISHED_STATUSES = new Set([
   StageStatus.COMPLETED,
   StageStatus.CANCELLED,
-  StageStatus.SKIPPED
+  StageStatus.SKIPPED,
+  StageStatus.CANCELLED_BY_COMPANY
 ]);
 
 export const SUBSCRIPTION_MONTHS = 6;

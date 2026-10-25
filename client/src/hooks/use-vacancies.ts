@@ -1,6 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import {
   applyVacancyImportRequest,
@@ -12,6 +14,7 @@ import {
   vacancyImportRequest,
   vacancyRequest,
 } from "@/api/vacancies";
+import { vacancyUpdateToast } from "@/lib/toasts";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type { VacancyDraft, VacancyPatch } from "@/types/vacancy";
 
@@ -62,6 +65,7 @@ export function useImportVacancy() {
 
 export function useApplyVacancyImport() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -72,6 +76,7 @@ export function useApplyVacancyImport() {
       draft: VacancyDraft;
     }) => applyVacancyImportRequest(getAccessToken()!, importId, draft),
     onSuccess: () => {
+      toast.success(t("toasts.vacancyAdded"));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
     },
   });
@@ -79,6 +84,7 @@ export function useApplyVacancyImport() {
 
 export function useUpdateVacancy() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -88,7 +94,8 @@ export function useUpdateVacancy() {
       vacancyId: string;
       patch: VacancyPatch;
     }) => updateVacancyRequest(getAccessToken()!, vacancyId, patch),
-    onSuccess: (_vacancy, { vacancyId }) => {
+    onSuccess: (_vacancy, { vacancyId, patch }) => {
+      toast.success(vacancyUpdateToast(patch, t));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
       queryClient.invalidateQueries({ queryKey: vacancyKeys.detail(vacancyId) });
     },
@@ -97,11 +104,13 @@ export function useUpdateVacancy() {
 
 export function useDeleteVacancy() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: (vacancyId: string) =>
       deleteVacancyRequest(getAccessToken()!, vacancyId),
     onSuccess: () => {
+      toast.success(t("toasts.vacancyDeleted"));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
     },
   });

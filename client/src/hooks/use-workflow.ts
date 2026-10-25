@@ -6,6 +6,8 @@ import {
   useQueryClient,
   type QueryClient,
 } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import {
   addStageNoteRequest,
@@ -26,6 +28,7 @@ import {
 } from "@/api/workflow";
 import type { BoardColumn } from "@/constants/board";
 import { planMove } from "@/lib/board";
+import { boardMoveToast, stageUpdateToast } from "@/lib/toasts";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type {
   StageQuestionDraft,
@@ -60,11 +63,13 @@ export function useStageTypes() {
 
 export function useCreateStageType() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: (draft: StageTypeDraft) =>
       createStageTypeRequest(getAccessToken()!, draft),
     onSuccess: () => {
+      toast.success(t("toasts.stageTypeCreated"));
       queryClient.invalidateQueries({ queryKey: workflowKeys.stageTypes });
     },
   });
@@ -72,11 +77,13 @@ export function useCreateStageType() {
 
 export function useDeleteStageType() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: (stageTypeId: string) =>
       deleteStageTypeRequest(getAccessToken()!, stageTypeId),
     onSuccess: () => {
+      toast.success(t("toasts.stageTypeDeleted"));
       queryClient.invalidateQueries({ queryKey: workflowKeys.stageTypes });
     },
   });
@@ -107,6 +114,7 @@ export function useVacancyWorkflow(vacancyId: string) {
 
 export function useAddWorkflowStages(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: async ({
@@ -121,12 +129,16 @@ export function useAddWorkflowStages(vacancyId: string) {
       for (const stageTypeId of stageTypeIds)
         await addWorkflowStageRequest(token, workflowId, stageTypeId);
     },
-    onSuccess: () => invalidateStages(queryClient, vacancyId),
+    onSuccess: () => {
+      invalidateStages(queryClient, vacancyId);
+      toast.success(t("toasts.stagesAdded"));
+    },
   });
 }
 
 export function useReorderWorkflowStages(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -136,12 +148,16 @@ export function useReorderWorkflowStages(vacancyId: string) {
       workflowId: string;
       stageIds: string[];
     }) => reorderWorkflowStagesRequest(getAccessToken()!, workflowId, stageIds),
-    onSuccess: () => invalidateStages(queryClient, vacancyId),
+    onSuccess: () => {
+      invalidateStages(queryClient, vacancyId);
+      toast.success(t("toasts.stagesReordered"));
+    },
   });
 }
 
 export function useUpdateWorkflowStage(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -154,12 +170,16 @@ export function useUpdateWorkflowStage(vacancyId: string) {
       patch: WorkflowStagePatch;
     }) =>
       updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, patch),
-    onSuccess: () => invalidateStages(queryClient, vacancyId),
+    onSuccess: (_stage, { patch }) => {
+      invalidateStages(queryClient, vacancyId);
+      toast.success(stageUpdateToast(patch, t));
+    },
   });
 }
 
 export function useRecordStageResult() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -175,13 +195,16 @@ export function useRecordStageResult() {
       updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, {
         status,
       }),
-    onSuccess: (_stage, { vacancyId }) =>
-      invalidateStages(queryClient, vacancyId),
+    onSuccess: (_stage, { vacancyId, status }) => {
+      invalidateStages(queryClient, vacancyId);
+      toast.success(stageUpdateToast({ status }, t));
+    },
   });
 }
 
 export function useMoveOnBoard() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: async ({
@@ -205,6 +228,8 @@ export function useMoveOnBoard() {
           status: step.status,
         });
     },
+    onSuccess: (_result, { target }) =>
+      toast.success(boardMoveToast(target, t)),
     onSettled: (_result, _error, { vacancyId }) =>
       invalidateStages(queryClient, vacancyId),
   });
@@ -212,6 +237,7 @@ export function useMoveOnBoard() {
 
 export function useRemoveWorkflowStage(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -221,12 +247,16 @@ export function useRemoveWorkflowStage(vacancyId: string) {
       workflowId: string;
       stageId: string;
     }) => removeWorkflowStageRequest(getAccessToken()!, workflowId, stageId),
-    onSuccess: () => invalidateStages(queryClient, vacancyId),
+    onSuccess: () => {
+      invalidateStages(queryClient, vacancyId);
+      toast.success(t("toasts.stageRemoved"));
+    },
   });
 }
 
 export function useAddStageNote(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -239,6 +269,7 @@ export function useAddStageNote(vacancyId: string) {
       content: string;
     }) => addStageNoteRequest(getAccessToken()!, workflowId, stageId, content),
     onSuccess: () => {
+      toast.success(t("toasts.noteAdded"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
@@ -248,6 +279,7 @@ export function useAddStageNote(vacancyId: string) {
 
 export function useUpdateStageNote(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -269,6 +301,7 @@ export function useUpdateStageNote(vacancyId: string) {
         content,
       ),
     onSuccess: () => {
+      toast.success(t("toasts.noteUpdated"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
@@ -278,6 +311,7 @@ export function useUpdateStageNote(vacancyId: string) {
 
 export function useRemoveStageNote(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -291,6 +325,7 @@ export function useRemoveStageNote(vacancyId: string) {
     }) =>
       removeStageNoteRequest(getAccessToken()!, workflowId, stageId, noteId),
     onSuccess: () => {
+      toast.success(t("toasts.noteRemoved"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
@@ -300,6 +335,7 @@ export function useRemoveStageNote(vacancyId: string) {
 
 export function useAddStageQuestion(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -313,6 +349,7 @@ export function useAddStageQuestion(vacancyId: string) {
     }) =>
       addStageQuestionRequest(getAccessToken()!, workflowId, stageId, draft),
     onSuccess: () => {
+      toast.success(t("toasts.questionAdded"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
@@ -322,6 +359,7 @@ export function useAddStageQuestion(vacancyId: string) {
 
 export function useUpdateStageQuestion(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -343,6 +381,7 @@ export function useUpdateStageQuestion(vacancyId: string) {
         draft,
       ),
     onSuccess: () => {
+      toast.success(t("toasts.questionUpdated"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });
@@ -352,6 +391,7 @@ export function useUpdateStageQuestion(vacancyId: string) {
 
 export function useRemoveStageQuestion(vacancyId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -370,6 +410,7 @@ export function useRemoveStageQuestion(vacancyId: string) {
         questionId,
       ),
     onSuccess: () => {
+      toast.success(t("toasts.questionRemoved"));
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
       });

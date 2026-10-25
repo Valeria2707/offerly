@@ -24,7 +24,8 @@ import { WorkflowStage } from './entities/workflow-stage.entity';
 import { StageStatus } from './workflow.enums';
 const CLOSING_STATUSES = new Set([
   StageStatus.COMPLETED,
-  StageStatus.CANCELLED
+  StageStatus.CANCELLED,
+  StageStatus.CANCELLED_BY_COMPANY
 ]);
 
 const DEFAULT_STAGE_CODES = [
@@ -164,6 +165,7 @@ export class WorkflowService {
       throw new BadRequestException(
         'Vacancy was rejected: other stage statuses are frozen'
       );
+    const status = input.status ?? stage.status;
     Object.assign(stage, input, {
       scheduledAt:
         input.scheduledAt === undefined
@@ -182,6 +184,7 @@ export class WorkflowService {
       if (CLOSING_STATUSES.has(input.status)) stage.completedAt ??= new Date();
       else stage.completedAt = null;
     }
+    if (status !== StageStatus.CANCELLED) stage.rejectionReason = null;
     return this.stages.save(stage);
   }
   async removeStage(

@@ -15,6 +15,7 @@ export const STAGE_STATUS_CLASSES: Record<StageStatus, string> = {
   completed: "bg-success-muted text-success",
   cancelled: "bg-rejected-muted text-rejected",
   skipped: "bg-muted text-subtle",
+  cancelled_by_company: "bg-muted text-subtle",
 };
 
 export const SYSTEM_STAGE_KEYS = {
@@ -39,6 +40,7 @@ export const CLOSED_STAGE_STATUSES: StageStatus[] = [
   "completed",
   "cancelled",
   "skipped",
+  "cancelled_by_company",
 ];
 
 export const MAX_STAGE_DURATION_MINUTES = 1440;

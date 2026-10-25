@@ -52,7 +52,7 @@ export function VacancyBoard({
   };
 
   return (
-    <div className="overflow-x-auto pb-2">
+    <div className="overflow-x-auto px-px pb-2">
       <div className="grid min-w-[60rem] grid-cols-6">
         {BOARD_COLUMNS.map((column) => {
           const items = vacancies.filter(

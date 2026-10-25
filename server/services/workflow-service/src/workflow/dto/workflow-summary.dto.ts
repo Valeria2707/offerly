@@ -1,7 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsUUID } from 'class-validator';
-import { StageCategory, StageStatus } from '../workflow.enums';
+import {
+  RejectionReason,
+  StageCategory,
+  StageStatus
+} from '../workflow.enums';
 
 export class WorkflowSummaryQueryDto {
   @ApiProperty({
@@ -32,6 +36,8 @@ export class StageBriefDto {
   @ApiProperty({ nullable: true, type: Date }) scheduledAt!: Date | null;
   @ApiProperty({ nullable: true, type: Date }) deadlineAt!: Date | null;
   @ApiProperty({ nullable: true, type: Date }) completedAt!: Date | null;
+  @ApiProperty({ enum: RejectionReason, nullable: true })
+  rejectionReason!: RejectionReason | null;
 }
 
 export class WorkflowSummaryDto {

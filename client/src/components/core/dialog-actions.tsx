@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function DialogActions({
   submitLabel,
+  cancelLabel,
   variant = "default",
   pending,
   disabled,
@@ -12,6 +13,7 @@ export function DialogActions({
   onSubmit,
 }: {
   submitLabel: string;
+  cancelLabel?: string;
   variant?: "default" | "destructive";
   pending: boolean;
   disabled: boolean;
@@ -23,7 +25,7 @@ export function DialogActions({
   return (
     <div className="mt-4 grid grid-cols-2 gap-3">
       <Button type="button" variant="secondary" onClick={onCancel}>
-        {t("cancel")}
+        {cancelLabel ?? t("cancel")}
       </Button>
       <Button
         type="button"

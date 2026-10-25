@@ -8,7 +8,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { StageCategory, StageStatus } from '../workflow.enums';
+import {
+  RejectionReason,
+  StageCategory,
+  StageStatus
+} from '../workflow.enums';
 import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { ApplicationWorkflow } from './application-workflow.entity';
 import { StageNote } from './stage-note.entity';
@@ -56,6 +60,14 @@ export class WorkflowStage {
   deadlineAt!: Date | null;
   @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
   completedAt!: Date | null;
+  @Column({
+    name: 'rejection_reason',
+    type: 'enum',
+    enum: RejectionReason,
+    enumName: 'rejection_reason_enum',
+    nullable: true
+  })
+  rejectionReason!: RejectionReason | null;
   @OneToMany(() => StageNote, (note) => note.stage)
   notes!: StageNote[];
   @OneToMany(() => StageQuestion, (question) => question.stage)

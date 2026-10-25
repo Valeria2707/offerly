@@ -106,10 +106,16 @@ export function boardNote(
 
   if (column === "rejected") {
     if (!reached?.completedAt) return null;
+
+    const date = format(new Date(reached.completedAt), "d MMM", options);
+    const reason = reached.rejectionReason
+      ? t(`workflow.rejectionReasons.${reached.rejectionReason}`)
+      : null;
+
     return {
       icon: "x",
       tone: "muted",
-      text: format(new Date(reached.completedAt), "d MMM", options),
+      text: reason ? `${date} · ${reason}` : date,
     };
   }
   if (silentDays !== null)

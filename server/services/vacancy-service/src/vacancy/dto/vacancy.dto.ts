@@ -1,8 +1,14 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  IntersectionType,
+  PartialType
+} from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
+  IsEmail,
   IsEnum,
   IsOptional,
   IsString,
@@ -86,7 +92,36 @@ export class VacancyDraftDto {
   sourceUrl?: string | null;
 }
 
-export class UpdateVacancyDto extends PartialType(VacancyDraftDto) {
+export class RecruiterContactDto {
+  @ApiPropertyOptional({ nullable: true, maxLength: 200 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  recruiterName?: string | null;
+  @ApiPropertyOptional({ nullable: true, maxLength: 320 })
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(320)
+  recruiterEmail?: string | null;
+  @ApiPropertyOptional({ nullable: true, maxLength: 50 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  recruiterPhone?: string | null;
+  @ApiPropertyOptional({
+    nullable: true,
+    description: 'LinkedIn, Telegram or any other profile link'
+  })
+  @IsOptional()
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
+  @MaxLength(2048)
+  recruiterUrl?: string | null;
+}
+
+export class UpdateVacancyDto extends IntersectionType(
+  PartialType(VacancyDraftDto),
+  RecruiterContactDto
+) {
   @ApiPropertyOptional({ enum: VacancyLifecycle })
   @IsOptional()
   @IsEnum(VacancyLifecycle)
@@ -123,7 +158,10 @@ export class ApplyVacancyImportDto {
   draft?: VacancyDraftDto;
 }
 
-export class VacancyResponseDto extends VacancyDraftDto {
+export class VacancyResponseDto extends IntersectionType(
+  VacancyDraftDto,
+  RecruiterContactDto
+) {
   @ApiProperty() id!: string;
   @ApiProperty({ enum: VacancyLifecycle }) lifecycle!: VacancyLifecycle;
   @ApiProperty() createdAt!: Date;

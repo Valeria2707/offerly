@@ -27,3 +27,11 @@ export function formatDaysAgo(isoDate: string, locale: Locale) {
     "day",
   );
 }
+
+export function urlHost(url: string) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}

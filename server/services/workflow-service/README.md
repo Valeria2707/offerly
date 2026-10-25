@@ -6,6 +6,8 @@ Stages sharing the same `position` run in parallel. The reorder endpoint accepts
 
 Each stage of a vacancy workflow has its own list of notes (`stage_notes`), managed via `POST|PATCH|DELETE /workflows/:workflowId/stages/:stageId/notes[/:noteId]` and returned inside every stage of the workflow response.
 
+Stage statuses: `not_started`, `scheduled`, `in_progress`, `awaiting_result`, `completed`, `cancelled` (the candidate did not pass — the whole vacancy is rejected and other statuses freeze), `skipped`, and `cancelled_by_company` (the company called the stage off; the process goes on). A `cancelled` stage may carry a `rejectionReason` from a fixed classifier (`skills`, `experience`, `salary`, `language`, `location`, `culture_fit`, `test_task`, `position_closed`, `other_candidate`, `candidate_declined`, `no_reason`, `other`); any other status clears it.
+
 `GET /workflows/summary?vacancyIds=` returns, per vacancy, the first unfinished stage (`currentStage`) and the furthest reached one (`reachedStage`: any status except `not_started` and `skipped`, so a rejection counts). Each brief carries the catalog `code` and `completedAt`; the frontend board places vacancies into columns by `reachedStage`.
 
 Swagger is available at `http://localhost:3004/docs` outside production.

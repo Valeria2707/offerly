@@ -186,7 +186,8 @@
       "awaiting_result": "Очікую результат",
       "completed": "Пройдено",
       "cancelled": "Відмова",
-      "skipped": "Пропущено"
+      "skipped": "Пропущено",
+      "cancelled_by_company": "Скасовано компанією"
     },
     "systemStages": {
       "submitted": "Подано",
@@ -228,7 +229,10 @@
       "meetingName": "зустріч",
       "meetingEmpty": "призначити зустріч",
       "deadlineLabel": "Дедлайн",
-      "deadlineName": "дедлайн"
+      "deadlineName": "дедлайн",
+      "rejectionReason": "Причина відмови",
+      "rejectionReasonEmpty": "Вкажіть причину відмови",
+      "frozenSelect": "Вакансію закрито відмовою — щоб відкрити інші етапи, зніміть відмову"
     },
     "notes": {
       "title": "Замітки етапу",
@@ -253,6 +257,29 @@
     "removeStage": {
       "title": "Видалити етап?",
       "description": "«{name}» зникне зі списку етапів цієї заявки разом із підготовкою та замітками."
+    },
+    "rejectionReasons": {
+      "skills": "Бракує навичок",
+      "experience": "Замало досвіду",
+      "salary": "Зарплатні очікування",
+      "language": "Рівень мови",
+      "location": "Локація / формат / віза",
+      "culture_fit": "Culture fit",
+      "test_task": "Тестове не пройдено",
+      "position_closed": "Позицію закрили",
+      "other_candidate": "Обрали іншого кандидата",
+      "candidate_declined": "Відмова з мого боку",
+      "no_reason": "Без пояснень",
+      "other": "Інше"
+    },
+    "rejection": {
+      "title": "Чому відмовили?",
+      "skip": "Пропустити",
+      "saveRejection": "Зберегти відмову",
+      "save": "Зберегти",
+      "reason": "Причина: {reason}",
+      "empty": "Причину не вказано",
+      "edit": "Змінити причину відмови"
     }
   },
   "stageTypes": {
@@ -517,8 +544,6 @@
     "review": {
       "title": "Перевірте розібрані дані",
       "description": "AI заповнив поля з оголошення — виправте те, що розпізнано неточно, перед додаванням",
-      "updated": "Вакансію оновлено",
-      "added": "Вакансію додано",
       "duplicate": "Дублікат",
       "duplicateHint": "Схожа вакансія вже додана — «{title} · {company}». Збереження оновить її, а не створить другий запис про ту саму позицію.",
       "parsed": "Розібрані дані",
@@ -549,6 +574,27 @@
       "deadline": "дедлайн {date}",
       "awaiting": "чекаю результат",
       "noStage": "У цієї вакансії немає незавершеного етапу для колонки «{target}» — додайте його на сторінці вакансії."
+    },
+    "recruiter": {
+      "title": "Контакт рекрутера",
+      "edit": "Редагувати контакт",
+      "add": "Додати контакт",
+      "empty": "Збережіть, з ким ви спілкуєтесь, щоб швидко написати follow-up.",
+      "save": "Зберегти",
+      "cancel": "Скасувати",
+      "fields": {
+        "recruiterName": "Імʼя",
+        "recruiterEmail": "Email",
+        "recruiterPhone": "Телефон",
+        "recruiterUrl": "LinkedIn чи інше посилання"
+      },
+      "placeholders": {
+        "recruiterName": "Олена Коваль",
+        "recruiterEmail": "recruiter@company.com",
+        "recruiterPhone": "+48 600 000 000",
+        "recruiterUrl": "https://linkedin.com/in/…"
+      },
+      "description": "з ким ви спілкуєтесь щодо цієї вакансії — усі поля необовʼязкові"
     }
   },
   "profile": {
@@ -749,5 +795,40 @@
         "languages": "мови"
       }
     }
+  },
+  "toasts": {
+    "stagePassed": "Етап пройдено",
+    "stageRejected": "Відмову збережено",
+    "stageStatus": "Статус змінено: {status}",
+    "rejectionReason": "Причину відмови збережено",
+    "meetingSet": "Дату зустрічі збережено",
+    "meetingCleared": "Дату зустрічі прибрано",
+    "deadlineSet": "Дедлайн збережено",
+    "deadlineCleared": "Дедлайн прибрано",
+    "artifactSaved": "Посилання збережено",
+    "stageUpdated": "Етап оновлено",
+    "stageRescheduled": "Етап перенесено",
+    "movedTo": "Перенесено в «{column}»",
+    "stagesAdded": "Етапи додано",
+    "stagesReordered": "Порядок етапів змінено",
+    "stageRemoved": "Етап видалено",
+    "stageTypeCreated": "Тип етапу створено",
+    "stageTypeDeleted": "Тип етапу видалено",
+    "noteAdded": "Нотатку додано",
+    "noteUpdated": "Нотатку оновлено",
+    "noteRemoved": "Нотатку видалено",
+    "questionAdded": "Питання додано",
+    "questionUpdated": "Питання оновлено",
+    "questionRemoved": "Питання видалено",
+    "vacancyAdded": "Вакансію додано",
+    "vacancyUpdated": "Вакансію оновлено",
+    "vacancyArchived": "Вакансію перенесено в архів",
+    "vacancyRestored": "Вакансію відновлено",
+    "vacancyDeleted": "Вакансію видалено",
+    "recruiterSaved": "Контакт рекрутера збережено",
+    "preparationReady": "Підготовку згенеровано",
+    "preparationDeleted": "Підготовку видалено",
+    "settingsSaved": "Налаштування збережено",
+    "subscriptionReady": "Посилання на календар створено"
   }
 }

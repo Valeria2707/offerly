@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FormProvider, useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { TagListField } from "@/components/core/tag-list-field";
@@ -44,7 +43,6 @@ export function ImportReviewForm({
     const draft = toVacancyDraft(values);
     const options = {
       onSuccess: () => {
-        toast.success(duplicate ? t("updated") : t("added"));
         router.push(ROUTES.vacancies);
       },
     };

@@ -60,6 +60,34 @@ export class Vacancy {
   @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
   sourceUrl!: string | null;
   @Column({
+    name: 'recruiter_name',
+    type: 'varchar',
+    length: 200,
+    nullable: true
+  })
+  recruiterName!: string | null;
+  @Column({
+    name: 'recruiter_email',
+    type: 'varchar',
+    length: 320,
+    nullable: true
+  })
+  recruiterEmail!: string | null;
+  @Column({
+    name: 'recruiter_phone',
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  recruiterPhone!: string | null;
+  @Column({
+    name: 'recruiter_url',
+    type: 'varchar',
+    length: 2048,
+    nullable: true
+  })
+  recruiterUrl!: string | null;
+  @Column({
     type: 'enum',
     enum: VacancyLifecycle,
     default: VacancyLifecycle.ACTIVE

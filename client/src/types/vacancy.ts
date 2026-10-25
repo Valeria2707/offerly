@@ -20,14 +20,22 @@ export type VacancyDraft = {
   sourceUrl: string | null;
 };
 
-export type Vacancy = VacancyDraft & {
-  id: string;
-  lifecycle: VacancyLifecycle;
-  createdAt: string;
-  updatedAt: string;
+export type RecruiterContact = {
+  recruiterName: string | null;
+  recruiterEmail: string | null;
+  recruiterPhone: string | null;
+  recruiterUrl: string | null;
 };
 
-export type VacancyPatch = Partial<VacancyDraft> & {
+export type Vacancy = VacancyDraft &
+  RecruiterContact & {
+    id: string;
+    lifecycle: VacancyLifecycle;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+export type VacancyPatch = Partial<VacancyDraft & RecruiterContact> & {
   lifecycle?: VacancyLifecycle;
 };
 

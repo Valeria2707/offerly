@@ -186,7 +186,8 @@
       "awaiting_result": "Awaiting result",
       "completed": "Passed",
       "cancelled": "Rejected",
-      "skipped": "Skipped"
+      "skipped": "Skipped",
+      "cancelled_by_company": "Cancelled by company"
     },
     "systemStages": {
       "submitted": "Applied",
@@ -228,7 +229,10 @@
       "meetingName": "meeting",
       "meetingEmpty": "schedule a meeting",
       "deadlineLabel": "Deadline",
-      "deadlineName": "deadline"
+      "deadlineName": "deadline",
+      "rejectionReason": "Rejection reason",
+      "rejectionReasonEmpty": "Select the rejection reason",
+      "frozenSelect": "The vacancy was closed with a rejection — undo it to open other stages"
     },
     "notes": {
       "title": "Stage notes",
@@ -253,6 +257,29 @@
     "removeStage": {
       "title": "Delete stage?",
       "description": "“{name}” will be removed from this application’s stages together with its preparation and notes."
+    },
+    "rejectionReasons": {
+      "skills": "Missing skills",
+      "experience": "Not enough experience",
+      "salary": "Salary expectations",
+      "language": "Language level",
+      "location": "Location / format / visa",
+      "culture_fit": "Culture fit",
+      "test_task": "Test task not passed",
+      "position_closed": "Position closed",
+      "other_candidate": "Another candidate chosen",
+      "candidate_declined": "Withdrawn by me",
+      "no_reason": "No explanation",
+      "other": "Other"
+    },
+    "rejection": {
+      "title": "Why were you rejected?",
+      "skip": "Skip",
+      "saveRejection": "Save rejection",
+      "save": "Save",
+      "reason": "Reason: {reason}",
+      "empty": "No reason specified",
+      "edit": "Change rejection reason"
     }
   },
   "stageTypes": {
@@ -517,8 +544,6 @@
     "review": {
       "title": "Check the parsed data",
       "description": "The AI filled in the fields from the posting — fix anything recognised inaccurately before adding",
-      "updated": "Vacancy updated",
-      "added": "Vacancy added",
       "duplicate": "Duplicate",
       "duplicateHint": "A similar vacancy has already been added — “{title} · {company}”. Saving will update it instead of creating a second record for the same position.",
       "parsed": "Parsed data",
@@ -549,6 +574,27 @@
       "deadline": "due {date}",
       "awaiting": "awaiting result",
       "noStage": "This vacancy has no unfinished stage for “{target}” — add one on the vacancy page."
+    },
+    "recruiter": {
+      "title": "Recruiter contact",
+      "edit": "Edit contact",
+      "add": "Add contact",
+      "empty": "Save who you’re talking to so you can send a follow-up quickly.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "fields": {
+        "recruiterName": "Name",
+        "recruiterEmail": "Email",
+        "recruiterPhone": "Phone",
+        "recruiterUrl": "LinkedIn or another link"
+      },
+      "placeholders": {
+        "recruiterName": "Olena Koval",
+        "recruiterEmail": "recruiter@company.com",
+        "recruiterPhone": "+48 600 000 000",
+        "recruiterUrl": "https://linkedin.com/in/…"
+      },
+      "description": "who you’re talking to about this vacancy — all fields are optional"
     }
   },
   "profile": {
@@ -749,5 +795,40 @@
         "languages": "languages"
       }
     }
+  },
+  "toasts": {
+    "stagePassed": "Stage passed",
+    "stageRejected": "Rejection saved",
+    "stageStatus": "Status changed: {status}",
+    "rejectionReason": "Rejection reason saved",
+    "meetingSet": "Meeting date saved",
+    "meetingCleared": "Meeting date cleared",
+    "deadlineSet": "Deadline saved",
+    "deadlineCleared": "Deadline cleared",
+    "artifactSaved": "Link saved",
+    "stageUpdated": "Stage updated",
+    "stageRescheduled": "Stage rescheduled",
+    "movedTo": "Moved to “{column}”",
+    "stagesAdded": "Stages added",
+    "stagesReordered": "Stage order updated",
+    "stageRemoved": "Stage removed",
+    "stageTypeCreated": "Stage type created",
+    "stageTypeDeleted": "Stage type deleted",
+    "noteAdded": "Note added",
+    "noteUpdated": "Note updated",
+    "noteRemoved": "Note removed",
+    "questionAdded": "Question added",
+    "questionUpdated": "Question updated",
+    "questionRemoved": "Question removed",
+    "vacancyAdded": "Vacancy added",
+    "vacancyUpdated": "Vacancy updated",
+    "vacancyArchived": "Vacancy archived",
+    "vacancyRestored": "Vacancy restored",
+    "vacancyDeleted": "Vacancy deleted",
+    "recruiterSaved": "Recruiter contact saved",
+    "preparationReady": "Preparation generated",
+    "preparationDeleted": "Preparation deleted",
+    "settingsSaved": "Settings saved",
+    "subscriptionReady": "Calendar link created"
   }
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { DateField } from "@/components/core/date-field";
 import { IconButton } from "@/components/core/icon-button";
@@ -13,6 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  RejectionReasonDialog,
+  type RejectionDialogMode,
+} from "@/components/workflow/rejection-reason-dialog";
 import { StageCategoryBadge } from "@/components/workflow/stage-category-badge";
 import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
 import { useStageName } from "@/hooks/use-stage-name";
@@ -44,8 +49,32 @@ export function StageDetails({
   const t = useTranslations("workflow");
   const locale = useLocale();
   const name = useStageName()(stage.name);
+  const [dialog, setDialog] = useState<RejectionDialogMode | null>(null);
+
+  const changeStatus = (status: StageStatus) => {
+    if (status === "cancelled" && stage.status !== "cancelled")
+      return setDialog("reject");
+    onUpdate({ status });
+  };
 
   const isClosed = CLOSED_STAGE_STATUSES.includes(stage.status);
+  const reason = stage.status === "cancelled" && (
+    <span className="flex items-center gap-1 text-xs text-rejected">
+      {stage.rejectionReason
+        ? t("rejection.reason", {
+            reason: t(`rejectionReasons.${stage.rejectionReason}`),
+          })
+        : t("rejection.empty")}
+      <IconButton
+        label={t("rejection.edit")}
+        disabled={pending}
+        onClick={() => setDialog("edit")}
+        className="text-rejected/70 hover:bg-rejected-muted hover:text-rejected"
+      >
+        <Pencil className="size-3" />
+      </IconButton>
+    </span>
+  );
   const history = [
     stage.scheduledAt &&
       t("details.meetingAt", {
@@ -85,9 +114,7 @@ export function StageDetails({
         <Select
           value={stage.status}
           disabled={pending || frozen}
-          onValueChange={(status) =>
-            onUpdate({ status: status as StageStatus })
-          }
+          onValueChange={(status) => changeStatus(status as StageStatus)}
         >
           <SelectTrigger
             size="sm"
@@ -123,10 +150,11 @@ export function StageDetails({
       </header>
 
       {isClosed ? (
-        (history.length > 0 || artifact) && (
+        (history.length > 0 || artifact || reason) && (
           <>
             <div className="h-px bg-border" />
             <div className="flex flex-wrap items-center gap-3">
+              {reason}
               {history.length > 0 && (
                 <p className="font-mono text-[11px] text-subtle">
                   {history.join(" · ")}
@@ -162,6 +190,24 @@ export function StageDetails({
             {artifact}
           </div>
         </>
+      )}
+
+      {dialog && (
+        <RejectionReasonDialog
+          mode={dialog}
+          stageName={name}
+          initialReason={stage.rejectionReason}
+          pending={pending}
+          onClose={() => setDialog(null)}
+          onSave={(rejectionReason) => {
+            onUpdate(
+              dialog === "reject"
+                ? { status: "cancelled", rejectionReason }
+                : { rejectionReason },
+            );
+            setDialog(null);
+          }}
+        />
       )}
     </section>
   );

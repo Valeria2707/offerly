@@ -12,6 +12,7 @@ import type { StageStatus, WorkflowStage } from "@/types/workflow";
 type StageStepperProps = {
   stages: WorkflowStage[];
   selectedId: string;
+  lockedId: string | null;
   pending: boolean;
   onSelect: (stageId: string) => void;
   onReorder: (from: number, to: number) => void;
@@ -27,6 +28,7 @@ function circleClass(status: StageStatus, isCurrent: boolean) {
 export function StageStepper({
   stages,
   selectedId,
+  lockedId,
   pending,
   onSelect,
   onReorder,
@@ -58,6 +60,7 @@ export function StageStepper({
         const name = stageName(stage.name);
         const isRejected = stage.status === "cancelled";
         const isSelected = stage.id === selectedId;
+        const isLocked = lockedId !== null && stage.id !== lockedId;
         return (
           <li
             key={stage.id}
@@ -65,16 +68,19 @@ export function StageStepper({
             className={cn(
               "relative grid min-w-32 flex-1 shrink-0 cursor-grab justify-items-center gap-1.5 active:cursor-grabbing",
               drag.isDragging(index) && "opacity-40",
+              isLocked && "opacity-50",
             )}
           >
             <button
               type="button"
               aria-current={isSelected ? "step" : undefined}
+              disabled={isLocked}
+              title={isLocked ? t("details.frozenSelect") : undefined}
               aria-label={t("stepLabel", { index: index + 1, name })}
               aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
               onClick={() => onSelect(stage.id)}
               onKeyDown={(event) => handleKeyDown(event, index)}
-              className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed"
             />
 
             <div className="flex w-full items-center">
@@ -87,7 +93,10 @@ export function StageStepper({
               <span
                 className={cn(
                   "flex size-8 shrink-0 items-center justify-center rounded-full font-mono text-[11px] transition-shadow",
-                  circleClass(stage.status, index === current),
+                  circleClass(
+                    stage.status,
+                    lockedId === null && index === current,
+                  ),
                   isSelected &&
                     "ring-2 ring-foreground/25 ring-offset-2 ring-offset-background",
                   drag.isDropTarget(index) &&
@@ -121,8 +130,10 @@ export function StageStepper({
             </span>
 
             <span className="font-mono text-[10px] text-subtle">
-              {formatStageDate(stage.completedAt ?? stage.scheduledAt, locale) ??
-                "—"}
+              {formatStageDate(
+                stage.completedAt ?? stage.scheduledAt,
+                locale,
+              ) ?? "—"}
             </span>
           </li>
         );

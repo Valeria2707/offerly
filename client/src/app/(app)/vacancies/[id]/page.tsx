@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
+import { RecruiterCard } from "@/components/vacancies/recruiter-card";
 import { VacancySummary } from "@/components/vacancies/vacancy-summary";
 import { Button } from "@/components/ui/button";
 import { AddStageDialog } from "@/components/workflow/add-stage-dialog";
@@ -20,7 +21,7 @@ import { StageStepper } from "@/components/workflow/stage-stepper";
 import { WorkflowReminders } from "@/components/workflow/workflow-reminders";
 import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
 import { ROUTES } from "@/constants/routes";
-import { useVacancy } from "@/hooks/use-vacancies";
+import { useUpdateVacancy, useVacancy } from "@/hooks/use-vacancies";
 import {
   useAddStageNote,
   useAddStageQuestion,
@@ -56,6 +57,7 @@ export default function VacancyWorkflowPage({
   const errorMessage = useErrorMessage();
 
   const { data: vacancy } = useVacancy(id);
+  const updateVacancy = useUpdateVacancy();
   const { data: workflow, isPending, error } = useVacancyWorkflow(id);
   const { data: stageTypes } = useStageTypes();
 
@@ -82,7 +84,9 @@ export default function VacancyWorkflowPage({
     toast.error(errorMessage(cause), { id: "workflow-error" });
 
   const stages = workflow?.stages ?? [];
+  const rejectedStage = stages.find((stage) => stage.status === "cancelled");
   const selected =
+    rejectedStage ??
     stages.find((stage) => stage.id === (selectedId ?? requestedStageId)) ??
     stages[currentStageIndex(stages)] ??
     stages[0];
@@ -174,6 +178,20 @@ export default function VacancyWorkflowPage({
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6">
+      <Link
+        href={
+          vacancy?.lifecycle === "archived"
+            ? ROUTES.vacancyArchive
+            : ROUTES.vacancies
+        }
+        className="-mb-2 flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ChevronLeft className="size-4" />
+        {vacancy?.lifecycle === "archived"
+          ? t("vacancies.archive.title")
+          : t("vacancies.title")}
+      </Link>
+
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary font-mono text-[10px] text-muted-foreground">
@@ -242,6 +260,7 @@ export default function VacancyWorkflowPage({
             <StageStepper
               stages={stages}
               selectedId={selected.id}
+              lockedId={rejectedStage?.id ?? null}
               pending={pending}
               onSelect={setSelectedId}
               onReorder={reorder}
@@ -283,20 +302,33 @@ export default function VacancyWorkflowPage({
                   onUpdate={saveQuestion}
                   onRemove={deleteQuestion}
                 />
-              </div>
-
-              <div className="grid gap-6">
-                <WorkflowReminders stages={stages} now={now} />
-
-                {vacancy && <VacancySummary vacancy={vacancy} />}
 
                 <StageNotes
-                  key={selected.id}
+                  key={`notes-${selected.id}`}
                   notes={selected.notes}
                   pending={addNote.isPending || removeNote.isPending}
                   onAdd={createNote}
                   onRemove={deleteNote}
                 />
+              </div>
+
+              <div className="grid gap-6">
+                <WorkflowReminders stages={stages} now={now} />
+
+                {vacancy && (
+                  <RecruiterCard
+                    vacancy={vacancy}
+                    pending={updateVacancy.isPending}
+                    onSave={(contact) =>
+                      updateVacancy.mutate(
+                        { vacancyId: id, patch: contact },
+                        { onError: notify },
+                      )
+                    }
+                  />
+                )}
+
+                {vacancy && <VacancySummary vacancy={vacancy} />}
               </div>
             </div>
           </>

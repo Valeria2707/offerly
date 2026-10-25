@@ -15,9 +15,27 @@ export const STAGE_STATUSES = [
   "completed",
   "cancelled",
   "skipped",
+  "cancelled_by_company",
 ] as const;
 
 export type StageStatus = (typeof STAGE_STATUSES)[number];
+
+export const REJECTION_REASONS = [
+  "skills",
+  "experience",
+  "salary",
+  "language",
+  "location",
+  "culture_fit",
+  "test_task",
+  "position_closed",
+  "other_candidate",
+  "candidate_declined",
+  "no_reason",
+  "other",
+] as const;
+
+export type RejectionReason = (typeof REJECTION_REASONS)[number];
 
 export type StageType = {
   id: string;
@@ -79,6 +97,7 @@ export type WorkflowStage = {
   scheduledAt: string | null;
   deadlineAt: string | null;
   completedAt: string | null;
+  rejectionReason: RejectionReason | null;
   notes: StageNote[];
   questions: StageQuestion[];
   artifactUrl: string | null;
@@ -88,6 +107,7 @@ export type WorkflowStage = {
 
 export type WorkflowStagePatch = {
   status?: StageStatus;
+  rejectionReason?: RejectionReason | null;
   scheduledAt?: string | null;
   deadlineAt?: string | null;
   artifactUrl?: string | null;
@@ -102,6 +122,7 @@ export type StageBrief = {
   scheduledAt: string | null;
   deadlineAt: string | null;
   completedAt: string | null;
+  rejectionReason: RejectionReason | null;
 };
 
 export type WorkflowSummary = {

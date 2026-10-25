@@ -72,7 +72,7 @@ export function BoardCard({
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        "grid overflow-hidden rounded-xl bg-card ring-1 ring-foreground/[0.07] transition-opacity",
+        "grid min-w-0 overflow-hidden rounded-xl bg-card ring-1 ring-foreground/[0.07] transition-opacity",
         column === "offer" && "ring-success/30",
         column === "rejected" && "bg-muted",
         draggable && "cursor-grab active:cursor-grabbing",
@@ -93,7 +93,7 @@ export function BoardCard({
         >
           {vacancy.title}
         </span>
-        <span className="truncate text-[11px] text-muted-foreground">
+        <span className="line-clamp-2 text-[11px] text-muted-foreground">
           {vacancy.company}
           {stage && ` · ${stageName(stage.name)}`}
         </span>
@@ -102,12 +102,12 @@ export function BoardCard({
       {note && NoteIcon && (
         <span
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-[11px]",
+            "flex items-start gap-1.5 px-3 py-1.5 text-[11px] leading-snug",
             NOTE_CLASSES[note.tone],
           )}
         >
-          <NoteIcon aria-hidden className="size-3 shrink-0" />
-          <span className="truncate">{note.text}</span>
+          <NoteIcon aria-hidden className="mt-0.5 size-3 shrink-0" />
+          <span className="min-w-0">{note.text}</span>
         </span>
       )}
     </Link>

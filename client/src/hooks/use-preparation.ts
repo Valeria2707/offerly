@@ -1,6 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import {
   answerPreparationQuestionRequest,
@@ -28,6 +30,7 @@ export function usePreparation(workflowId: string, stageId: string) {
 
 export function useGeneratePreparation(workflowId: string, stageId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: (input: GeneratePreparationInput) =>
@@ -38,6 +41,7 @@ export function useGeneratePreparation(workflowId: string, stageId: string) {
         input,
       ),
     onSuccess: (preparation) => {
+      toast.success(t("toasts.preparationReady"));
       queryClient.setQueryData(preparationKeys.stage(stageId), preparation);
     },
   });
@@ -72,11 +76,13 @@ export function useAnswerPreparationQuestion(
 
 export function useDeletePreparation(workflowId: string, stageId: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: () =>
       deletePreparationRequest(getAccessToken()!, workflowId, stageId),
     onSuccess: () => {
+      toast.success(t("toasts.preparationDeleted"));
       queryClient.removeQueries({ queryKey: preparationKeys.stage(stageId) });
     },
   });

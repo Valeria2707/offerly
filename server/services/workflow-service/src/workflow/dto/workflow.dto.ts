@@ -16,7 +16,7 @@ import {
   Min,
   ValidateNested
 } from 'class-validator';
-import { StageStatus } from '../workflow.enums';
+import { RejectionReason, StageStatus } from '../workflow.enums';
 export class AddStageDto {
   @ApiProperty() @IsUUID() stageTypeId!: string;
   @ApiPropertyOptional() @IsOptional() @IsInt() @Min(1) position?: number;
@@ -27,6 +27,14 @@ export class UpdateStageDto {
   @IsOptional()
   @IsEnum(StageStatus)
   status?: StageStatus;
+  @ApiPropertyOptional({
+    enum: RejectionReason,
+    nullable: true,
+    description: 'Kept only while the status is cancelled'
+  })
+  @IsOptional()
+  @IsEnum(RejectionReason)
+  rejectionReason?: RejectionReason | null;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() isRequired?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsDateString() scheduledAt?:
     string | null;

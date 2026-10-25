@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { StageStatusBadge } from "@/components/workflow/stage-status-badge";
 import { useStageName } from "@/hooks/use-stage-name";
 import { displayStage } from "@/lib/workflow";
@@ -8,6 +10,7 @@ export function VacancyStageCell({
 }: {
   summary: WorkflowSummary | undefined;
 }) {
+  const t = useTranslations("workflow.rejectionReasons");
   const stageName = useStageName();
   const stage = displayStage(summary);
 
@@ -17,6 +20,11 @@ export function VacancyStageCell({
     <span className="grid gap-1">
       <span className="text-xs font-medium">{stageName(stage.name)}</span>
       <StageStatusBadge status={stage.status} />
+      {stage.status === "cancelled" && stage.rejectionReason && (
+        <span className="text-[11px] text-rejected">
+          {t(stage.rejectionReason)}
+        </span>
+      )}
     </span>
   );
 }

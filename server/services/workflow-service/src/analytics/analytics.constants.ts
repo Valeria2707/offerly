@@ -19,5 +19,6 @@ export const AUTO_STAGE_CODE = 'submitted';
 
 export const NOT_REACHED_STATUSES = new Set([
   StageStatus.NOT_STARTED,
-  StageStatus.SKIPPED
+  StageStatus.SKIPPED,
+  StageStatus.CANCELLED_BY_COMPANY
 ]);

@@ -9,12 +9,14 @@ import { StageStatus } from '../workflow/workflow.enums';
 const CLOSED_STATUSES = new Set([
   StageStatus.COMPLETED,
   StageStatus.CANCELLED,
-  StageStatus.SKIPPED
+  StageStatus.SKIPPED,
+  StageStatus.CANCELLED_BY_COMPANY
 ]);
 
 const NOT_REACHED_STATUSES = new Set([
   StageStatus.NOT_STARTED,
-  StageStatus.SKIPPED
+  StageStatus.SKIPPED,
+  StageStatus.CANCELLED_BY_COMPANY
 ]);
 
 export const OFFER_STAGE_CODE = 'offer';
@@ -28,7 +30,8 @@ function toBrief(stage: WorkflowStage): StageBriefDto {
     status: stage.status,
     scheduledAt: stage.scheduledAt,
     deadlineAt: stage.deadlineAt,
-    completedAt: stage.completedAt
+    completedAt: stage.completedAt,
+    rejectionReason: stage.rejectionReason
   };
 }
 

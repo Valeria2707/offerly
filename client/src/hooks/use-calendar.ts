@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, startOfDay } from "date-fns";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import {
   calendarEventsRequest,
@@ -75,11 +77,13 @@ export function useReminderSettings() {
 
 export function useUpdateReminderSettings() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: (patch: ReminderSettingsPatch) =>
       updateReminderSettingsRequest(getAccessToken()!, patch),
     onSuccess: (settings: ReminderSettings) => {
+      toast.success(t("toasts.settingsSaved"));
       queryClient.setQueryData(calendarKeys.settings, settings);
       queryClient.invalidateQueries({ queryKey: calendarKeys.reminders });
     },
@@ -88,10 +92,12 @@ export function useUpdateReminderSettings() {
 
 export function useCreateCalendarSubscription() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: () => createCalendarSubscriptionRequest(getAccessToken()!),
     onSuccess: (settings: ReminderSettings) => {
+      toast.success(t("toasts.subscriptionReady"));
       queryClient.setQueryData(calendarKeys.settings, settings);
     },
   });
@@ -99,6 +105,7 @@ export function useCreateCalendarSubscription() {
 
 export function useRescheduleStage() {
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   return useMutation({
     mutationFn: ({
@@ -113,6 +120,7 @@ export function useRescheduleStage() {
     }) =>
       updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, patch),
     onSuccess: (_stage, { vacancyId }) => {
+      toast.success(t("toasts.stageRescheduled"));
       queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       queryClient.invalidateQueries({
         queryKey: workflowKeys.vacancy(vacancyId),
