@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 import type { WorkflowSummary } from "@/types/workflow";
 
@@ -8,20 +10,21 @@ export function VacancyStats({
   total: number;
   summaries: WorkflowSummary[];
 }) {
+  const t = useTranslations("vacancies.stats");
   const inProgress = summaries.filter(
     (summary) => summary.currentStage && !summary.rejected,
   ).length;
 
   const cards = [
-    { label: "Вакансій", value: total },
-    { label: "У процесі", value: inProgress },
+    { label: t("total"), value: total },
+    { label: t("inProgress"), value: inProgress },
     {
-      label: "Відмови",
+      label: t("rejected"),
       value: summaries.filter((summary) => summary.rejected).length,
       className: "text-rejected",
     },
     {
-      label: "Оффери",
+      label: t("offers"),
       value: summaries.filter((summary) => summary.offered).length,
       className: "text-success",
       cardClassName: "bg-success-muted ring-success/20",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { AnalyticsPeriodFilter } from "@/components/analytics/analytics-period-filter";
@@ -22,6 +23,7 @@ import { ROUTES } from "@/constants/routes";
 import { useAnalytics } from "@/hooks/use-analytics";
 
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics");
   const [value, setValue] = useState(DEFAULT_ANALYTICS_PERIOD);
   const period =
     ANALYTICS_PERIOD_OPTIONS.find((option) => option.value === value)
@@ -34,10 +36,10 @@ export default function AnalyticsPage() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-1">
           <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Аналітика
+            {t("title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Як іде твій пошук роботи
+            {t("description")}
           </p>
         </div>
 
@@ -56,11 +58,10 @@ export default function AnalyticsPage() {
             {data.summary.added === 0 ? (
               <section className="grid justify-items-start gap-3 rounded-xl bg-card p-5 ring-1 ring-foreground/10">
                 <h2 className="font-heading text-base font-bold">
-                  За цей період вакансій немає
+                  {t("empty.title")}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Додай вакансію або вибери довший період, щоб побачити
-                  статистику.
+                  {t("empty.description")}
                 </p>
                 <Button
                   variant="secondary"
@@ -68,7 +69,7 @@ export default function AnalyticsPage() {
                   nativeButton={false}
                   render={<Link href={ROUTES.vacancies} />}
                 >
-                  До вакансій
+                  {t("empty.action")}
                 </Button>
               </section>
             ) : (

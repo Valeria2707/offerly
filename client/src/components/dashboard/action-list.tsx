@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { vacancyStageRoute } from "@/constants/routes";
+import { useStageName } from "@/hooks/use-stage-name";
 import { actionNote } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
-import { stageName } from "@/lib/workflow";
 import type { Reminder } from "@/types/calendar";
 import type { StageStatus } from "@/types/workflow";
 
@@ -20,11 +21,15 @@ export function ActionList({
   pending: boolean;
   onRecord: (reminder: Reminder, status: StageStatus) => void;
 }) {
+  const t = useTranslations();
+  const locale = useLocale();
+  const stageName = useStageName();
+
   return (
-    <DashboardCard title="Потребує дії">
+    <DashboardCard title={t("dashboard.actions.title")}>
       {reminders.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Усе під контролем — термінових справ немає.
+          {t("dashboard.actions.empty")}
         </p>
       ) : (
         <ul className="grid divide-y divide-border">
@@ -46,12 +51,12 @@ export function ActionList({
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">
-                    {record ? "Запиши результат · " : ""}
+                    {record ? `${t("dashboard.actions.record")} · ` : ""}
                     {stageName(reminder.name)}
                     {company && ` · ${company}`}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {actionNote(reminder)}
+                    {actionNote(reminder, t, locale)}
                   </p>
                 </div>
 
@@ -63,7 +68,7 @@ export function ActionList({
                       disabled={pending}
                       onClick={() => onRecord(reminder, "completed")}
                     >
-                      Пройдено
+                      {t("dashboard.actions.passed")}
                     </Button>
                     <Button
                       size="sm"
@@ -71,7 +76,7 @@ export function ActionList({
                       disabled={pending}
                       onClick={() => onRecord(reminder, "cancelled")}
                     >
-                      Відмова
+                      {t("dashboard.actions.rejected")}
                     </Button>
                   </div>
                 ) : (
@@ -88,7 +93,7 @@ export function ActionList({
                       />
                     }
                   >
-                    Відкрити
+                    {t("common.actions.open")}
                   </Button>
                 )}
               </li>

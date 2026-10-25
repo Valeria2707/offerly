@@ -2,6 +2,7 @@
 
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -9,7 +10,6 @@ import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
 import { VacancyListSkeleton } from "@/components/vacancies/vacancy-list-skeleton";
 import { VacancyTable } from "@/components/vacancies/vacancy-table";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import { ROUTES } from "@/constants/routes";
 import {
   useDeleteVacancy,
@@ -17,21 +17,20 @@ import {
   useVacancies,
 } from "@/hooks/use-vacancies";
 import { useWorkflowSummaries } from "@/hooks/use-workflow";
-import { ApiError } from "@/lib/api-client";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import type { Vacancy } from "@/types/vacancy";
 
 export default function VacancyArchivePage() {
+  const t = useTranslations("vacancies");
   const { data: vacancies, isPending, error } = useVacancies();
+  const errorMessage = useErrorMessage();
   const updateVacancy = useUpdateVacancy();
   const deleteVacancy = useDeleteVacancy();
 
   const [toDelete, setToDelete] = useState<Vacancy | null>(null);
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError ? cause.message : DEFAULT_API_ERROR_MESSAGE,
-      { id: "vacancy-error" },
-    );
+    toast.error(errorMessage(cause), { id: "vacancy-error" });
 
   const archived = (vacancies ?? []).filter(
     (vacancy) => vacancy.lifecycle === "archived",
@@ -47,17 +46,17 @@ export default function VacancyArchivePage() {
         className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
-        Мої вакансії
+        {t("title")}
       </Link>
 
       <header className="grid gap-1">
         <h1 className="font-heading text-2xl font-bold tracking-tight">
-          Архів
+          {t("archive.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isPending
-            ? "завантаження…"
-            : `${archived.length} вакансій прибрано зі списку — етапи й замітки збережено`}
+            ? t("loading")
+            : t("archive.description", { count: archived.length })}
         </p>
       </header>
 
@@ -65,9 +64,11 @@ export default function VacancyArchivePage() {
 
       {toDelete && (
         <ConfirmDialog
-          title="Видалити вакансію?"
-          description={`«${toDelete.title}» зникне назавжди разом з етапами, підготовкою та замітками.`}
-          confirmLabel="Видалити"
+          title={t("delete.title")}
+          description={t("delete.archivedDescription", {
+            title: toDelete.title,
+          })}
+          confirmLabel={t("delete.confirm")}
           pending={deleteVacancy.isPending}
           onCancel={() => setToDelete(null)}
           onConfirm={() =>
@@ -86,7 +87,7 @@ export default function VacancyArchivePage() {
           vacancies={archived}
           summaries={summaries}
           pending={updateVacancy.isPending || deleteVacancy.isPending}
-          emptyMessage="Архів порожній."
+          emptyMessage={t("archive.empty")}
           onToggleArchive={(vacancy) =>
             updateVacancy.mutate(
               { vacancyId: vacancy.id, patch: { lifecycle: "active" } },

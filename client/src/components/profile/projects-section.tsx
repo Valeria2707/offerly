@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { AddRow } from "@/components/core/add-row";
@@ -24,11 +25,12 @@ const EMPTY_PROJECT: ProfileProject = {
 
 export function ProjectsSection() {
   const { control, register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.projects");
   const projects = useFieldArray({ control, name: "projects" });
 
   return (
     <SectionCard
-      title="Проєкти"
+      title={t("title")}
       path="data.projects"
       name="projects"
       count={projects.fields.length}
@@ -49,7 +51,7 @@ export function ProjectsSection() {
                 {...register(`projects.${index}.name`)}
               />
               <RemoveRowButton
-                label="Видалити проєкт"
+                label={t("remove")}
                 className="mb-1.5"
                 onClick={() => projects.remove(index)}
               />
@@ -83,7 +85,7 @@ export function ProjectsSection() {
             <BulletListField
               name={`projects.${index}.highlights`}
               label="highlights"
-              placeholder="Що зроблено або який результат"
+              placeholder={t("highlightPlaceholder")}
             />
             <TagListField name={`projects.${index}.skills`} label="skills" />
           </article>
@@ -91,7 +93,7 @@ export function ProjectsSection() {
       </div>
 
       <AddRow
-        label="Додати проєкт"
+        label={t("add")}
         onAdd={() => projects.append(EMPTY_PROJECT)}
       />
     </SectionCard>

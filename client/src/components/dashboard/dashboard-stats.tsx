@@ -1,4 +1,5 @@
-import { DASHBOARD_STAT_LABELS } from "@/constants/dashboard";
+import { useTranslations } from "next-intl";
+
 import type { DashboardStats as Stats } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +10,7 @@ export function DashboardStats({
   stats: Stats;
   className?: string;
 }) {
+  const t = useTranslations("dashboard.stats");
   const cards: {
     key: keyof Stats;
     value: number;
@@ -37,7 +39,7 @@ export function DashboardStats({
           )}
         >
           <span className="font-mono text-[10px] tracking-[0.12em] text-subtle uppercase">
-            {DASHBOARD_STAT_LABELS[card.key]}
+            {t(card.key)}
           </span>
           <p
             className={cn(

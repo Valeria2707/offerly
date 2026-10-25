@@ -1,21 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { STAGE_CATEGORY_SHORT_LABELS } from "@/constants/calendar";
 import { vacancyRoute, vacancyStageRoute } from "@/constants/routes";
 import { STAGE_CATEGORY_CLASSES } from "@/constants/workflow";
+import { useStageName } from "@/hooks/use-stage-name";
 import { eventTime, type CalendarEntry } from "@/lib/calendar";
 import { cn } from "@/lib/utils";
-import {
-  fromDateInput,
-  stageName,
-  toDateInput,
-  toDateTimeInput,
-} from "@/lib/workflow";
+import { fromDateInput, toDateInput, toDateTimeInput } from "@/lib/workflow";
 
 export function WeekEventCard({
   entry,
@@ -28,6 +24,8 @@ export function WeekEventCard({
   pending: boolean;
   onReschedule: (entry: CalendarEntry, iso: string | null) => void;
 }) {
+  const t = useTranslations("calendar");
+  const stageName = useStageName();
   const [isEditing, setIsEditing] = useState(false);
   const meeting = entry.kind === "meeting";
   const iso = entry.at.toISOString();
@@ -48,13 +46,13 @@ export function WeekEventCard({
             STAGE_CATEGORY_CLASSES[entry.event.category],
           )}
         >
-          {STAGE_CATEGORY_SHORT_LABELS[entry.event.category]}
+          {t(`categoryShort.${entry.event.category}`)}
         </span>
 
         {isEditing ? (
           <Input
             type={meeting ? "datetime-local" : "date"}
-            aria-label="Перенести етап"
+            aria-label={t("reschedule")}
             autoFocus
             defaultValue={meeting ? toDateTimeInput(iso) : toDateInput(iso)}
             className="ml-auto h-7 w-fit rounded-lg text-xs"
@@ -68,11 +66,11 @@ export function WeekEventCard({
           <button
             type="button"
             disabled={pending}
-            aria-label="Перенести етап"
+            aria-label={t("reschedule")}
             onClick={() => setIsEditing(true)}
             className="ml-auto font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none"
           >
-            {meeting ? eventTime(entry.at) : "дедлайн"}
+            {meeting ? eventTime(entry.at) : t("deadline")}
           </button>
         )}
       </div>
@@ -104,7 +102,7 @@ export function WeekEventCard({
                   : vacancyRoute(entry.event.vacancyId)
               }
             >
-              {meeting ? "Готуватись" : "Відкрити"}
+              {meeting ? t("actions.prepare") : t("actions.open")}
             </Link>
           }
         />

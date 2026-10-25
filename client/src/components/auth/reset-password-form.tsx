@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ import { useResetPassword } from "@/hooks/use-auth";
 import { resetPasswordSchema, type ResetPasswordValues } from "@/schemas/auth";
 
 export function ResetPasswordForm({ token }: { token: string }) {
+  const t = useTranslations("auth");
   const router = useRouter();
   const resetPassword = useResetPassword();
   const {
@@ -29,7 +31,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       { token, password },
       {
         onSuccess: () => {
-          toast.success("Пароль змінено. Тепер увійдіть з новим паролем.");
+          toast.success(t("reset.success"));
           router.push(ROUTES.login);
         },
       },
@@ -40,7 +42,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form onSubmit={onSubmit} className="mt-8 grid gap-5" noValidate>
       <FormField
         id="password"
-        label="Новий пароль"
+        label={t("fields.newPassword")}
         type="password"
         autoComplete="new-password"
         placeholder="••••••••"
@@ -50,7 +52,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       <FormField
         id="confirm-password"
-        label="Підтвердіть пароль"
+        label={t("fields.confirmPassword")}
         type="password"
         autoComplete="new-password"
         placeholder="••••••••"
@@ -61,7 +63,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <FormError error={resetPassword.error} />
 
       <SubmitButton pending={resetPassword.isPending}>
-        Зберегти пароль
+        {t("reset.submit")}
       </SubmitButton>
     </form>
   );

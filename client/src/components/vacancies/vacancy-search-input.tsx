@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,8 @@ export function VacancySearchInput({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("vacancies.search");
+
   return (
     <div className="relative">
       <Search
@@ -22,8 +25,8 @@ export function VacancySearchInput({
       <Input
         type="search"
         value={value}
-        placeholder="пошук вакансії…"
-        aria-label="Пошук серед доданих вакансій"
+        placeholder={t("placeholder")}
+        aria-label={t("label")}
         className={cn("h-9 w-60 text-xs", FIELD_CLASS, "pl-9")}
         onChange={(event) => onChange(event.target.value)}
       />

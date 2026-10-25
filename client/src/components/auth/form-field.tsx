@@ -1,8 +1,10 @@
+import { useTranslations } from "next-intl";
 import type * as React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { isValidationKey } from "@/schemas/auth";
 
 type FormFieldProps = React.ComponentProps<typeof Input> & {
   id: string;
@@ -17,7 +19,9 @@ export function FormField({
   className,
   ...props
 }: FormFieldProps) {
+  const t = useTranslations("validation");
   const errorId = `${id}-error`;
+  const message = error && isValidationKey(error) ? t(error) : error;
 
   return (
     <div className="grid gap-2">
@@ -33,7 +37,7 @@ export function FormField({
       />
       {error && (
         <p id={errorId} className="text-xs text-destructive">
-          {error}
+          {message}
         </p>
       )}
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { IconButton } from "@/components/core/icon-button";
@@ -35,6 +36,7 @@ export function LinkField({
   disabled,
   onChange,
 }: LinkFieldProps) {
+  const t = useTranslations("common.actions");
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -100,7 +102,7 @@ export function LinkField({
       </a>
 
       <IconButton
-        label={`Змінити: ${label}`}
+        label={`${t("change")}: ${label}`}
         disabled={disabled}
         onClick={() => setIsEditing(true)}
         className="text-[11px]"
@@ -109,7 +111,7 @@ export function LinkField({
       </IconButton>
 
       <IconButton
-        label={`Прибрати: ${label}`}
+        label={`${t("remove")}: ${label}`}
         disabled={disabled}
         onClick={() => onChange(null)}
         className="hover:text-destructive"

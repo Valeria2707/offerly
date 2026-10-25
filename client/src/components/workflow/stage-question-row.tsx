@@ -1,6 +1,7 @@
 "use client";
 
 import { Flame, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { IconButton } from "@/components/core/icon-button";
@@ -24,6 +25,8 @@ export function StageQuestionRow({
   onUpdate,
   onRemove,
 }: StageQuestionRowProps) {
+  const t = useTranslations("workflow.questions");
+  const tc = useTranslations("common.actions");
   const saved = item.answer ?? "";
   const [answer, setAnswer] = useState(saved);
 
@@ -37,8 +40,8 @@ export function StageQuestionRow({
         <IconButton
           label={
             item.wasHard
-              ? "Зняти позначку «було складно»"
-              : "Позначити «було складно»"
+              ? t("unmarkHard")
+              : t("markHard")
           }
           disabled={pending}
           onClick={() =>
@@ -54,7 +57,7 @@ export function StageQuestionRow({
         </IconButton>
 
         <IconButton
-          label="Видалити питання"
+          label={t("remove")}
           disabled={pending}
           onClick={() => onRemove(item.id)}
           className="hover:text-destructive"
@@ -67,8 +70,8 @@ export function StageQuestionRow({
         rows={2}
         value={answer}
         maxLength={ANSWER_MAX_LENGTH}
-        aria-label={`Як ви відповіли на «${item.question}»`}
-        placeholder="Як ви відповіли…"
+        aria-label={t("answerLabel", { question: item.question })}
+        placeholder={t("answerPlaceholder")}
         className={cn(
           "field-sizing-fixed max-h-40 resize-none overflow-y-auto bg-card py-2.5",
           FIELD_CLASS,
@@ -89,7 +92,7 @@ export function StageQuestionRow({
               })
             }
           >
-            Зберегти
+            {tc("save")}
           </Button>
           <Button
             size="sm"
@@ -97,7 +100,7 @@ export function StageQuestionRow({
             disabled={pending}
             onClick={() => setAnswer(saved)}
           >
-            Скасувати
+            {tc("cancel")}
           </Button>
         </div>
       )}

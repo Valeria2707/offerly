@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import {
@@ -10,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export function CvImportProgress({ filename }: { filename: string | null }) {
+  const t = useTranslations("profile.cv");
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -29,21 +31,21 @@ export function CvImportProgress({ filename }: { filename: string | null }) {
 
       <div className="grid justify-items-center gap-1 text-center">
         <h2 className="font-heading text-lg font-semibold">
-          AI розбирає резюме
+          {t("parsing")}
         </h2>
         <p className="font-mono text-[11px] text-subtle">
-          {filename ?? "документ"} · зазвичай до півхвилини
+          {t("parsingHint", { filename: filename ?? t("document") })}
         </p>
       </div>
 
       <ol className="grid w-full max-w-md gap-2">
-        {CV_IMPORT_STEPS.map((title, index) => {
+        {CV_IMPORT_STEPS.map((key, index) => {
           const done = index < step;
           const active = index === step;
 
           return (
             <li
-              key={title}
+              key={key}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
                 done && "bg-card text-foreground ring-1 ring-foreground/[0.07]",
@@ -62,7 +64,7 @@ export function CvImportProgress({ filename }: { filename: string | null }) {
                 {done && <Check className="size-3" />}
                 {active && <Loader2 className="size-3 animate-spin" />}
               </span>
-              {title}
+              {t(`steps.${key}`)}
             </li>
           );
         })}

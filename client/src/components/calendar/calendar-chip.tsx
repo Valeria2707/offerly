@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { STAGE_CATEGORY_CLASSES } from "@/constants/workflow";
 import { vacancyRoute } from "@/constants/routes";
 import { eventTime, isFinished, isOverdue, type CalendarEntry } from "@/lib/calendar";
+import { useStageName } from "@/hooks/use-stage-name";
 import { cn } from "@/lib/utils";
-import { stageName } from "@/lib/workflow";
 
 export function CalendarChip({
   entry,
@@ -15,6 +16,8 @@ export function CalendarChip({
   label: string;
   now: Date;
 }) {
+  const t = useTranslations("calendar");
+  const stageName = useStageName();
   const overdue = isOverdue(entry, now);
   const finished = isFinished(entry.event);
 
@@ -37,7 +40,7 @@ export function CalendarChip({
         </span>
       )}
       <span className="truncate">
-        {entry.kind === "deadline" ? "до: " : ""}
+        {entry.kind === "deadline" ? `${t("until")} ` : ""}
         {label}
       </span>
     </Link>

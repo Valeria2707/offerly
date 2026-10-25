@@ -1,10 +1,10 @@
 import { differenceInCalendarDays, format } from "date-fns";
-import { uk } from "date-fns/locale";
 
 import {
   ACTION_REMINDER_KINDS,
   PROFILE_HINT_LIMIT,
 } from "@/constants/dashboard";
+import type { Locale } from "@/constants/i18n";
 import {
   eventTime,
   isFinished,
@@ -12,7 +12,9 @@ import {
   toEntries,
   type CalendarEntry,
 } from "@/lib/calendar";
-import { stageName } from "@/lib/workflow";
+import { dateFnsLocale } from "@/lib/date-locale";
+import type { Translator } from "@/lib/i18n";
+import type { StageNameFormatter } from "@/lib/workflow";
 import type { CalendarEvent, Reminder } from "@/types/calendar";
 import type { ProfileData } from "@/types/profile";
 import type { Vacancy } from "@/types/vacancy";
@@ -87,32 +89,51 @@ export function activeProcesses(
     });
 }
 
-export function processNote(process: ActiveProcess): string {
+export function processNote(
+  process: ActiveProcess,
+  t: Translator,
+  stageName: StageNameFormatter,
+  locale: Locale,
+): string {
   const { stage, silentDays } = process;
   const name = stageName(stage.name);
+  const options = { locale: dateFnsLocale(locale) };
 
-  if (silentDays !== null) return `Чекаєш відповіді ${silentDays} дн.`;
+  if (silentDays !== null)
+    return t("dashboard.processes.silent", { days: silentDays });
   if (stage.scheduledAt)
-    return `${name}: ${format(new Date(stage.scheduledAt), "EEEEEE, HH:mm", { locale: uk })}`;
+    return t("dashboard.processes.scheduled", {
+      name,
+      when: format(new Date(stage.scheduledAt), "EEEEEE, HH:mm", options),
+    });
   if (stage.deadlineAt)
-    return `${name} до ${format(new Date(stage.deadlineAt), "d MMM", { locale: uk })}`;
-  if (stage.status === "awaiting_result") return `${name}: чекаєш відповіді`;
+    return t("dashboard.processes.deadline", {
+      name,
+      date: format(new Date(stage.deadlineAt), "d MMM", options),
+    });
+  if (stage.status === "awaiting_result")
+    return t("dashboard.processes.awaiting", { name });
 
   return name;
 }
 
-export function whenLabel(entry: CalendarEntry, now: Date): string {
+export function whenLabel(
+  entry: CalendarEntry,
+  now: Date,
+  locale: Locale,
+): string {
+  const options = { locale: dateFnsLocale(locale) };
   const days = differenceInCalendarDays(entry.at, now);
   const day =
     days >= 0 && days <= 1
-      ? `${relativeDay(days)}, ${format(entry.at, "d MMM", { locale: uk })}`
-      : format(entry.at, "EEEEEE, d MMM", { locale: uk });
+      ? `${relativeDay(days, locale)}, ${format(entry.at, "d MMM", options)}`
+      : format(entry.at, "EEEEEE, d MMM", options);
 
   return entry.kind === "meeting" ? `${day} · ${eventTime(entry.at)}` : day;
 }
 
-export function countdownLabel(at: Date, now: Date): string {
-  return relativeDay(differenceInCalendarDays(at, now));
+export function countdownLabel(at: Date, now: Date, locale: Locale): string {
+  return relativeDay(differenceInCalendarDays(at, now), locale);
 }
 
 export function actionReminders(reminders: Reminder[]): Reminder[] {
@@ -121,37 +142,55 @@ export function actionReminders(reminders: Reminder[]): Reminder[] {
   );
 }
 
-export function actionNote(reminder: Reminder): string {
-  if (reminder.kind === "deadline_soon")
-    return `дедлайн ${relativeDay(reminder.days)}`;
+export function actionNote(
+  reminder: Reminder,
+  t: Translator,
+  locale: Locale,
+): string {
+  const when = relativeDay(reminder.days, locale);
 
-  const time = reminder.scheduledAt
-    ? ` о ${eventTime(new Date(reminder.scheduledAt))}`
-    : "";
-  return `була ${relativeDay(reminder.days)}${time}`;
+  if (reminder.kind === "deadline_soon")
+    return t("dashboard.actions.deadlineNote", { when });
+  if (reminder.scheduledAt)
+    return t("dashboard.actions.wasAt", {
+      when,
+      time: eventTime(new Date(reminder.scheduledAt)),
+    });
+  return t("dashboard.actions.was", { when });
 }
 
+export type ProfileSectionKey =
+  | "name"
+  | "headline"
+  | "summary"
+  | "desiredPosition"
+  | "skills"
+  | "experience"
+  | "education"
+  | "projects"
+  | "languages";
+
 const PROFILE_SECTIONS: {
-  label: string;
+  key: ProfileSectionKey;
   filled: (data: ProfileData) => boolean;
 }[] = [
-  { label: "імʼя", filled: (data) => Boolean(data.basics.fullName) },
-  { label: "заголовок", filled: (data) => Boolean(data.basics.headline) },
-  { label: "опис про себе", filled: (data) => Boolean(data.basics.summary) },
+  { key: "name", filled: (data) => Boolean(data.basics.fullName) },
+  { key: "headline", filled: (data) => Boolean(data.basics.headline) },
+  { key: "summary", filled: (data) => Boolean(data.basics.summary) },
   {
-    label: "бажану посаду",
+    key: "desiredPosition",
     filled: (data) => Boolean(data.preferences.desiredPosition),
   },
-  { label: "навички", filled: (data) => data.skills.length > 0 },
-  { label: "досвід", filled: (data) => data.experience.length > 0 },
-  { label: "освіту", filled: (data) => data.education.length > 0 },
-  { label: "проєкти", filled: (data) => data.projects.length > 0 },
-  { label: "мови", filled: (data) => data.languages.length > 0 },
+  { key: "skills", filled: (data) => data.skills.length > 0 },
+  { key: "experience", filled: (data) => data.experience.length > 0 },
+  { key: "education", filled: (data) => data.education.length > 0 },
+  { key: "projects", filled: (data) => data.projects.length > 0 },
+  { key: "languages", filled: (data) => data.languages.length > 0 },
 ];
 
 export function profileProgress(data: ProfileData): {
   percent: number;
-  missing: string[];
+  missing: ProfileSectionKey[];
 } {
   const missing = PROFILE_SECTIONS.filter((section) => !section.filled(data));
 
@@ -160,9 +199,7 @@ export function profileProgress(data: ProfileData): {
       ((PROFILE_SECTIONS.length - missing.length) / PROFILE_SECTIONS.length) *
         100,
     ),
-    missing: missing
-      .slice(0, PROFILE_HINT_LIMIT)
-      .map((section) => section.label),
+    missing: missing.slice(0, PROFILE_HINT_LIMIT).map((section) => section.key),
   };
 }
 
@@ -184,19 +221,4 @@ export function companyMark(company: string): string {
     words.length > 1 ? words.map((word) => word[0]).join("") : company;
 
   return mark.slice(0, 2).toUpperCase();
-}
-
-function pluralizeTasks(count: number): string {
-  const lastTwo = count % 100;
-  if (lastTwo >= 11 && lastTwo <= 14) return "справ";
-
-  const last = count % 10;
-  if (last === 1) return "справа";
-  if (last >= 2 && last <= 4) return "справи";
-  return "справ";
-}
-
-export function tasksLabel(count: number): string {
-  if (count === 0) return "термінових справ немає";
-  return `${count} ${pluralizeTasks(count)} на сьогодні`;
 }

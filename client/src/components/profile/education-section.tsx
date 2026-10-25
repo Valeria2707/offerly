@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { AddRow } from "@/components/core/add-row";
@@ -21,11 +22,12 @@ const EMPTY_EDUCATION: ProfileEducation = {
 
 export function EducationSection() {
   const { control, register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.education");
   const education = useFieldArray({ control, name: "education" });
 
   return (
     <SectionCard
-      title="Освіта"
+      title={t("title")}
       path="data.education"
       name="education"
       count={education.fields.length}
@@ -46,7 +48,7 @@ export function EducationSection() {
                 {...register(`education.${index}.institution`)}
               />
               <RemoveRowButton
-                label="Видалити освіту"
+                label={t("remove")}
                 className="mb-1.5"
                 onClick={() => education.remove(index)}
               />
@@ -86,7 +88,7 @@ export function EducationSection() {
       </div>
 
       <AddRow
-        label="Додати освіту"
+        label={t("add")}
         onAdd={() => education.append(EMPTY_EDUCATION)}
       />
     </SectionCard>

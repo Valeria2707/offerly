@@ -1,15 +1,19 @@
+import { useTranslations } from "next-intl";
+
 import { AnalyticsCard } from "@/components/analytics/analytics-card";
 import { cn } from "@/lib/utils";
 import type { SkillDemand as Skill } from "@/types/analytics";
 
 export function SkillDemand({ skills }: { skills: Skill[] }) {
+  const t = useTranslations("analytics.skills");
+
   return (
     <AnalyticsCard
-      title="Навички, які просять найчастіше"
+      title={t("title")}
       caption={
         skills.length
-          ? "Помаранчеві - немає у твоєму профілі"
-          : "У вакансіях за цей період немає обовʼязкових навичок"
+          ? t("gapHint")
+          : t("empty")
       }
     >
       {skills.length > 0 && (

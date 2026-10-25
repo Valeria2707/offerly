@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { Controller, useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
@@ -12,6 +13,8 @@ import { useRegister } from "@/hooks/use-auth";
 import { registerSchema, type RegisterValues } from "@/schemas/auth";
 
 export function SignupForm() {
+  const t = useTranslations("auth");
+  const tv = useTranslations("validation");
   const signup = useRegister();
   const {
     control,
@@ -37,9 +40,9 @@ export function SignupForm() {
     <form onSubmit={onSubmit} className="mt-8 grid gap-5" noValidate>
       <FormField
         id="name"
-        label="Ім’я"
+        label={t("fields.name")}
         autoComplete="name"
-        placeholder="Олена Ковальчук"
+        placeholder={t("fields.namePlaceholder")}
         error={errors.name?.message}
         {...register("name")}
       />
@@ -56,7 +59,7 @@ export function SignupForm() {
 
       <FormField
         id="password"
-        label="Пароль"
+        label={t("fields.password")}
         type="password"
         autoComplete="new-password"
         placeholder="••••••••"
@@ -67,7 +70,7 @@ export function SignupForm() {
       <div className="grid gap-3">
         <FormField
           id="confirm-password"
-          label="Підтвердіть пароль"
+          label={t("fields.confirmPassword")}
           type="password"
           autoComplete="new-password"
           placeholder="••••••••"
@@ -93,19 +96,21 @@ export function SignupForm() {
               htmlFor="terms"
               className="items-start text-xs leading-relaxed font-normal text-muted-foreground"
             >
-              Погоджуюсь з умовами використання та політикою приватності
+              {t("signup.terms")}
             </Label>
           </div>
 
           {errors.terms && (
-            <p className="text-xs text-destructive">{errors.terms.message}</p>
+            <p className="text-xs text-destructive">{tv("terms")}</p>
           )}
         </div>
       </div>
 
       <FormError error={signup.error} />
 
-      <SubmitButton pending={signup.isPending}>Зареєструватись</SubmitButton>
+      <SubmitButton pending={signup.isPending}>
+        {t("signup.submit")}
+      </SubmitButton>
     </form>
   );
 }

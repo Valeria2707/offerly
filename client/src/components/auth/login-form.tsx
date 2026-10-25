@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
@@ -14,6 +15,7 @@ import { useLogin } from "@/hooks/use-auth";
 import { loginSchema, type LoginValues } from "@/schemas/auth";
 
 export function LoginForm() {
+  const t = useTranslations("auth");
   const login = useLogin();
   const {
     register,
@@ -41,7 +43,7 @@ export function LoginForm() {
       <div className="grid gap-3">
         <FormField
           id="password"
-          label="Пароль"
+          label={t("fields.password")}
           type="password"
           autoComplete="current-password"
           placeholder="••••••••"
@@ -56,7 +58,7 @@ export function LoginForm() {
               htmlFor="remember"
               className="font-normal text-muted-foreground"
             >
-              Запам’ятати мене
+              {t("login.remember")}
             </Label>
           </div>
 
@@ -64,14 +66,16 @@ export function LoginForm() {
             href={ROUTES.forgotPassword}
             className="text-sm font-medium text-primary transition-opacity hover:opacity-80"
           >
-            Забули пароль?
+            {t("login.forgot")}
           </Link>
         </div>
       </div>
 
       <FormError error={login.error} />
 
-      <SubmitButton pending={login.isPending}>Увійти</SubmitButton>
+      <SubmitButton pending={login.isPending}>
+        {t("login.submit")}
+      </SubmitButton>
     </form>
   );
 }

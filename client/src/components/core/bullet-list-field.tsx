@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { FieldLabel } from "@/components/core/field-label";
@@ -13,7 +14,7 @@ export function BulletListField({
   name,
   label,
   placeholder,
-  addLabel = "Додати пункт",
+  addLabel,
 }: {
   name: string;
   label: string;
@@ -21,6 +22,7 @@ export function BulletListField({
   addLabel?: string;
 }) {
   const { control } = useFormContext();
+  const t = useTranslations("common.actions");
 
   return (
     <Controller
@@ -56,7 +58,7 @@ export function BulletListField({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Видалити пункт"
+                    aria-label={t("deleteItem")}
                     className="text-subtle"
                     onClick={() =>
                       field.onChange(
@@ -78,7 +80,7 @@ export function BulletListField({
               onClick={() => field.onChange([...items, ""])}
             >
               <Plus />
-              {addLabel}
+              {addLabel ?? t("addItem")}
             </Button>
           </div>
         );

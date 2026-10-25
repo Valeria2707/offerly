@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { REMINDER_ACTION_LABELS } from "@/constants/calendar";
 import { vacancyRoute, vacancyStageRoute } from "@/constants/routes";
-import { cn } from "@/lib/utils";
+import { useStageName } from "@/hooks/use-stage-name";
 import { reminderView } from "@/lib/reminders";
+import { cn } from "@/lib/utils";
 import type { Reminder } from "@/types/calendar";
 
 export function ReminderRow({
@@ -14,7 +15,8 @@ export function ReminderRow({
   reminder: Reminder;
   vacancyLabel: string | null;
 }) {
-  const view = reminderView(reminder);
+  const t = useTranslations();
+  const view = reminderView(reminder, t, useStageName(), useLocale());
   const href =
     view.action === "open"
       ? vacancyRoute(reminder.vacancyId)
@@ -53,7 +55,7 @@ export function ReminderRow({
         nativeButton={false}
         variant={view.urgent ? "default" : "secondary"}
         className={cn(view.urgent && "bg-terracotta hover:bg-terracotta/85")}
-        render={<Link href={href}>{REMINDER_ACTION_LABELS[view.action]}</Link>}
+        render={<Link href={href}>{t(`calendar.actions.${view.action}`)}</Link>}
       />
     </div>
   );

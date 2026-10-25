@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Pencil, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { useFormContext, type Path } from "react-hook-form";
 
@@ -25,6 +26,7 @@ export function SectionCard({
   className,
   children,
 }: SectionCardProps) {
+  const t = useTranslations("profile.section");
   const { resetField } = useFormContext<ProfileData>();
   const [editing, setEditing] = useState(false);
 
@@ -49,7 +51,7 @@ export function SectionCard({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={`Завершити редагування: ${title}`}
+              aria-label={t("finish", { title })}
               className="text-primary"
               onClick={() => setEditing(false)}
             >
@@ -59,7 +61,7 @@ export function SectionCard({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={`Скасувати зміни: ${title}`}
+              aria-label={t("cancel", { title })}
               className="text-subtle"
               onClick={() => {
                 resetField(name);
@@ -74,7 +76,7 @@ export function SectionCard({
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label={`Редагувати секцію: ${title}`}
+            aria-label={t("edit", { title })}
             className="ml-auto text-subtle"
             onClick={() => setEditing(true)}
           >

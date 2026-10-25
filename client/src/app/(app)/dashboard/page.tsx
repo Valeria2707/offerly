@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { toast } from "sonner";
 
@@ -14,7 +15,6 @@ import { ProfileProgress } from "@/components/dashboard/profile-progress";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { UpcomingList } from "@/components/dashboard/upcoming-list";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import {
   ACTIVE_PROCESSES_LIMIT,
   UPCOMING_DAYS,
@@ -23,19 +23,18 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useReminders, useUpcomingEvents } from "@/hooks/use-calendar";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import { useProfile } from "@/hooks/use-profile";
 import { useVacancies } from "@/hooks/use-vacancies";
 import {
   useRecordStageResult,
   useWorkflowSummaries,
 } from "@/hooks/use-workflow";
-import { ApiError } from "@/lib/api-client";
 import { dayTitle } from "@/lib/calendar";
 import {
   actionReminders,
   activeProcesses,
   dashboardStats,
-  tasksLabel,
   upcomingEntries,
 } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
@@ -43,6 +42,9 @@ import type { Reminder } from "@/types/calendar";
 import type { StageStatus, WorkflowSummary } from "@/types/workflow";
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
+  const errorMessage = useErrorMessage();
   const now = useMemo(() => new Date(), []);
 
   const { data: user } = useCurrentUser();
@@ -78,12 +80,7 @@ export default function DashboardPage() {
       },
       {
         onError: (cause) =>
-          toast.error(
-            cause instanceof ApiError
-              ? cause.message
-              : DEFAULT_API_ERROR_MESSAGE,
-            { id: "dashboard-error" },
-          ),
+          toast.error(errorMessage(cause), { id: "dashboard-error" }),
       },
     );
 
@@ -92,15 +89,17 @@ export default function DashboardPage() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-1">
           <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Привіт{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+            {user?.name
+              ? t("greetingName", { name: user.name.split(" ")[0] })
+              : t("greeting")}
           </h1>
           <p className="text-sm text-muted-foreground first-letter:uppercase">
-            {dayTitle(now)} · {tasksLabel(actions.length)}
+            {dayTitle(now, locale)} · {t("tasks", { count: actions.length })}
           </p>
         </div>
 
         <Button nativeButton={false} render={<Link href={ROUTES.vacancies} />}>
-          + Додати вакансію
+          {t("quickActions.addVacancy")}
         </Button>
       </header>
 

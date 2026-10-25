@@ -1,0 +1,733 @@
+{
+  "errors": {
+    "default": "Couldn’t reach the server. Please try again.",
+    "http": {
+      "400": "Check the data you entered.",
+      "401": "Wrong email or password.",
+      "409": "A user with this email already exists.",
+      "413": "The file is too large — 10 MB max.",
+      "422": "Couldn’t extract text from the document. Try another file.",
+      "429": "Too many attempts. Try again a bit later.",
+      "503": "AI parsing is unavailable right now."
+    },
+    "preparation": {
+      "400": "Describe what is expected at this stage.",
+      "409": "Preparation for this stage already exists.",
+      "422": "The AI returned an invalid response. Try generating again.",
+      "503": "AI preparation is unavailable right now."
+    }
+  },
+  "metadata": {
+    "title": "Offerly — AI assistant for job search and interviews",
+    "description": "Add a vacancy by link and the AI guides you through every stage: Applied → HR → Technical → Final → Offer."
+  },
+  "common": {
+    "language": "Interface language",
+    "tagline": "AI assistant",
+    "homeLink": "Offerly — go to home page",
+    "dashboardLink": "Offerly — go to dashboard",
+    "monthField": {
+      "year": "year",
+      "month": "month"
+    },
+    "actions": {
+      "change": "Change",
+      "clear": "Clear",
+      "remove": "Remove",
+      "delete": "Delete",
+      "deleteItem": "Delete item",
+      "addItem": "Add item",
+      "addAndEnter": "Add and press Enter",
+      "cancel": "Cancel",
+      "save": "Save",
+      "add": "Add",
+      "open": "Open"
+    }
+  },
+  "landing": {
+    "start": "Get started",
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How it works"
+    },
+    "hero": {
+      "badge": "AI support for candidates",
+      "title": "An AI assistant that guides you through job search and interviews",
+      "description": "This isn’t a job board — add a vacancy by link and the AI guides you through every stage: Applied → HR → Technical → Final → Offer, prepares you for interviews and remembers every question you were asked.",
+      "stats": {
+        "vacancies": "vacancies tracked",
+        "interviews": "interviews",
+        "offers": "offer"
+      }
+    },
+    "preview": {
+      "company": "Helios Labs · Berlin, hybrid",
+      "done": "done",
+      "stages": {
+        "submitted": "Applied",
+        "hr": "HR",
+        "technical": "Technical",
+        "final": "Final",
+        "offer": "Offer"
+      },
+      "aiNote": "2 days until the technical interview. I’ll remind you tomorrow and show what to review."
+    },
+    "steps": {
+      "link": {
+        "title": "Paste a vacancy link",
+        "description": "The AI reads the requirements, stack and level — then you simply move the vacancy through its stages."
+      },
+      "plan": {
+        "title": "Prepare with a plan for each stage",
+        "description": "Before HR, technical or final interviews — a dedicated set of questions and topics, not a generic checklist."
+      },
+      "notes": {
+        "title": "Note how it went",
+        "description": "A few lines right after the call: what they asked, where you struggled. The next preparation is built from this."
+      }
+    },
+    "features": {
+      "funnel": {
+        "title": "Your whole funnel on one screen",
+        "description": "How many vacancies are in progress, where you are with each and which ones have been silent for two weeks."
+      },
+      "memory": {
+        "title": "Memory between interviews",
+        "description": "The AI matches questions and rejections across companies and shows which weakness keeps coming up."
+      },
+      "reminders": {
+        "title": "Reminders that don’t forget",
+        "description": "Follow-ups after silence, a quick note within 3 hours while it’s fresh, offer deadlines."
+      }
+    }
+  },
+  "auth": {
+    "start": "Get started",
+    "logout": "Log out",
+    "login": {
+      "submit": "Log in",
+      "title": "Log in to your account",
+      "description": "Good to see you again — let’s pick up where you left off.",
+      "remember": "Remember me",
+      "forgot": "Forgot password?",
+      "noAccount": "Don’t have an account?"
+    },
+    "or": "or",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Olena Kovalchuk",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password"
+    },
+    "signup": {
+      "title": "Create an account",
+      "description": "Takes less than a minute.",
+      "terms": "I agree to the terms of use and privacy policy",
+      "submit": "Sign up",
+      "hasAccount": "Already have an account?"
+    },
+    "forgot": {
+      "title": "Forgot password?",
+      "description": "Enter your email — we’ll send you a recovery link.",
+      "sent": "If an account with {email} exists, we’ve sent an email with a recovery link. It’s valid for 30 minutes.",
+      "submit": "Send link",
+      "remembered": "Remembered your password?"
+    },
+    "reset": {
+      "title": "New password",
+      "description": "Choose a password of at least 8 characters.",
+      "invalidTitle": "Invalid link",
+      "invalidDescription": "The link seems incomplete or expired. Request a new one — it’s valid for 30 minutes.",
+      "needLink": "Need a new link?",
+      "restore": "Reset password",
+      "rememberedOld": "Remembered your old password?",
+      "submit": "Save password",
+      "success": "Password changed. Now log in with your new password."
+    },
+    "google": {
+      "noToken": "Google didn’t return a token. Please try again.",
+      "failed": "Couldn’t sign in with Google."
+    }
+  },
+  "validation": {
+    "email": "Enter a valid email",
+    "passwordMin": "Password must be at least 8 characters",
+    "nameRequired": "Enter your name",
+    "nameMax": "150 characters max",
+    "terms": "You need to accept the terms",
+    "passwordsMismatch": "Passwords don’t match"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "vacancies": "My vacancies",
+    "calendar": "Calendar",
+    "analytics": "Analytics",
+    "stageTypes": "Stage catalog",
+    "profile": "Profile",
+    "sections": {
+      "jobSearch": "Job search",
+      "settings": "Settings"
+    },
+    "openProfile": "Open profile",
+    "logout": "Log out"
+  },
+  "workflow": {
+    "category": {
+      "screening": "Screening",
+      "technical": "Technical",
+      "behavioral": "Behavioral",
+      "administrative": "Administrative"
+    },
+    "status": {
+      "not_started": "Not started",
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "awaiting_result": "Awaiting result",
+      "completed": "Passed",
+      "cancelled": "Rejected",
+      "skipped": "Skipped"
+    },
+    "systemStages": {
+      "submitted": "Applied",
+      "hrScreening": "HR screening",
+      "preTechScreening": "Pre-tech screening",
+      "testTask": "Test task",
+      "technicalInterview": "Technical interview",
+      "liveCoding": "Live coding",
+      "systemDesign": "System Design",
+      "teamInterview": "Team interview",
+      "cultureFit": "Culture fit",
+      "finalInterview": "Final interview",
+      "offerNegotiation": "Offer negotiation",
+      "offer": "Offer",
+      "rejection": "Rejection"
+    },
+    "stepLabel": "Stage {index}: {name}",
+    "reminders": {
+      "title": "Reminders",
+      "empty": "They’ll appear automatically once a stage has a meeting date or a deadline."
+    },
+    "addStage": {
+      "title": "Add stage",
+      "description": "pick one or more types — you can reorder them later with the arrows",
+      "submit": "Add",
+      "submitCount": "Add · {count}"
+    },
+    "details": {
+      "meetingAt": "meeting {date}",
+      "deadlineAt": "deadline {date}",
+      "completedAt": "finished {date}",
+      "artifactLabel": "Artifact link",
+      "artifactName": "artifact",
+      "artifactEmpty": "link to your work",
+      "statusLabel": "Status of stage “{name}”",
+      "frozen": "The vacancy was closed with a rejection — undo it on that stage",
+      "removeLabel": "Delete stage “{name}”",
+      "meetingLabel": "Meeting date and time",
+      "meetingName": "meeting",
+      "meetingEmpty": "schedule a meeting",
+      "deadlineLabel": "Deadline",
+      "deadlineName": "deadline"
+    },
+    "notes": {
+      "title": "Stage notes",
+      "remove": "Delete note",
+      "new": "New note",
+      "placeholder": "Impressions, tone of the conversation, what to remember before the next stage…"
+    },
+    "questions": {
+      "title": "Questions you were asked",
+      "saved": "{count} saved",
+      "empty": "nothing yet",
+      "new": "New question",
+      "placeholder": "What were you asked at this stage…",
+      "wasHard": "It was hard to answer",
+      "hint": "These questions are taken into account when the system prepares you for the next stages.",
+      "unmarkHard": "Remove the “was hard” mark",
+      "markHard": "Mark as “was hard”",
+      "remove": "Delete question",
+      "answerLabel": "How you answered “{question}”",
+      "answerPlaceholder": "How you answered…"
+    },
+    "removeStage": {
+      "title": "Delete stage?",
+      "description": "“{name}” will be removed from this application’s stages together with its preparation and notes."
+    }
+  },
+  "stageTypes": {
+    "meta": {
+      "duration": "{minutes} min",
+      "preparation": "needs preparation",
+      "noPreparation": "no preparation",
+      "deadline": "deadline",
+      "artifact": "artifact"
+    },
+    "title": "Stage type catalog",
+    "description": "standard types for any hiring process — use them as they are or create your own",
+    "create": "Create custom type",
+    "all": "All",
+    "empty": "No types in this category yet.",
+    "removeLabel": "Delete type “{name}”",
+    "delete": {
+      "title": "Delete stage type?",
+      "description": "“{name}” will be removed from the catalog. Stages already added to vacancies will stay in place."
+    },
+    "form": {
+      "title": "Create stage type",
+      "description": "a custom type becomes available in the catalog next to the standard ones",
+      "name": "Type name",
+      "namePlaceholder": "Architecture review",
+      "category": "Category",
+      "duration": "Expected duration, min",
+      "requiresPreparation": "Needs preparation",
+      "supportsDeadline": "Has a deadline",
+      "producesArtifact": "Produces an artifact (document, code)",
+      "submit": "Create type"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "today": "Today",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "overdue": "{count} overdue",
+    "thisWeek": "This week",
+    "weekEmpty": "The next seven days are free.",
+    "until": "due:",
+    "deadline": "deadline",
+    "reschedule": "Reschedule stage",
+    "categoryShort": {
+      "screening": "screening",
+      "technical": "technical",
+      "behavioral": "behavioral",
+      "administrative": "admin"
+    },
+    "actions": {
+      "record": "Record",
+      "prepare": "Prepare",
+      "open": "Open"
+    },
+    "reminder": {
+      "recordTitle": "Record result · {name}",
+      "recordNote": "The interview was {when}, but the status is still “{status}”. Questions fade from memory within a few days.",
+      "interviewTitle": "{name} {when} at {time}",
+      "interviewNote": "Worth rereading your preparation before the call.",
+      "deadlineTitle": "Deadline {when} · {name}",
+      "deadlineShort": "Deadline · {name}",
+      "deadlineNote": "Not much time left to finish and submit.",
+      "silenceTitle": "Silent for {days} d · {name}",
+      "silenceNote": "The company hasn’t replied in a while. You could message the recruiter."
+    },
+    "settings": {
+      "title": "What to remind about",
+      "beforeInterview": "24 hours before an interview",
+      "afterStage": "Record the result after a stage",
+      "beforeDeadline": "2 days before a deadline",
+      "silence": "No reply from the company for 10+ days",
+      "weeklyDigest": "Weekly summary on Mondays",
+      "emailTo": "Also send by email to {email}",
+      "email": "Also send by email",
+      "quietFrom": "Quiet from",
+      "quietTo": "to",
+      "quietHint": "No emails are sent during these hours",
+      "feedReady": "Interviews will appear in your calendar and update automatically.",
+      "feedHint": "You can add interviews to your regular calendar — then your phone will remind you.",
+      "addToCalendar": "Add to calendar"
+    }
+  },
+  "preparation": {
+    "title": "Preparation",
+    "generated": "generated {when}",
+    "regenerate": "Generate again",
+    "format": "Preparation format",
+    "instructionsRequired": "What is expected at this stage",
+    "instructionsOptional": "Additional context — optional",
+    "instructionsPlaceholder": "Who runs it, what they emphasised, what you’ve already discussed…",
+    "types": {
+      "CV_COVER_LETTER": "CV and cover letter",
+      "HR_SCREENING": "Conversational interview",
+      "TECHNICAL": "Technical interview",
+      "CUSTOM": "Custom format"
+    },
+    "cta": {
+      "CV_COVER_LETTER": "Generate CV tips and cover letter",
+      "HR_SCREENING": "Generate interview preparation",
+      "TECHNICAL": "Generate technical preparation",
+      "CUSTOM": "Generate preparation"
+    },
+    "highlights": {
+      "cvTips": {
+        "title": "CV tips",
+        "detail": "what to improve for this particular vacancy"
+      },
+      "coverLetter": {
+        "title": "Cover letter draft",
+        "detail": "a ready text you only need to edit"
+      },
+      "keywords": {
+        "title": "Keywords",
+        "detail": "wording from the vacancy description"
+      },
+      "pitch": {
+        "title": "About yourself",
+        "detail": "a short structure for this role"
+      },
+      "expectedQuestions": {
+        "title": "Expected questions",
+        "detail": "with hints and expected answers"
+      },
+      "askBack": {
+        "title": "What to ask in return",
+        "detail": "so the conversation isn’t one-sided"
+      },
+      "stack": {
+        "title": "Stack for the vacancy",
+        "detail": "what exactly they’ll test"
+      },
+      "theory": {
+        "title": "Theory questions",
+        "detail": "with hints and expected answers"
+      },
+      "practice": {
+        "title": "Practical tasks",
+        "detail": "matching the vacancy level and technologies"
+      },
+      "stageDescription": {
+        "title": "Stage overview",
+        "detail": "structured around your context"
+      },
+      "prepQuestions": {
+        "title": "Practice questions",
+        "detail": "with hints and expected answers"
+      }
+    },
+    "cards": {
+      "materials": "materials",
+      "cvTips": "What to improve in your CV",
+      "coverLetter": "Cover letter draft",
+      "keywords": "Keywords for the vacancy",
+      "pitch": "About yourself",
+      "expectedQuestion": "expected question",
+      "askRecruiter": "What to ask the recruiter",
+      "stack": "Stack for the vacancy",
+      "theoryQuestion": "theory question",
+      "practiceTask": "practical task",
+      "task": "Task {index}",
+      "expected": "What is expected at this stage",
+      "question": "question"
+    },
+    "card": {
+      "showHint": "Show hint",
+      "yourAnswer": "Your answer",
+      "answerPlaceholder": "Your answer…",
+      "expectedAnswer": "Expected answer"
+    },
+    "summary": {
+      "ready": "Preparation is ready",
+      "progress": "{cards, plural, one {# card} other {# cards}} · {answered} of {total} questions answered",
+      "materials": "{cards, plural, one {# card} other {# cards}} with materials",
+      "progressLabel": "Preparation progress",
+      "continue": "Continue preparing",
+      "start": "Start preparing"
+    },
+    "page": {
+      "back": "Application stages",
+      "questionOf": "question {number} of {total}",
+      "cardOf": "card {number} of {total}",
+      "previous": "Back",
+      "next": "Next",
+      "autosave": "your answer is saved when you move on",
+      "missing": "There’s no preparation for this stage yet — generate it on the application page."
+    }
+  },
+  "vacancies": {
+    "title": "My vacancies",
+    "loading": "loading…",
+    "counts": "{current} in the list · {archived} archived",
+    "archiveLink": "Archive · {count}",
+    "notFound": "Nothing found for “{query}”.",
+    "empty": "No vacancies yet. Add your first one by link or text.",
+    "delete": {
+      "title": "Delete vacancy?",
+      "description": "“{title}” will be gone for good together with its stages, preparation and notes. To just remove it from the list, archive it.",
+      "archivedDescription": "“{title}” will be gone for good together with its stages, preparation and notes.",
+      "confirm": "Delete"
+    },
+    "archive": {
+      "title": "Archive",
+      "description": "{count, plural, one {# vacancy} other {# vacancies}} removed from the list — stages and notes are kept",
+      "empty": "The archive is empty."
+    },
+    "table": {
+      "vacancy": "Vacancy",
+      "stage": "Stage",
+      "when": "When",
+      "updated": "Updated",
+      "actions": "Actions",
+      "restore": "Restore to active: {title}",
+      "archive": "Archive: {title}",
+      "delete": "Delete: {title}"
+    },
+    "summary": {
+      "title": "About the vacancy",
+      "salary": "Salary",
+      "workFormat": "Format",
+      "employment": "Employment",
+      "level": "Level",
+      "experience": "Experience",
+      "education": "Education",
+      "languages": "Languages",
+      "added": "Added",
+      "skills": "Required skills",
+      "description": "Description",
+      "original": "Original posting"
+    },
+    "search": {
+      "placeholder": "search vacancies…",
+      "label": "Search your vacancies"
+    },
+    "stats": {
+      "total": "Vacancies",
+      "inProgress": "In progress",
+      "rejected": "Rejections",
+      "offers": "Offers"
+    },
+    "importProgress": {
+      "pageRead": "Vacancy page read",
+      "textRead": "Posting text read",
+      "fields": "Main fields recognised — position, company, location, salary",
+      "requirements": "Extracting requirements and normalising skills",
+      "duplicates": "Checking for duplicates among your vacancies",
+      "title": "AI is analysing the vacancy",
+      "pastedText": "pasted posting text"
+    },
+    "add": {
+      "title": "Add vacancy",
+      "description": "by link or text — the AI will extract details and requirements automatically",
+      "byUrl": "By link",
+      "byText": "Paste text",
+      "urlLabel": "Vacancy link",
+      "urlHint": "Works with most job boards and company career pages.",
+      "parse": "Parse",
+      "textLabel": "Posting text",
+      "textPlaceholder": "Copy the vacancy description from the site — position, company, requirements and conditions…",
+      "textMin": "At least {min} characters — currently {current}."
+    },
+    "review": {
+      "title": "Check the parsed data",
+      "description": "The AI filled in the fields from the posting — fix anything recognised inaccurately before adding",
+      "updated": "Vacancy updated",
+      "added": "Vacancy added",
+      "duplicate": "Duplicate",
+      "duplicateHint": "A similar vacancy has already been added — “{title} · {company}”. Saving will update it instead of creating a second record for the same position.",
+      "parsed": "Parsed data",
+      "titleRequired": "Enter the position",
+      "companyRequired": "Enter the company",
+      "requirements": "Extracted requirements",
+      "source": "Source",
+      "update": "Update vacancy",
+      "add": "Add vacancy",
+      "cancel": "Cancel"
+    }
+  },
+  "profile": {
+    "title": "User profile",
+    "description": "career profile, skills and experience — the basis for your CV, cover letter and AI preparation",
+    "save": "Save",
+    "saved": "Profile saved",
+    "cv": {
+      "parsed": "CV parsed — check the fields and save",
+      "failed": "Couldn’t parse the CV",
+      "unsaved": "CV data isn’t saved yet",
+      "source": "{filename} was used as the data source. The file isn’t stored — only the fields below stay in your profile.",
+      "upload": "Upload CV",
+      "uploadAnother": "Upload another CV",
+      "parsing": "AI is parsing your resume",
+      "parsingHint": "{filename} · usually under half a minute",
+      "document": "document",
+      "steps": {
+        "read": "File read",
+        "extract": "Text extracted from the document",
+        "parse": "AI is parsing experience, skills and education",
+        "normalize": "Checking and normalising fields"
+      }
+    },
+    "section": {
+      "finish": "Finish editing: {title}",
+      "cancel": "Discard changes: {title}",
+      "edit": "Edit section: {title}"
+    },
+    "basics": {
+      "title": "Basics",
+      "addLink": "Add",
+      "summaryPlaceholder": "Briefly about your experience: stack, years, industry…",
+      "linkLabel": "Link name",
+      "removeLink": "Delete link"
+    },
+    "career": {
+      "title": "Career profile"
+    },
+    "skills": {
+      "title": "Skills",
+      "item": "Skill",
+      "remove": "Delete skill",
+      "add": "Add skill"
+    },
+    "languages": {
+      "title": "Languages",
+      "item": "Language",
+      "remove": "Delete language",
+      "add": "Add language"
+    },
+    "projects": {
+      "title": "Projects",
+      "remove": "Delete project",
+      "highlightPlaceholder": "What was done or the outcome",
+      "add": "Add project"
+    },
+    "experience": {
+      "title": "Work experience",
+      "remove": "Delete position",
+      "highlightPlaceholder": "An achievement or area of responsibility",
+      "add": "Add experience"
+    },
+    "education": {
+      "title": "Education",
+      "remove": "Delete education",
+      "add": "Add education"
+    }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "description": "How your job search is going",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "empty": {
+      "title": "No vacancies in this period",
+      "description": "Add a vacancy or pick a longer period to see statistics.",
+      "action": "Go to vacancies"
+    },
+    "periods": {
+      "label": "Period",
+      "7": "7 days",
+      "30": "30 days",
+      "90": "90 days",
+      "all": "All time"
+    },
+    "summary": {
+      "added": "Vacancies added",
+      "active": "Active processes",
+      "awaiting": "{count} awaiting a reply",
+      "offerRate": "Offer rate",
+      "offersOf": "{offers} of {added}",
+      "duration": "Average duration",
+      "durationHint": "from adding to a result",
+      "same": "the same as in the previous {period} days",
+      "more": "{diff} more than in the previous {period} days",
+      "less": "{diff} fewer than in the previous {period} days"
+    },
+    "funnel": {
+      "title": "Hiring funnel",
+      "caption": "How many vacancies reached each stage type",
+      "steps": {
+        "added": "Added",
+        "screening": "Screening",
+        "technical": "Technical",
+        "final": "Final",
+        "offer": "Offer"
+      }
+    },
+    "outcomes": {
+      "title": "Outcomes",
+      "inProgress": "In progress",
+      "awaiting": "Awaiting a reply",
+      "offered": "Offer",
+      "closed": "Rejected / archived"
+    },
+    "weekly": {
+      "title": "Weekly activity",
+      "vacancies": "New vacancies",
+      "stages": "Stages passed",
+      "weekLabel": "{range}: {vacancies} new vacancies, {stages} stages passed"
+    },
+    "categories": {
+      "title": "Success by stage type",
+      "weakest": "You’re most often screened out at “{category}” stages",
+      "caption": "Share of passed stages among finished ones"
+    },
+    "skills": {
+      "title": "Most requested skills",
+      "gapHint": "Orange ones are missing from your profile",
+      "empty": "Vacancies in this period have no required skills"
+    },
+    "workFormats": {
+      "title": "Work format",
+      "unknown": "Not specified"
+    }
+  },
+  "dashboard": {
+    "greeting": "Hi",
+    "greetingName": "Hi, {name}",
+    "tasks": "{count, plural, =0 {nothing urgent} one {# task for today} other {# tasks for today}}",
+    "stats": {
+      "active": "Active",
+      "awaiting": "Awaiting",
+      "rejected": "Rejections",
+      "offers": "Offers"
+    },
+    "nextEvent": {
+      "label": "Next event",
+      "prepare": "Prepare",
+      "open": "Open vacancy"
+    },
+    "actions": {
+      "title": "Needs action",
+      "empty": "All under control — nothing urgent.",
+      "record": "Record the result",
+      "passed": "Passed",
+      "rejected": "Rejected",
+      "deadlineNote": "deadline {when}",
+      "wasAt": "was {when} at {time}",
+      "was": "was {when}"
+    },
+    "processes": {
+      "title": "Active processes",
+      "all": "all vacancies",
+      "empty": "No active processes. Add a vacancy to get started.",
+      "silent": "Awaiting a reply for {days} d",
+      "scheduled": "{name}: {when}",
+      "deadline": "{name} due {date}",
+      "awaiting": "{name}: awaiting a reply"
+    },
+    "upcoming": {
+      "title": "Coming up",
+      "link": "calendar",
+      "empty": "Nothing scheduled for the next two weeks.",
+      "deadline": "Deadline"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "addVacancy": "+ Add vacancy",
+      "updateProfile": "Update profile from CV",
+      "viewAnalytics": "View analytics"
+    },
+    "profile": {
+      "title": "Profile",
+      "progressLabel": "Profile completeness",
+      "add": "Add {sections}",
+      "link": "go to profile",
+      "complete": "Your profile is complete",
+      "sections": {
+        "name": "your name",
+        "headline": "a headline",
+        "summary": "an about section",
+        "desiredPosition": "a desired position",
+        "skills": "skills",
+        "experience": "experience",
+        "education": "education",
+        "projects": "projects",
+        "languages": "languages"
+      }
+    }
+  }
+}

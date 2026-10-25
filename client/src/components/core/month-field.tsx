@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { Controller, useFormContext } from "react-hook-form";
 
 import { FieldLabel } from "@/components/core/field-label";
@@ -11,20 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const MONTHS = [
-  ["01", "Січ"],
-  ["02", "Лют"],
-  ["03", "Бер"],
-  ["04", "Кві"],
-  ["05", "Тра"],
-  ["06", "Чер"],
-  ["07", "Лип"],
-  ["08", "Сер"],
-  ["09", "Вер"],
-  ["10", "Жов"],
-  ["11", "Лис"],
-  ["12", "Гру"],
-] as const;
+const MONTH_NUMBERS = Array.from({ length: 12 }, (_, index) =>
+  String(index + 1).padStart(2, "0"),
+);
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 52 }, (_, index) =>
@@ -46,6 +36,8 @@ export function MonthField({
   className?: string;
 }) {
   const { control } = useFormContext();
+  const t = useTranslations("common.monthField");
+  const monthName = new Intl.DateTimeFormat(useLocale(), { month: "short" });
 
   return (
     <Controller
@@ -74,10 +66,10 @@ export function MonthField({
                   }
                 >
                   <SelectTrigger
-                    aria-label={`${label}: рік`}
+                    aria-label={`${label}: ${t("year")}`}
                     className={TRIGGER_CLASS}
                   >
-                    <SelectValue placeholder="рік" />
+                    <SelectValue placeholder={t("year")} />
                   </SelectTrigger>
                   <SelectContent>
                     {YEARS.map((item) => (
@@ -100,19 +92,20 @@ export function MonthField({
                   }
                 >
                   <SelectTrigger
-                    aria-label={`${label}: місяць`}
+                    aria-label={`${label}: ${t("month")}`}
                     className={TRIGGER_CLASS}
                   >
-                    <SelectValue placeholder="місяць" />
+                    <SelectValue placeholder={t("month")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {MONTHS.map(([value, title]) => (
+                    {MONTH_NUMBERS.map((value) => (
                       <SelectItem
                         key={value}
                         value={value}
                         className="font-mono text-xs"
                       >
-                        {value} · {title}
+                        {value} ·{" "}
+                        {monthName.format(new Date(2000, Number(value) - 1))}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -1,36 +1,43 @@
+import type { useTranslations } from "next-intl";
+
+import type { Locale } from "@/constants/i18n";
 import {
   CLOSED_STAGE_STATUSES,
-  SYSTEM_STAGE_NAMES,
+  SYSTEM_STAGE_KEYS,
+  type SystemStageName,
 } from "@/constants/workflow";
 import type { StageType, WorkflowStage } from "@/types/workflow";
 
-export function stageName(name: string): string {
-  return SYSTEM_STAGE_NAMES[name] ?? name;
+type StageTypeMetaT = ReturnType<typeof useTranslations<"stageTypes.meta">>;
+
+export type StageNameFormatter = (name: string) => string;
+
+export function isSystemStageName(name: string): name is SystemStageName {
+  return name in SYSTEM_STAGE_KEYS;
 }
 
 export function isSystemStageType(type: StageType): boolean {
   return type.ownerUserId === null;
 }
 
-const DATE_FORMAT = new Intl.DateTimeFormat("uk-UA", {
-  day: "numeric",
-  month: "short",
-});
-
-const TIME_FORMAT = new Intl.DateTimeFormat("uk-UA", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-export function formatStageDate(iso: string | null): string | null {
+export function formatStageDate(
+  iso: string | null,
+  locale: Locale,
+): string | null {
   if (!iso) return null;
 
   const date = new Date(iso);
-  const time = TIME_FORMAT.format(date);
+  const day = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+  const time = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
 
-  return time === "00:00"
-    ? DATE_FORMAT.format(date)
-    : `${DATE_FORMAT.format(date)} · ${time}`;
+  return time === "00:00" ? day : `${day} · ${time}`;
 }
 
 export function toDateTimeInput(iso: string | null): string {
@@ -50,16 +57,14 @@ export function fromDateInput(value: string): string | null {
   return value ? new Date(value).toISOString() : null;
 }
 
-export function formatDuration(minutes: number | null): string | null {
-  return minutes ? `${minutes} хв` : null;
-}
-
-export function stageTypeMeta(type: StageType): string {
+export function stageTypeMeta(type: StageType, t: StageTypeMetaT): string {
   return [
-    formatDuration(type.expectedDurationMinutes),
-    type.requiresPreparation ? "потребує підготовки" : "без підготовки",
-    type.supportsDeadline ? "дедлайн" : null,
-    type.producesArtifact ? "артефакт" : null,
+    type.expectedDurationMinutes
+      ? t("duration", { minutes: type.expectedDurationMinutes })
+      : null,
+    type.requiresPreparation ? t("preparation") : t("noPreparation"),
+    type.supportsDeadline ? t("deadline") : null,
+    type.producesArtifact ? t("artifact") : null,
   ]
     .filter(Boolean)
     .join(" · ");

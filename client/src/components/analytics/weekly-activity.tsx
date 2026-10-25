@@ -1,3 +1,5 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import { AnalyticsCard } from "@/components/analytics/analytics-card";
 import { WEEKLY_SERIES } from "@/constants/analytics";
 import { axisTicks, barPercent, weekLabel, weekRange } from "@/lib/analytics";
@@ -5,6 +7,8 @@ import { cn } from "@/lib/utils";
 import type { WeeklyActivity as Week } from "@/types/analytics";
 
 export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
+  const t = useTranslations("analytics.weekly");
+  const locale = useLocale();
   const ticks = axisTicks(
     Math.max(0, ...weeks.flatMap((week) => [week.vacancies, week.stages])),
   );
@@ -12,7 +16,7 @@ export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
   const offset = (tick: number) => ({ bottom: `${(tick / top) * 100}%` });
 
   return (
-    <AnalyticsCard title="Активність по тижнях">
+    <AnalyticsCard title={t("title")}>
       <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-2">
         <div aria-hidden className="relative h-40">
           {ticks.map((tick) => (
@@ -41,7 +45,11 @@ export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
               <li
                 key={week.weekStart}
                 tabIndex={0}
-                aria-label={`${weekRange(week.weekStart)}: ${week.vacancies} нових вакансій, ${week.stages} пройдених етапів`}
+                aria-label={t("weekLabel", {
+                  range: weekRange(week.weekStart, locale),
+                  vacancies: week.vacancies,
+                  stages: week.stages,
+                })}
                 className="group relative flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 rounded-t-md outline-none hover:bg-muted focus-visible:bg-muted"
               >
                 {WEEKLY_SERIES.map((series) => (
@@ -61,11 +69,11 @@ export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
                   className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 rounded-lg bg-foreground px-3 py-2 text-xs whitespace-nowrap text-background group-hover:grid group-focus-visible:grid"
                 >
                   <span className="font-medium">
-                    {weekRange(week.weekStart)}
+                    {weekRange(week.weekStart, locale)}
                   </span>
                   {WEEKLY_SERIES.map((series) => (
                     <span key={series.key}>
-                      {series.label}: {week[series.key]}
+                      {t(series.key)}: {week[series.key]}
                     </span>
                   ))}
                 </div>
@@ -79,11 +87,11 @@ export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
           {weeks.map((week, index) => (
             <span
               key={week.weekStart}
-              title={weekRange(week.weekStart)}
+              title={weekRange(week.weekStart, locale)}
               className="min-w-0 flex-1 truncate text-center font-mono text-[10px] text-subtle"
             >
               {weeks.length <= 6 || index % 2 === 0
-                ? weekLabel(week.weekStart)
+                ? weekLabel(week.weekStart, locale)
                 : ""}
             </span>
           ))}
@@ -97,7 +105,7 @@ export function WeeklyActivity({ weeks }: { weeks: Week[] }) {
               aria-hidden
               className={cn("size-2.5 rounded-sm", series.className)}
             />
-            {series.label}
+            {t(series.key)}
           </li>
         ))}
       </ul>

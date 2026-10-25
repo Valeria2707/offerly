@@ -15,13 +15,6 @@ export const UPCOMING_LINE_CLASSES: Record<StageCategory, string> = {
 
 export const DEADLINE_LINE_CLASS = "bg-terracotta";
 
-export const DASHBOARD_STAT_LABELS = {
-  active: "Активні",
-  awaiting: "Чекаю",
-  rejected: "Відмови",
-  offers: "Оффери",
-} as const;
-
 export const ACTION_REMINDER_KINDS: ReminderKind[] = [
   "record_result",
   "deadline_soon",

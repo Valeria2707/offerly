@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import { SectionCard } from "@/components/profile/section-card";
@@ -8,10 +9,11 @@ import type { ProfileData } from "@/types/profile";
 
 export function CareerSection() {
   const { register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.career");
 
   return (
     <SectionCard
-      title="Кар’єрний профіль"
+      title={t("title")}
       path="data.preferences"
       name="preferences"
     >

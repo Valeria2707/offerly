@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
@@ -9,6 +10,7 @@ import { useIsHydrated } from "@/hooks/use-is-hydrated";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function HeaderAuthActions() {
+  const t = useTranslations("auth");
   const hydrated = useIsHydrated();
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: user } = useCurrentUser();
@@ -25,13 +27,13 @@ export function HeaderAuthActions() {
           href={ROUTES.login}
           className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          Увійти
+          {t("login.submit")}
         </Link>
         <Link
           href={ROUTES.signup}
           className={buttonVariants({ className: "px-4" })}
         >
-          Почати
+          {t("start")}
         </Link>
       </>
     );
@@ -48,7 +50,7 @@ export function HeaderAuthActions() {
         disabled={logout.isPending}
         onClick={() => logout.mutate()}
       >
-        Вийти
+        {t("logout")}
       </Button>
     </>
   );

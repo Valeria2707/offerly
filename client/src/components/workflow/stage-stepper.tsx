@@ -1,10 +1,12 @@
 "use client";
 
 import { Check, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useDragReorder } from "@/hooks/use-drag-reorder";
+import { useStageName } from "@/hooks/use-stage-name";
 import { cn } from "@/lib/utils";
-import { currentStageIndex, formatStageDate, stageName } from "@/lib/workflow";
+import { currentStageIndex, formatStageDate } from "@/lib/workflow";
 import type { StageStatus, WorkflowStage } from "@/types/workflow";
 
 type StageStepperProps = {
@@ -29,6 +31,9 @@ export function StageStepper({
   onSelect,
   onReorder,
 }: StageStepperProps) {
+  const t = useTranslations("workflow");
+  const locale = useLocale();
+  const stageName = useStageName();
   const current = currentStageIndex(stages);
 
   const drag = useDragReorder(onReorder, pending);
@@ -65,7 +70,7 @@ export function StageStepper({
             <button
               type="button"
               aria-current={isSelected ? "step" : undefined}
-              aria-label={`Етап ${index + 1}: ${name}`}
+              aria-label={t("stepLabel", { index: index + 1, name })}
               aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
               onClick={() => onSelect(stage.id)}
               onKeyDown={(event) => handleKeyDown(event, index)}
@@ -116,7 +121,8 @@ export function StageStepper({
             </span>
 
             <span className="font-mono text-[10px] text-subtle">
-              {formatStageDate(stage.completedAt ?? stage.scheduledAt) ?? "—"}
+              {formatStageDate(stage.completedAt ?? stage.scheduledAt, locale) ??
+                "—"}
             </span>
           </li>
         );

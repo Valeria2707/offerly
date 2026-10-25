@@ -1,11 +1,12 @@
-import {
-  STAGE_CATEGORY_CLASSES,
-  STAGE_CATEGORY_LABELS,
-} from "@/constants/workflow";
+import { useTranslations } from "next-intl";
+
+import { STAGE_CATEGORY_CLASSES } from "@/constants/workflow";
 import { cn } from "@/lib/utils";
 import type { StageCategory } from "@/types/workflow";
 
 export function StageCategoryBadge({ category }: { category: StageCategory }) {
+  const t = useTranslations("workflow.category");
+
   return (
     <span
       className={cn(
@@ -13,7 +14,7 @@ export function StageCategoryBadge({ category }: { category: StageCategory }) {
         STAGE_CATEGORY_CLASSES[category],
       )}
     >
-      {STAGE_CATEGORY_LABELS[category]}
+      {t(category)}
     </span>
   );
 }

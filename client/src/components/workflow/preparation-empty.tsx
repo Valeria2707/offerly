@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FieldLabel } from "@/components/core/field-label";
@@ -15,9 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   INSTRUCTIONS_MAX_LENGTH,
-  PREPARATION_CTA_LABELS,
   PREPARATION_HIGHLIGHTS,
-  PREPARATION_TYPE_LABELS,
 } from "@/constants/preparation";
 import {
   PREPARATION_TYPES,
@@ -38,6 +37,7 @@ export function PreparationEmpty({
   pending,
   onGenerate,
 }: PreparationEmptyProps) {
+  const t = useTranslations("preparation");
   const [instructions, setInstructions] = useState("");
   const [chosenType, setChosenType] = useState<PreparationType>("CUSTOM");
 
@@ -49,7 +49,7 @@ export function PreparationEmpty({
     <div className="grid gap-5">
       <ul className="grid gap-2.5">
         {PREPARATION_HIGHLIGHTS[type].map((highlight) => (
-          <li key={highlight.title} className="flex items-start gap-2.5">
+          <li key={highlight} className="flex items-start gap-2.5">
             <span
               aria-hidden
               className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-success-muted text-success"
@@ -57,8 +57,10 @@ export function PreparationEmpty({
               <Check className="size-3" />
             </span>
             <span className="text-sm text-muted-foreground">
-              <b className="font-semibold text-foreground">{highlight.title}</b>{" "}
-              {highlight.detail}
+              <b className="font-semibold text-foreground">
+                {t(`highlights.${highlight}.title`)}
+              </b>{" "}
+              {t(`highlights.${highlight}.detail`)}
             </span>
           </li>
         ))}
@@ -68,7 +70,7 @@ export function PreparationEmpty({
 
       {isPersonalStage && (
         <div className="grid gap-2">
-          <FieldLabel htmlFor="preparation-type">Формат підготовки</FieldLabel>
+          <FieldLabel htmlFor="preparation-type">{t("format")}</FieldLabel>
           <Select
             value={chosenType}
             disabled={pending}
@@ -76,13 +78,13 @@ export function PreparationEmpty({
           >
             <SelectTrigger id="preparation-type" className="w-64 rounded-lg">
               <SelectValue>
-                {(value: PreparationType) => PREPARATION_TYPE_LABELS[value]}
+                {(value: PreparationType) => t(`types.${value}`)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {PREPARATION_TYPES.map((item) => (
                 <SelectItem key={item} value={item} className="text-xs">
-                  {PREPARATION_TYPE_LABELS[item]}
+                  {t(`types.${item}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -93,15 +95,15 @@ export function PreparationEmpty({
       <div className="grid gap-2">
         <FieldLabel htmlFor="preparation-instructions">
           {isPersonalStage
-            ? "Що очікується на цьому етапі"
-            : "Додатковий контекст — необовʼязково"}
+            ? t("instructionsRequired")
+            : t("instructionsOptional")}
         </FieldLabel>
         <Textarea
           id="preparation-instructions"
           rows={3}
           value={instructions}
           maxLength={INSTRUCTIONS_MAX_LENGTH}
-          placeholder="Хто проводить, на чому наголошували, що вже обговорювали…"
+          placeholder={t("instructionsPlaceholder")}
           className="field-sizing-fixed max-h-48 resize-none overflow-y-auto rounded-lg px-3.5 py-2.5"
           onChange={(event) => setInstructions(event.target.value)}
         />
@@ -118,7 +120,7 @@ export function PreparationEmpty({
         }
       >
         {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
-        {PREPARATION_CTA_LABELS[type]}
+        {t(`cta.${type}`)}
       </Button>
     </div>
   );

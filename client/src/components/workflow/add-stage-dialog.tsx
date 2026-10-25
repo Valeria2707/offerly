@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { DialogActions } from "@/components/core/dialog-actions";
@@ -12,8 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { STAGE_CATEGORY_LABELS } from "@/constants/workflow";
-import { stageName, stageTypeMeta } from "@/lib/workflow";
+import { useStageName } from "@/hooks/use-stage-name";
+import { stageTypeMeta } from "@/lib/workflow";
 import {
   STAGE_CATEGORIES,
   type StageCategory,
@@ -33,6 +34,9 @@ export function AddStageDialog({
   onClose,
   onAdd,
 }: AddStageDialogProps) {
+  const t = useTranslations();
+  const tMeta = useTranslations("stageTypes.meta");
+  const stageName = useStageName();
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggle = (stageTypeId: string) =>
@@ -46,9 +50,9 @@ export function AddStageDialog({
     <Dialog open onOpenChange={(open) => !open && !pending && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Додати етап</DialogTitle>
+          <DialogTitle>{t("workflow.addStage.title")}</DialogTitle>
           <DialogDescription>
-            оберіть один або кілька типів — порядок потім міняється стрілками
+            {t("workflow.addStage.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -63,7 +67,7 @@ export function AddStageDialog({
             return (
               <section key={category} className="grid gap-1">
                 <h3 className="px-1 font-mono text-[10px] tracking-[0.12em] text-subtle uppercase">
-                  {STAGE_CATEGORY_LABELS[category]}
+                  {t(`workflow.category.${category}`)}
                 </h3>
 
                 {types.map((type) => (
@@ -83,7 +87,7 @@ export function AddStageDialog({
                         {stageName(type.name)}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {stageTypeMeta(type)}
+                        {stageTypeMeta(type, tMeta)}
                       </span>
                     </span>
                   </Label>
@@ -95,7 +99,9 @@ export function AddStageDialog({
 
         <DialogActions
           submitLabel={
-            selected.length > 1 ? `Додати · ${selected.length}` : "Додати"
+            selected.length > 1
+              ? t("workflow.addStage.submitCount", { count: selected.length })
+              : t("workflow.addStage.submit")
           }
           pending={pending}
           disabled={selected.length === 0}

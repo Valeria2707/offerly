@@ -1,19 +1,19 @@
+import { useTranslations } from "next-intl";
+
 import { AnalyticsCard } from "@/components/analytics/analytics-card";
 import { MeterRow } from "@/components/analytics/meter-row";
-import {
-  FUNNEL_STEP_CLASSES,
-  FUNNEL_STEP_LABELS,
-} from "@/constants/analytics";
+import { FUNNEL_STEP_CLASSES } from "@/constants/analytics";
 import { barPercent, funnelTotal, sharePercent } from "@/lib/analytics";
 import type { FunnelStepCount } from "@/types/analytics";
 
 export function HiringFunnel({ funnel }: { funnel: FunnelStepCount[] }) {
+  const t = useTranslations("analytics.funnel");
   const total = funnelTotal(funnel);
 
   return (
     <AnalyticsCard
-      title="Воронка найму"
-      caption="Скільки вакансій дійшло до кожного типу етапу"
+      title={t("title")}
+      caption={t("caption")}
     >
       <ol className="grid gap-3">
         {funnel.map((item) => {
@@ -22,7 +22,7 @@ export function HiringFunnel({ funnel }: { funnel: FunnelStepCount[] }) {
           return (
             <MeterRow
               key={item.step}
-              label={FUNNEL_STEP_LABELS[item.step]}
+              label={t(`steps.${item.step}`)}
               percent={barPercent(item.count, total)}
               value={
                 item.step === "added" || share === null

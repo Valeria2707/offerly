@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { DialogActions } from "@/components/core/dialog-actions";
@@ -29,6 +30,7 @@ type AddVacancyPanelProps = {
 };
 
 export function AddVacancyPanel({ pending, onImport }: AddVacancyPanelProps) {
+  const t = useTranslations("vacancies.add");
   const [isOpen, setIsOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [text, setText] = useState("");
@@ -48,31 +50,31 @@ export function AddVacancyPanel({ pending, onImport }: AddVacancyPanelProps) {
     <>
       <Button onClick={() => setIsOpen(true)} disabled={pending}>
         <Plus />
-        Додати вакансію
+        {t("title")}
       </Button>
 
       <Dialog open={isOpen && !pending} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Додати вакансію</DialogTitle>
+            <DialogTitle>{t("title")}</DialogTitle>
             <DialogDescription>
-              за посиланням або текстом — AI розбере деталі й вимоги автоматично
+              {t("description")}
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="url">
             <TabsList className="h-10 w-full bg-secondary p-1">
               <TabsTrigger value="url" className="data-active:bg-card">
-                За посиланням
+                {t("byUrl")}
               </TabsTrigger>
               <TabsTrigger value="text" className="data-active:bg-card">
-                Вставити текст
+                {t("byText")}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="url" className="mt-5 grid gap-2">
               <FieldLabel htmlFor="vacancy-url">
-                Посилання на вакансію
+                {t("urlLabel")}
               </FieldLabel>
               <Input
                 id="vacancy-url"
@@ -83,11 +85,11 @@ export function AddVacancyPanel({ pending, onImport }: AddVacancyPanelProps) {
                 onChange={(event) => setUrl(event.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Працює з більшістю job-бордів і кар’єрних сторінок компаній.
+                {t("urlHint")}
               </p>
 
               <DialogActions
-                submitLabel="Розібрати"
+                submitLabel={t("parse")}
                 pending={pending}
                 disabled={!url.trim()}
                 onCancel={() => handleOpenChange(false)}
@@ -96,12 +98,12 @@ export function AddVacancyPanel({ pending, onImport }: AddVacancyPanelProps) {
             </TabsContent>
 
             <TabsContent value="text" className="mt-5 grid gap-2">
-              <FieldLabel htmlFor="vacancy-text">Текст оголошення</FieldLabel>
+              <FieldLabel htmlFor="vacancy-text">{t("textLabel")}</FieldLabel>
               <Textarea
                 id="vacancy-text"
                 rows={8}
                 value={text}
-                placeholder="Скопіюйте опис вакансії з сайту — посаду, компанію, вимоги й умови…"
+                placeholder={t("textPlaceholder")}
                 className={cn(
                   "field-sizing-fixed max-h-56 resize-none overflow-y-auto py-2.5",
                   FIELD_CLASS,
@@ -109,12 +111,14 @@ export function AddVacancyPanel({ pending, onImport }: AddVacancyPanelProps) {
                 onChange={(event) => setText(event.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Щонайменше {MIN_TEXT_LENGTH} символів — зараз{" "}
-                {text.trim().length}.
+                {t("textMin", {
+                  min: MIN_TEXT_LENGTH,
+                  current: text.trim().length,
+                })}
               </p>
 
               <DialogActions
-                submitLabel="Розібрати"
+                submitLabel={t("parse")}
                 pending={pending}
                 disabled={text.trim().length < MIN_TEXT_LENGTH}
                 onCancel={() => handleOpenChange(false)}

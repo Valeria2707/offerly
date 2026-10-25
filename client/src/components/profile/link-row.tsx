@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFormContext } from "react-hook-form";
 
 import { FIELD_CLASS } from "@/styles/field-styles";
@@ -17,11 +18,12 @@ export function LinkRow({
   onRemove: () => void;
 }) {
   const { register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.basics");
 
   return (
     <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
       <Input
-        aria-label="Назва посилання"
+        aria-label={t("linkLabel")}
         placeholder="label"
         className={cn(
           "h-9 w-24 rounded-md bg-card px-2.5 font-mono text-[11px]",
@@ -40,7 +42,7 @@ export function LinkRow({
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label="Видалити посилання"
+        aria-label={t("removeLink")}
         className="text-subtle"
         onClick={onRemove}
       >

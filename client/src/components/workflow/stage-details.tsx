@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { DateField } from "@/components/core/date-field";
 import { IconButton } from "@/components/core/icon-button";
@@ -13,11 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StageCategoryBadge } from "@/components/workflow/stage-category-badge";
-import {
-  CLOSED_STAGE_STATUSES,
-  STAGE_STATUS_LABELS,
-} from "@/constants/workflow";
-import { formatStageDate, stageName } from "@/lib/workflow";
+import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
+import { useStageName } from "@/hooks/use-stage-name";
+import { formatStageDate } from "@/lib/workflow";
 import {
   STAGE_STATUSES,
   type StageStatus,
@@ -42,20 +41,31 @@ export function StageDetails({
   onUpdate,
   onRemove,
 }: StageDetailsProps) {
-  const name = stageName(stage.name);
+  const t = useTranslations("workflow");
+  const locale = useLocale();
+  const name = useStageName()(stage.name);
 
   const isClosed = CLOSED_STAGE_STATUSES.includes(stage.status);
   const history = [
-    stage.scheduledAt && `зустріч ${formatStageDate(stage.scheduledAt)}`,
-    stage.deadlineAt && `дедлайн ${formatStageDate(stage.deadlineAt)}`,
-    stage.completedAt && `завершено ${formatStageDate(stage.completedAt)}`,
+    stage.scheduledAt &&
+      t("details.meetingAt", {
+        date: formatStageDate(stage.scheduledAt, locale) ?? "",
+      }),
+    stage.deadlineAt &&
+      t("details.deadlineAt", {
+        date: formatStageDate(stage.deadlineAt, locale) ?? "",
+      }),
+    stage.completedAt &&
+      t("details.completedAt", {
+        date: formatStageDate(stage.completedAt, locale) ?? "",
+      }),
   ].filter(Boolean);
 
   const artifact = (withArtifact || stage.artifactUrl) && (
     <LinkField
-      label="Посилання на артефакт"
-      name="артефакт"
-      emptyLabel="посилання на роботу"
+      label={t("details.artifactLabel")}
+      name={t("details.artifactName")}
+      emptyLabel={t("details.artifactEmpty")}
       value={stage.artifactUrl}
       disabled={pending}
       onChange={(artifactUrl) => onUpdate({ artifactUrl })}
@@ -81,29 +91,29 @@ export function StageDetails({
         >
           <SelectTrigger
             size="sm"
-            aria-label={`Статус етапу «${name}»`}
+            aria-label={t("details.statusLabel", { name })}
             title={
               frozen
-                ? "Вакансія закрита відмовою — зніміть її на тому етапі"
+                ? t("details.frozen")
                 : undefined
             }
             className="w-44 rounded-lg border-transparent bg-muted text-xs shadow-none"
           >
             <SelectValue>
-              {(status: StageStatus) => STAGE_STATUS_LABELS[status]}
+              {(status: StageStatus) => t(`status.${status}`)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STAGE_STATUSES.map((status) => (
               <SelectItem key={status} value={status} className="text-xs">
-                {STAGE_STATUS_LABELS[status]}
+                {t(`status.${status}`)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <IconButton
-          label={`Видалити етап «${name}»`}
+          label={t("details.removeLabel", { name })}
           disabled={pending}
           onClick={onRemove}
           className="hover:text-destructive"
@@ -131,9 +141,9 @@ export function StageDetails({
           <div className="h-px bg-border" />
           <div className="flex flex-wrap items-center gap-2">
             <DateField
-              label="Дата і час зустрічі"
-              name="зустріч"
-              emptyLabel="призначити зустріч"
+              label={t("details.meetingLabel")}
+              name={t("details.meetingName")}
+              emptyLabel={t("details.meetingEmpty")}
               value={stage.scheduledAt}
               withTime
               disabled={pending}
@@ -141,9 +151,9 @@ export function StageDetails({
             />
 
             <DateField
-              label="Дедлайн"
-              name="дедлайн"
-              emptyLabel="дедлайн"
+              label={t("details.deadlineLabel")}
+              name={t("details.deadlineName")}
+              emptyLabel={t("details.deadlineName")}
               value={stage.deadlineAt}
               disabled={pending}
               onChange={(deadlineAt) => onUpdate({ deadlineAt })}

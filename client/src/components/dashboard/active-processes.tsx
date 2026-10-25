@@ -1,11 +1,10 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { ROUTES, vacancyRoute } from "@/constants/routes";
-import {
-  STAGE_CATEGORY_CLASSES,
-  STAGE_CATEGORY_LABELS,
-} from "@/constants/workflow";
+import { STAGE_CATEGORY_CLASSES } from "@/constants/workflow";
+import { useStageName } from "@/hooks/use-stage-name";
 import {
   companyMark,
   processNote,
@@ -14,14 +13,18 @@ import {
 import { cn } from "@/lib/utils";
 
 export function ActiveProcesses({ processes }: { processes: ActiveProcess[] }) {
+  const t = useTranslations();
+  const locale = useLocale();
+  const stageName = useStageName();
+
   return (
     <DashboardCard
-      title="Активні процеси"
-      link={{ href: ROUTES.vacancies, label: "усі вакансії" }}
+      title={t("dashboard.processes.title")}
+      link={{ href: ROUTES.vacancies, label: t("dashboard.processes.all") }}
     >
       {processes.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Активних процесів немає. Додай вакансію, щоб почати.
+          {t("dashboard.processes.empty")}
         </p>
       ) : (
         <ul className="grid gap-2">
@@ -49,7 +52,8 @@ export function ActiveProcesses({ processes }: { processes: ActiveProcess[] }) {
                         : "text-warning",
                     )}
                   >
-                    {process.vacancy.company} · {processNote(process)}
+                    {process.vacancy.company} ·{" "}
+                    {processNote(process, t, stageName, locale)}
                   </span>
                 </span>
                 <span
@@ -58,7 +62,7 @@ export function ActiveProcesses({ processes }: { processes: ActiveProcess[] }) {
                     STAGE_CATEGORY_CLASSES[process.stage.category],
                   )}
                 >
-                  {STAGE_CATEGORY_LABELS[process.stage.category]}
+                  {t(`workflow.category.${process.stage.category}`)}
                 </span>
               </Link>
             </li>

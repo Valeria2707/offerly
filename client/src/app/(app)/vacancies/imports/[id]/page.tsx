@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { use } from "react";
 
 import { FormError } from "@/components/auth/form-error";
@@ -13,6 +14,7 @@ export default function VacancyImportReviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const t = useTranslations("vacancies.review");
   const { data: vacancyImport, isPending, error } = useVacancyImport(id);
   const { data: vacancies } = useVacancies();
 
@@ -29,11 +31,10 @@ export default function VacancyImportReviewPage({
     <div className="mx-auto grid max-w-6xl gap-6">
       <header className="grid gap-1">
         <h1 className="font-heading text-2xl font-bold tracking-tight">
-          Перевірте розібрані дані
+          {t("title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          AI заповнив поля з оголошення — виправте те, що розпізнано неточно,
-          перед додаванням
+          {t("description")}
         </p>
       </header>
 

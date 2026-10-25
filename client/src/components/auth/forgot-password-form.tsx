@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
@@ -14,6 +15,7 @@ import {
 } from "@/schemas/auth";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth.forgot");
   const forgotPassword = useForgotPassword();
   const {
     register,
@@ -35,8 +37,7 @@ export function ForgotPasswordForm() {
           aria-hidden
         />
         <p className="text-sm leading-relaxed text-success">
-          Якщо акаунт з адресою {getValues("email")} існує, ми надіслали лист із
-          посиланням для відновлення. Воно діє 30 хвилин.
+          {t("sent", { email: getValues("email") })}
         </p>
       </div>
     );
@@ -57,7 +58,7 @@ export function ForgotPasswordForm() {
       <FormError error={forgotPassword.error} />
 
       <SubmitButton pending={forgotPassword.isPending}>
-        Надіслати посилання
+        {t("submit")}
       </SubmitButton>
     </form>
   );

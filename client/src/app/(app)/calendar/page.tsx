@@ -2,6 +2,7 @@
 
 import { addMonths, startOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -13,7 +14,6 @@ import { TodayReminders } from "@/components/calendar/today-reminders";
 import { WeekList } from "@/components/calendar/week-list";
 import { IconButton } from "@/components/core/icon-button";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import {
   useCalendarMonth,
   useCreateCalendarSubscription,
@@ -23,8 +23,9 @@ import {
   useUpdateReminderSettings,
 } from "@/hooks/use-calendar";
 import { useCurrentUser } from "@/hooks/use-auth";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import { useStageName } from "@/hooks/use-stage-name";
 import { useVacancies } from "@/hooks/use-vacancies";
-import { ApiError } from "@/lib/api-client";
 import {
   dayTitle,
   entriesOfWeek,
@@ -32,10 +33,13 @@ import {
   toEntries,
   type CalendarEntry,
 } from "@/lib/calendar";
-import { stageName } from "@/lib/workflow";
 import type { ReminderSettingsPatch } from "@/types/calendar";
 
 export default function CalendarPage() {
+  const t = useTranslations("calendar");
+  const locale = useLocale();
+  const stageName = useStageName();
+  const errorMessage = useErrorMessage();
   const now = useMemo(() => new Date(), []);
   const [month, setMonth] = useState(() => startOfMonth(now));
 
@@ -61,10 +65,7 @@ export default function CalendarPage() {
   ).length;
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError ? cause.message : DEFAULT_API_ERROR_MESSAGE,
-      { id: "calendar-error" },
-    );
+    toast.error(errorMessage(cause), { id: "calendar-error" });
 
   const companyOf = (vacancyId: string) => companies.get(vacancyId) ?? null;
 
@@ -93,24 +94,24 @@ export default function CalendarPage() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-1">
           <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Календар
+            {t("title")}
           </h1>
           <p className="text-sm text-muted-foreground first-letter:uppercase">
-            {dayTitle(now)}
-            {overdue > 0 && ` · ${overdue} прострочене`}
+            {dayTitle(now, locale)}
+            {overdue > 0 && ` · ${t("overdue", { count: overdue })}`}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <IconButton
-            label="Попередній місяць"
+            label={t("previousMonth")}
             onClick={() => setMonth(addMonths(month, -1))}
           >
             <ChevronLeft className="size-4" />
           </IconButton>
 
           <IconButton
-            label="Наступний місяць"
+            label={t("nextMonth")}
             onClick={() => setMonth(addMonths(month, 1))}
           >
             <ChevronRight className="size-4" />
@@ -121,7 +122,7 @@ export default function CalendarPage() {
             size="sm"
             onClick={() => setMonth(startOfMonth(now))}
           >
-            Сьогодні
+            {t("today")}
           </Button>
         </div>
       </header>
@@ -138,7 +139,7 @@ export default function CalendarPage() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_19rem]">
           <section className="rounded-xl bg-card ring-1 ring-foreground/10">
             <h2 className="px-5 py-4 font-heading text-base font-bold first-letter:uppercase">
-              {monthTitle(month)}
+              {monthTitle(month, locale)}
             </h2>
 
             <CalendarMonth

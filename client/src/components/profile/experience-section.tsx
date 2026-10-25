@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { AddRow } from "@/components/core/add-row";
@@ -28,11 +29,12 @@ const EMPTY_EXPERIENCE: ProfileExperience = {
 
 export function ExperienceSection() {
   const { control, register, setValue, watch } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.experience");
   const experience = useFieldArray({ control, name: "experience" });
 
   return (
     <SectionCard
-      title="Досвід роботи"
+      title={t("title")}
       path="data.experience"
       name="experience"
       count={experience.fields.length}
@@ -64,7 +66,7 @@ export function ExperienceSection() {
                   />
                 </div>
                 <RemoveRowButton
-                  label="Видалити місце роботи"
+                  label={t("remove")}
                   className="mb-1.5"
                   onClick={() => experience.remove(index)}
                 />
@@ -116,7 +118,7 @@ export function ExperienceSection() {
               <BulletListField
                 name={`experience.${index}.highlights`}
                 label="highlights"
-                placeholder="Досягнення або зона відповідальності"
+                placeholder={t("highlightPlaceholder")}
               />
               <TagListField
                 name={`experience.${index}.skills`}
@@ -128,7 +130,7 @@ export function ExperienceSection() {
       </div>
 
       <AddRow
-        label="Додати досвід"
+        label={t("add")}
         onAdd={() => experience.append(EMPTY_EXPERIENCE)}
       />
     </SectionCard>

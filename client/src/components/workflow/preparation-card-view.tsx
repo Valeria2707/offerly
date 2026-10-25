@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BulletList } from "@/components/core/bullet-list";
@@ -22,6 +23,7 @@ export function PreparationCardView({
   answer,
   onAnswerChange,
 }: PreparationCardViewProps) {
+  const t = useTranslations("preparation.card");
   return (
     <article className="grid gap-4 rounded-xl bg-muted p-6">
       <span className="font-mono text-[10px] tracking-[0.14em] text-subtle uppercase">
@@ -53,7 +55,7 @@ export function PreparationCardView({
           {card.kind === "task" && (
             <>
               <p className="text-sm whitespace-pre-wrap">{card.body}</p>
-              {card.hint && <Reveal label="Показати підказку" text={card.hint} />}
+              {card.hint && <Reveal label={t("showHint")} text={card.hint} />}
             </>
           )}
         </>
@@ -71,6 +73,8 @@ function QuestionCard({
   answer: string;
   onAnswerChange: (answer: string) => void;
 }) {
+  const t = useTranslations("preparation.card");
+
   return (
     <>
       <h2 className="font-heading text-lg font-bold tracking-tight">
@@ -81,8 +85,8 @@ function QuestionCard({
         rows={4}
         value={answer}
         maxLength={USER_ANSWER_MAX_LENGTH}
-        aria-label="Ваша відповідь"
-        placeholder="Ваша відповідь…"
+        aria-label={t("yourAnswer")}
+        placeholder={t("answerPlaceholder")}
         className={cn(
           "field-sizing-fixed max-h-64 resize-none overflow-y-auto bg-card py-2.5",
           FIELD_CLASS,
@@ -92,10 +96,13 @@ function QuestionCard({
 
       <div className="flex flex-wrap gap-2">
         {card.item.tips && (
-          <Reveal label="Показати підказку" text={card.item.tips} />
+          <Reveal label={t("showHint")} text={card.item.tips} />
         )}
         {card.item.expectedAnswer && (
-          <Reveal label="Очікувана відповідь" text={card.item.expectedAnswer} />
+          <Reveal
+            label={t("expectedAnswer")}
+            text={card.item.expectedAnswer}
+          />
         )}
       </div>
     </>

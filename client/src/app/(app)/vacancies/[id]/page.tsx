@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { use, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +19,6 @@ import { StageQuestions } from "@/components/workflow/stage-questions";
 import { StageStepper } from "@/components/workflow/stage-stepper";
 import { WorkflowReminders } from "@/components/workflow/workflow-reminders";
 import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
 import { ROUTES } from "@/constants/routes";
 import { useVacancy } from "@/hooks/use-vacancies";
 import {
@@ -34,10 +34,11 @@ import {
   useUpdateWorkflowStage,
   useVacancyWorkflow,
 } from "@/hooks/use-workflow";
-import { ApiError } from "@/lib/api-client";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import { useStageName } from "@/hooks/use-stage-name";
 import { hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
-import { currentStageIndex, movedStageIds, stageName } from "@/lib/workflow";
+import { currentStageIndex, movedStageIds } from "@/lib/workflow";
 import type {
   StageQuestionDraft,
   WorkflowStage,
@@ -50,6 +51,9 @@ export default function VacancyWorkflowPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const t = useTranslations();
+  const stageName = useStageName();
+  const errorMessage = useErrorMessage();
 
   const { data: vacancy } = useVacancy(id);
   const { data: workflow, isPending, error } = useVacancyWorkflow(id);
@@ -75,10 +79,7 @@ export default function VacancyWorkflowPage({
   const removeQuestion = useRemoveStageQuestion(id);
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError ? cause.message : DEFAULT_API_ERROR_MESSAGE,
-      { id: "workflow-error" },
-    );
+    toast.error(errorMessage(cause), { id: "workflow-error" });
 
   const stages = workflow?.stages ?? [];
   const selected =
@@ -181,7 +182,7 @@ export default function VacancyWorkflowPage({
 
           <div className="grid gap-1">
             <h1 className="font-heading text-2xl font-bold tracking-tight">
-              {vacancy?.title ?? "Етапи заявки"}
+              {vacancy?.title ?? t("preparation.page.back")}
             </h1>
             <p className="text-sm text-muted-foreground">
               {[vacancy?.company, vacancy?.location]
@@ -196,13 +197,13 @@ export default function VacancyWorkflowPage({
             href={ROUTES.stageTypes}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
-            Довідник етапів
+            {t("nav.stageTypes")}
           </Link>
 
           {workflow && (
             <Button disabled={pending} onClick={() => setIsAdding(true)}>
               <Plus />
-              Додати етап
+              {t("workflow.addStage.title")}
             </Button>
           )}
         </div>
@@ -221,9 +222,11 @@ export default function VacancyWorkflowPage({
 
       {stageToRemove && (
         <ConfirmDialog
-          title="Видалити етап?"
-          description={`«${stageName(stageToRemove.name)}» зникне зі списку етапів цієї заявки разом із підготовкою та замітками.`}
-          confirmLabel="Видалити"
+          title={t("workflow.removeStage.title")}
+          description={t("workflow.removeStage.description", {
+            name: stageName(stageToRemove.name),
+          })}
+          confirmLabel={t("common.actions.delete")}
           pending={removeStage.isPending}
           onCancel={() => setStageToRemove(null)}
           onConfirm={confirmRemove}

@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { AnalyticsCard } from "@/components/analytics/analytics-card";
 import { OUTCOME_ITEMS } from "@/constants/analytics";
 import { sharePercent } from "@/lib/analytics";
@@ -9,13 +11,14 @@ export function OutcomeBreakdown({
 }: {
   outcomes: AnalyticsOutcomes;
 }) {
+  const t = useTranslations("analytics.outcomes");
   const total = OUTCOME_ITEMS.reduce(
     (sum, item) => sum + outcomes[item.key],
     0,
   );
 
   return (
-    <AnalyticsCard title="Результати">
+    <AnalyticsCard title={t("title")}>
       <div
         aria-hidden
         className="flex h-3.5 overflow-hidden rounded-full bg-muted"
@@ -36,7 +39,7 @@ export function OutcomeBreakdown({
               aria-hidden
               className={cn("size-2.5 shrink-0 rounded-sm", item.className)}
             />
-            {item.label}
+            {t(item.key)}
             <span className="ml-auto font-mono text-xs text-muted-foreground">
               {outcomes[item.key]}
             </span>

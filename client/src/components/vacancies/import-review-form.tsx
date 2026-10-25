@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -25,6 +26,7 @@ export function ImportReviewForm({
   vacancyImport,
   duplicate,
 }: ImportReviewFormProps) {
+  const t = useTranslations("vacancies.review");
   const router = useRouter();
   const form = useForm<VacancyDraft>({ defaultValues: vacancyImport.draft });
   const applyImport = useApplyVacancyImport();
@@ -42,7 +44,7 @@ export function ImportReviewForm({
     const draft = toVacancyDraft(values);
     const options = {
       onSuccess: () => {
-        toast.success(duplicate ? "Вакансію оновлено" : "Вакансію додано");
+        toast.success(duplicate ? t("updated") : t("added"));
         router.push(ROUTES.vacancies);
       },
     };
@@ -61,19 +63,20 @@ export function ImportReviewForm({
         {duplicate && (
           <p className="flex flex-wrap gap-x-3 gap-y-1 rounded-xl bg-warning-muted px-4 py-3 text-sm text-warning">
             <span className="font-mono text-[10px] leading-5 tracking-wider uppercase">
-              Дублікат
+              {t("duplicate")}
             </span>
             <span className="min-w-0 flex-1">
-              Схожа вакансія вже додана — «{duplicate.title} ·{" "}
-              {duplicate.company}». Збереження оновить її, а не створить другий
-              запис про ту саму позицію.
+              {t("duplicateHint", {
+                title: duplicate.title,
+                company: duplicate.company,
+              })}
             </span>
           </p>
         )}
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="grid min-w-0 gap-6">
-            <ReviewCard title="Розібрані дані" path="vacancy">
+            <ReviewCard title={t("parsed")} path="vacancy">
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="grid gap-1">
                   <TextField
@@ -83,7 +86,9 @@ export function ImportReviewForm({
                     {...register("title", { required: true })}
                   />
                   {errors.title && (
-                    <p className="text-xs text-destructive">Вкажіть посаду</p>
+                    <p className="text-xs text-destructive">
+                      {t("titleRequired")}
+                    </p>
                   )}
                 </div>
 
@@ -95,7 +100,9 @@ export function ImportReviewForm({
                     {...register("company", { required: true })}
                   />
                   {errors.company && (
-                    <p className="text-xs text-destructive">Вкажіть компанію</p>
+                    <p className="text-xs text-destructive">
+                      {t("companyRequired")}
+                    </p>
                   )}
                 </div>
 
@@ -144,7 +151,7 @@ export function ImportReviewForm({
               />
             </ReviewCard>
 
-            <ReviewCard title="Витягнуті вимоги" path="requirements">
+            <ReviewCard title={t("requirements")} path="requirements">
               <TagListField name="requiredSkills" label="Required skills" />
               <TagListField name="preferredSkills" label="Preferred skills" />
 
@@ -170,7 +177,7 @@ export function ImportReviewForm({
 
           <div className="grid content-start gap-4">
             {vacancyImport.sourceUrl && (
-              <ReviewCard title="Джерело" path="source">
+              <ReviewCard title={t("source")} path="source">
                 <a
                   href={vacancyImport.sourceUrl}
                   target="_blank"
@@ -186,7 +193,7 @@ export function ImportReviewForm({
 
             <Button type="submit" size="lg" disabled={pending}>
               {pending && <Loader2 className="animate-spin" />}
-              {duplicate ? "Оновити вакансію" : "Додати вакансію"}
+              {duplicate ? t("update") : t("add")}
             </Button>
 
             <Button
@@ -195,7 +202,7 @@ export function ImportReviewForm({
               size="lg"
               onClick={() => router.push(ROUTES.vacancies)}
             >
-              Скасувати
+              {t("cancel")}
             </Button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -12,11 +13,12 @@ export function VacancyImportProgress({
 }: {
   sourceUrl: string | null;
 }) {
+  const t = useTranslations("vacancies.importProgress");
   const steps = [
-    sourceUrl ? "Сторінку вакансії зчитано" : "Текст оголошення прочитано",
-    "Основні поля розпізнано — посада, компанія, локація, зарплата",
-    "Витяг вимог і нормалізація навичок",
-    "Перевірка на дублікати серед ваших вакансій",
+    sourceUrl ? t("pageRead") : t("textRead"),
+    t("fields"),
+    t("requirements"),
+    t("duplicates"),
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -39,10 +41,10 @@ export function VacancyImportProgress({
 
         <div className="grid justify-items-center gap-1 text-center">
           <h1 className="font-heading text-xl font-bold tracking-tight">
-            AI аналізує вакансію
+            {t("title")}
           </h1>
           <p className="font-mono text-xs break-all text-subtle">
-            {sourceUrl ?? "вставлений текст оголошення"}
+            {sourceUrl ?? t("pastedText")}
           </p>
         </div>
       </div>

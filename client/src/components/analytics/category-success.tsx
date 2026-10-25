@@ -1,6 +1,7 @@
+import { useTranslations } from "next-intl";
+
 import { AnalyticsCard } from "@/components/analytics/analytics-card";
 import { MeterRow } from "@/components/analytics/meter-row";
-import { STAGE_CATEGORY_LABELS } from "@/constants/workflow";
 import { weakestCategory } from "@/lib/analytics";
 import type { CategoryResult } from "@/types/analytics";
 
@@ -9,22 +10,25 @@ export function CategorySuccess({
 }: {
   categories: CategoryResult[];
 }) {
+  const t = useTranslations();
   const weakest = weakestCategory(categories);
 
   return (
     <AnalyticsCard
-      title="Успішність за типом етапу"
+      title={t("analytics.categories.title")}
       caption={
         weakest
-          ? `Найчастіше відсіюють на етапах «${weakest}»`
-          : "Частка пройдених серед завершених етапів"
+          ? t("analytics.categories.weakest", {
+              category: t(`workflow.category.${weakest}`),
+            })
+          : t("analytics.categories.caption")
       }
     >
       <ul className="grid gap-3">
         {categories.map((item) => (
           <MeterRow
             key={item.category}
-            label={STAGE_CATEGORY_LABELS[item.category]}
+            label={t(`workflow.category.${item.category}`)}
             percent={item.rate ?? 0}
             value={item.rate === null ? "—" : `${item.rate}%`}
             barClassName="bg-success"

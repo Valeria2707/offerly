@@ -1,12 +1,14 @@
 "use client";
 
 import { GoogleLogin } from "@react-oauth/google";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { GOOGLE_CLIENT_ID } from "@/constants/api";
 import { useGoogleAuth } from "@/hooks/use-auth";
 
 export function GoogleButton() {
+  const t = useTranslations("auth.google");
   const googleAuth = useGoogleAuth();
 
   if (!GOOGLE_CLIENT_ID) return null;
@@ -16,12 +18,12 @@ export function GoogleButton() {
       <GoogleLogin
         onSuccess={({ credential }) => {
           if (!credential) {
-            toast.error("Google не повернув токен. Спробуйте ще раз.");
+            toast.error(t("noToken"));
             return;
           }
           googleAuth.mutate(credential);
         }}
-        onError={() => toast.error("Не вдалося увійти через Google.")}
+        onError={() => toast.error(t("failed"))}
         text="continue_with"
         theme="outline"
         size="large"

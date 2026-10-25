@@ -1,9 +1,4 @@
-import {
-  API_BASE_URL,
-  API_ERROR_MESSAGES,
-  API_ROUTES,
-  DEFAULT_API_ERROR_MESSAGE,
-} from "@/constants/api";
+import { API_BASE_URL, API_ROUTES } from "@/constants/api";
 import { getRefreshToken, useAuthStore } from "@/stores/auth-store";
 import type { AuthTokens } from "@/types/auth";
 
@@ -45,7 +40,7 @@ async function send(
       body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     });
   } catch {
-    throw new ApiError(DEFAULT_API_ERROR_MESSAGE, 0);
+    throw new ApiError("Network request failed", 0);
   }
 }
 
@@ -98,7 +93,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     throw new ApiError(
-      API_ERROR_MESSAGES[response.status] ?? DEFAULT_API_ERROR_MESSAGE,
+      `Request failed with status ${response.status}`,
       response.status,
     );
   }

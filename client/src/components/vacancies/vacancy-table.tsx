@@ -1,5 +1,6 @@
 import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/core/icon-button";
 import { VacancyStageCell } from "@/components/vacancies/vacancy-stage-cell";
@@ -26,6 +27,8 @@ export function VacancyTable({
   onToggleArchive,
   onDelete,
 }: VacancyTableProps) {
+  const t = useTranslations("vacancies.table");
+  const locale = useLocale();
   if (vacancies.length === 0) {
     return (
       <p className="rounded-xl bg-card px-6 py-16 text-center text-sm text-muted-foreground ring-1 ring-foreground/10">
@@ -41,12 +44,12 @@ export function VacancyTable({
       <table className="w-full min-w-[720px] text-sm">
         <thead>
           <tr className="border-b border-border text-left font-mono text-[10px] tracking-[0.12em] text-subtle uppercase">
-            <th className="px-6 py-3 font-normal">Вакансія</th>
-            <th className="px-4 py-3 font-normal">Етап</th>
-            <th className="px-4 py-3 font-normal">Коли</th>
-            <th className="px-6 py-3 font-normal">Оновлено</th>
+            <th className="px-6 py-3 font-normal">{t("vacancy")}</th>
+            <th className="px-4 py-3 font-normal">{t("stage")}</th>
+            <th className="px-4 py-3 font-normal">{t("when")}</th>
+            <th className="px-6 py-3 font-normal">{t("updated")}</th>
             {hasActions && (
-              <th className="px-4 py-3 font-normal sr-only">Дії</th>
+              <th className="px-4 py-3 font-normal sr-only">{t("actions")}</th>
             )}
           </tr>
         </thead>
@@ -89,11 +92,12 @@ export function VacancyTable({
                   {formatStageDate(
                     summaries?.get(vacancy.id)?.currentStage?.scheduledAt ??
                       null,
+                    locale,
                   ) ?? "—"}
                 </td>
 
                 <td className="px-6 py-4 font-mono text-xs text-subtle">
-                  {formatDaysAgo(vacancy.updatedAt)}
+                  {formatDaysAgo(vacancy.updatedAt, locale)}
                 </td>
 
                 {hasActions && (
@@ -103,8 +107,8 @@ export function VacancyTable({
                         <IconButton
                           label={
                             isArchived
-                              ? `Повернути в активні: ${vacancy.title}`
-                              : `Архівувати: ${vacancy.title}`
+                              ? t("restore", { title: vacancy.title })
+                              : t("archive", { title: vacancy.title })
                           }
                           disabled={pending}
                           onClick={() => onToggleArchive(vacancy)}
@@ -119,7 +123,7 @@ export function VacancyTable({
 
                       {onDelete && (
                         <IconButton
-                          label={`Видалити: ${vacancy.title}`}
+                          label={t("delete", { title: vacancy.title })}
                           disabled={pending}
                           onClick={() => onDelete(vacancy)}
                           className="hover:text-destructive"

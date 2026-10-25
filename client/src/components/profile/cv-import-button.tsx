@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ export function CvImportButton({
   pending: boolean;
   onSelect: (file: File) => void;
 }) {
+  const t = useTranslations("profile.cv");
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -39,7 +41,7 @@ export function CvImportButton({
         onClick={() => inputRef.current?.click()}
       >
         {pending ? <Loader2 className="animate-spin" /> : <Upload />}
-        {hasImport ? "Завантажити інше CV" : "Завантажити CV"}
+        {hasImport ? t("uploadAnother") : t("upload")}
       </Button>
     </>
   );

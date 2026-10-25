@@ -1,27 +1,28 @@
 import { ROUTES } from "@/constants/routes";
 
+/** Підписи лежать у `messages/*.json` → `nav`. */
 export const APP_NAV_SECTIONS = [
   {
-    title: null,
-    items: [{ label: "Дешборд", accent: "bg-subtle", href: ROUTES.dashboard }],
+    key: null,
+    items: [{ key: "dashboard", accent: "bg-subtle", href: ROUTES.dashboard }],
   },
   {
-    title: "Пошук роботи",
+    key: "jobSearch",
     items: [
-      { label: "Мої вакансії", accent: "bg-primary", href: ROUTES.vacancies },
-      { label: "Календар", accent: "bg-terracotta", href: ROUTES.calendar },
-      { label: "Аналітика", accent: "bg-ai", href: ROUTES.analytics },
+      { key: "vacancies", accent: "bg-primary", href: ROUTES.vacancies },
+      { key: "calendar", accent: "bg-terracotta", href: ROUTES.calendar },
+      { key: "analytics", accent: "bg-ai", href: ROUTES.analytics },
     ],
   },
   {
-    title: "Налаштування",
+    key: "settings",
     items: [
       {
-        label: "Довідник етапів",
+        key: "stageTypes",
         accent: "bg-muted-foreground",
         href: ROUTES.stageTypes,
       },
-      { label: "Профіль", accent: "bg-foreground", href: ROUTES.profile },
+      { key: "profile", accent: "bg-foreground", href: ROUTES.profile },
     ],
   },
 ] as const;

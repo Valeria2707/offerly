@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -6,8 +7,8 @@ import {
   vacancyStageRoute,
 } from "@/constants/routes";
 import { dayTitle, eventTime, type CalendarEntry } from "@/lib/calendar";
+import { useStageName } from "@/hooks/use-stage-name";
 import { countdownLabel } from "@/lib/dashboard";
-import { stageName } from "@/lib/workflow";
 import type { Vacancy } from "@/types/vacancy";
 
 export function NextEventCard({
@@ -19,13 +20,16 @@ export function NextEventCard({
   vacancy: Vacancy | null;
   now: Date;
 }) {
+  const t = useTranslations("dashboard.nextEvent");
+  const locale = useLocale();
+  const stageName = useStageName();
   const { event } = entry;
 
   return (
     <section className="grid content-between gap-4 rounded-xl bg-primary p-6 text-primary-foreground">
       <div className="grid gap-2">
         <span className="font-mono text-[10px] tracking-[0.12em] uppercase opacity-75">
-          Наступна подія · {countdownLabel(entry.at, now)}
+          {t("label")} · {countdownLabel(entry.at, now, locale)}
         </span>
         <h2 className="font-heading text-xl font-bold">
           {stageName(event.name)}
@@ -36,7 +40,7 @@ export function NextEventCard({
           </p>
         )}
         <p className="text-sm font-medium first-letter:uppercase">
-          {dayTitle(entry.at)} · {eventTime(entry.at)}
+          {dayTitle(entry.at, locale)} · {eventTime(entry.at)}
         </p>
       </div>
 
@@ -49,7 +53,7 @@ export function NextEventCard({
             <Link href={stagePreparationRoute(event.vacancyId, event.stageId)} />
           }
         >
-          Підготуватись
+          {t("prepare")}
         </Button>
         <Button
           size="sm"
@@ -60,7 +64,7 @@ export function NextEventCard({
             <Link href={vacancyStageRoute(event.vacancyId, event.stageId)} />
           }
         >
-          Відкрити вакансію
+          {t("open")}
         </Button>
       </div>
     </section>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Providers } from "@/app/providers";
 import { cn } from "@/lib/utils";
@@ -12,16 +14,18 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-export const metadata: Metadata = {
-  title: "Кар’єра — AI-асистент для пошуку роботи та співбесід",
-  description:
-    "Додайте вакансію за посиланням, і AI супроводжує вас на кожному етапі: Подано → HR → Технічна → Фінальна → Оффер.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+  return { title: t("title"), description: t("description") };
+}
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="uk"
+      lang={locale}
       data-scroll-behavior="smooth"
       className={cn(
         "h-full font-sans antialiased",
@@ -30,7 +34,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="flex min-h-full flex-col">
-        <Providers>{children}</Providers>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

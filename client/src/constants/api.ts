@@ -81,15 +81,6 @@ export const ANALYTICS_ROUTES = {
     period ? `/analytics?period=${period}` : "/analytics",
 } as const;
 
-export const API_ERROR_MESSAGES: Record<number, string> = {
-  400: "Перевірте введені дані.",
-  401: "Невірний email або пароль.",
-  409: "Користувач з таким email уже існує.",
-  413: "Файл завеликий — максимум 10 МБ.",
-  422: "Не вдалося витягти текст із документа. Спробуйте інший файл.",
-  429: "Забагато спроб. Спробуйте трохи пізніше.",
-  503: "AI-розбір зараз недоступний.",
-};
+export const HTTP_ERROR_STATUSES = [400, 401, 409, 413, 422, 429, 503] as const;
 
-export const DEFAULT_API_ERROR_MESSAGE =
-  "Не вдалося зв’язатися із сервером. Спробуйте ще раз.";
+export const PREPARATION_ERROR_STATUSES = [400, 409, 422, 503] as const;

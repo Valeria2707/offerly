@@ -1,27 +1,24 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { PreparationEmpty } from "@/components/workflow/preparation-empty";
 import { PreparationSummary } from "@/components/workflow/preparation-summary";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/core/skeleton";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
-import {
-  PREPARATION_ERROR_MESSAGES,
-  PREPARATION_TYPE_LABELS,
-} from "@/constants/preparation";
 import { stagePreparationRoute } from "@/constants/routes";
 import {
   useDeletePreparation,
   useGeneratePreparation,
   usePreparation,
 } from "@/hooks/use-preparation";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import { ApiError } from "@/lib/api-client";
-import { formatDaysAgo } from "@/lib/utils";
 import { resolvePreparationType } from "@/lib/preparation";
 import { preparationCards } from "@/lib/preparation-cards";
+import { formatDaysAgo } from "@/lib/utils";
 import type { StageType } from "@/types/workflow";
 
 type StagePreparationProps = {
@@ -37,6 +34,9 @@ export function StagePreparation({
   stageId,
   stageType,
 }: StagePreparationProps) {
+  const t = useTranslations();
+  const locale = useLocale();
+  const errorMessage = useErrorMessage();
   const {
     data: preparation,
     isPending,
@@ -46,12 +46,9 @@ export function StagePreparation({
   const remove = useDeletePreparation(workflowId, stageId);
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError
-        ? (PREPARATION_ERROR_MESSAGES[cause.status] ?? cause.message)
-        : DEFAULT_API_ERROR_MESSAGE,
-      { id: "preparation-error" },
-    );
+    toast.error(errorMessage(cause, "preparation"), {
+      id: "preparation-error",
+    });
 
   const isMissing = error instanceof ApiError && error.status === 404;
   const expectedType = resolvePreparationType(stageType);
@@ -60,13 +57,15 @@ export function StagePreparation({
     <section className="grid gap-5 rounded-xl bg-card p-6 ring-1 ring-foreground/10">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-heading text-lg font-bold tracking-tight">
-          Підготовка
+          {t("preparation.title")}
         </h2>
 
         {preparation ? (
           <div className="flex items-center gap-3">
             <span className="font-mono text-[10px] tracking-wider text-subtle">
-              згенеровано {formatDaysAgo(preparation.createdAt)}
+              {t("preparation.generated", {
+                when: formatDaysAgo(preparation.createdAt, locale),
+              })}
             </span>
 
             <Button
@@ -76,13 +75,13 @@ export function StagePreparation({
               onClick={() => remove.mutate(undefined, { onError: notify })}
             >
               <RefreshCw />
-              Згенерувати заново
+              {t("preparation.regenerate")}
             </Button>
           </div>
         ) : (
           expectedType && (
             <span className="font-mono text-[10px] tracking-wider text-subtle uppercase">
-              {PREPARATION_TYPE_LABELS[expectedType]}
+              {t(`preparation.types.${expectedType}`)}
             </span>
           )
         )}
@@ -93,7 +92,7 @@ export function StagePreparation({
       ) : preparation ? (
         <PreparationSummary
           type={preparation.data.type}
-          cards={preparationCards(preparation.data)}
+          cards={preparationCards(preparation.data, t)}
           href={stagePreparationRoute(vacancyId, stageId)}
         />
       ) : (

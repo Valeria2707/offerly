@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { CheckboxRow } from "@/components/core/checkbox-row";
@@ -22,42 +23,43 @@ export function ReminderSettingsCard({
   onChange: (patch: ReminderSettingsPatch) => void;
   onSubscribe: () => void;
 }) {
+  const t = useTranslations("calendar.settings");
   const feed = settings.calendarToken
     ? CALENDAR_ROUTES.subscriptionFeed(settings.calendarToken)
     : null;
 
   return (
     <section className="grid gap-5 rounded-xl bg-card p-6 ring-1 ring-foreground/10">
-      <h2 className="font-heading text-base font-bold">Про що нагадувати</h2>
+      <h2 className="font-heading text-base font-bold">{t("title")}</h2>
 
       <div className="grid gap-3">
         <CheckboxRow
           id="reminder-before-interview"
-          label="За 24 години до співбесіди"
+          label={t("beforeInterview")}
           checked={settings.beforeInterview}
           onChange={(beforeInterview) => onChange({ beforeInterview })}
         />
         <CheckboxRow
           id="reminder-after-stage"
-          label="Внести результат після етапу"
+          label={t("afterStage")}
           checked={settings.afterStage}
           onChange={(afterStage) => onChange({ afterStage })}
         />
         <CheckboxRow
           id="reminder-before-deadline"
-          label="За 2 дні до дедлайну"
+          label={t("beforeDeadline")}
           checked={settings.beforeDeadline}
           onChange={(beforeDeadline) => onChange({ beforeDeadline })}
         />
         <CheckboxRow
           id="reminder-silence"
-          label="Тиша від компанії понад 10 днів"
+          label={t("silence")}
           checked={settings.silence}
           onChange={(silence) => onChange({ silence })}
         />
         <CheckboxRow
           id="reminder-weekly-digest"
-          label="Тижневий підсумок у понеділок"
+          label={t("weeklyDigest")}
           checked={settings.weeklyDigest}
           onChange={(weeklyDigest) => onChange({ weeklyDigest })}
         />
@@ -66,7 +68,7 @@ export function ReminderSettingsCard({
       <div className="grid gap-4 border-t border-foreground/10 pt-5">
         <CheckboxRow
           id="reminder-email"
-          label={email ? `Дублювати листом на ${email}` : "Дублювати листом"}
+          label={email ? t("emailTo", { email }) : t("email")}
           checked={settings.emailEnabled}
           onChange={(emailEnabled) => onChange({ emailEnabled })}
         />
@@ -74,7 +76,7 @@ export function ReminderSettingsCard({
         <div className="flex flex-wrap items-end gap-3">
           <QuietField
             id="reminder-quiet-from"
-            label="Тиша з"
+            label={t("quietFrom")}
             value={settings.quietFrom}
             disabled={pending || !settings.emailEnabled}
             onCommit={(quietFrom) => onChange({ quietFrom })}
@@ -82,14 +84,14 @@ export function ReminderSettingsCard({
 
           <QuietField
             id="reminder-quiet-to"
-            label="до"
+            label={t("quietTo")}
             value={settings.quietTo}
             disabled={pending || !settings.emailEnabled}
             onCommit={(quietTo) => onChange({ quietTo })}
           />
 
           <p className="pb-2 text-xs text-muted-foreground">
-            У ці години листи не надсилаються
+            {t("quietHint")}
           </p>
         </div>
       </div>
@@ -97,8 +99,8 @@ export function ReminderSettingsCard({
       <div className="flex flex-wrap items-center gap-3 border-t border-foreground/10 pt-5">
         <p className="min-w-0 flex-1 text-sm text-muted-foreground">
           {feed
-            ? "Співбесіди з’являться у вашому календарі й оновлюватимуться самі."
-            : "Можна додати співбесіди у ваш звичайний календар — тоді про них нагадає телефон."}
+            ? t("feedReady")
+            : t("feedHint")}
         </p>
 
         {feed ? (
@@ -108,14 +110,14 @@ export function ReminderSettingsCard({
             render={
               <a href={feed.replace(/^https?:/, "webcal:")}>
                 <CalendarPlus />
-                Додати в календар
+                {t("addToCalendar")}
               </a>
             }
           />
         ) : (
           <Button size="sm" disabled={pending} onClick={onSubscribe}>
             <CalendarPlus />
-            Додати в календар
+            {t("addToCalendar")}
           </Button>
         )}
       </div>

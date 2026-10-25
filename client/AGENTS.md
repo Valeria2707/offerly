@@ -57,6 +57,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Loading states use skeletons that match the final layout — never a bare spinner where content will appear.
 - Form-level errors render inside the form; action errors render as a toast. A block inside a centred dialog changes its height and makes it jump.
 
+## i18n
+
+- Languages: `uk` (default) and `en`, via `next-intl` without a locale in the URL; the choice lives in the `NEXT_LOCALE` cookie (`i18n/actions.ts`).
+- No user-facing text in components, constants or `lib/` — every string goes to `messages/uk.json` and `messages/en.json` under the same key.
+- Constants hold keys, not labels; components translate with `useTranslations`. Pure `lib/` functions take a `Translator` and a `Locale` as arguments.
+- Plurals use ICU (`{count, plural, ...}`), never hand-written endings. Dates go through `Intl` or `dateFnsLocale(locale)`.
+- System stage names come from the backend in English — show them through `useStageName()`.
+- API errors are shown with `useErrorMessage()`.
+
 ## Accessibility
 
 - Every input has a `<label>` bound by `htmlFor`/`id`.

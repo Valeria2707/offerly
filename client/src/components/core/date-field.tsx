@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { IconButton } from "@/components/core/icon-button";
@@ -31,6 +32,8 @@ export function DateField({
   disabled,
   onChange,
 }: DateFieldProps) {
+  const t = useTranslations("common.actions");
+  const locale = useLocale();
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -90,15 +93,15 @@ export function DateField({
       <button
         type="button"
         disabled={disabled}
-        aria-label={`Змінити: ${label}`}
+        aria-label={`${t("change")}: ${label}`}
         onClick={() => setIsEditing(true)}
         className="font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none disabled:pointer-events-none"
       >
-        {formatStageDate(value)}
+        {formatStageDate(value, locale)}
       </button>
 
       <IconButton
-        label={`Очистити: ${label}`}
+        label={`${t("clear")}: ${label}`}
         disabled={disabled}
         onClick={() => onChange(null)}
         className="hover:text-destructive"

@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { CheckboxRow } from "@/components/core/checkbox-row";
@@ -27,6 +28,8 @@ export function StageQuestions({
   onUpdate,
   onRemove,
 }: StageQuestionsProps) {
+  const t = useTranslations("workflow.questions");
+  const tc = useTranslations("common.actions");
   const [draft, setDraft] = useState("");
   const [wasHard, setWasHard] = useState(false);
 
@@ -47,12 +50,12 @@ export function StageQuestions({
     <section className="grid gap-4 rounded-xl bg-card px-6 py-5 ring-1 ring-foreground/10">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-heading text-lg font-bold tracking-tight">
-          Питання, які ставили
+          {t("title")}
         </h2>
         <span className="font-mono text-[10px] tracking-wider text-subtle uppercase">
           {questions.length > 0
-            ? `${questions.length} збережено`
-            : "нічого ще немає"}
+            ? t("saved", { count: questions.length })
+            : t("empty")}
         </span>
       </header>
 
@@ -75,8 +78,8 @@ export function StageQuestions({
           rows={2}
           value={draft}
           maxLength={QUESTION_MAX_LENGTH}
-          aria-label="Нове питання"
-          placeholder="Що вас запитали на цьому етапі…"
+          aria-label={t("new")}
+          placeholder={t("placeholder")}
           className={cn(
             "field-sizing-fixed max-h-32 resize-none overflow-y-auto py-2.5",
             FIELD_CLASS,
@@ -88,7 +91,7 @@ export function StageQuestions({
           <>
             <CheckboxRow
               id="question-was-hard"
-              label="Було складно відповісти"
+              label={t("wasHard")}
               checked={wasHard}
               onChange={setWasHard}
             />
@@ -96,7 +99,7 @@ export function StageQuestions({
             <div className="flex gap-2">
               <Button size="sm" disabled={pending} onClick={submit}>
                 <Plus />
-                Додати
+                {tc("add")}
               </Button>
               <Button
                 size="sm"
@@ -104,7 +107,7 @@ export function StageQuestions({
                 disabled={pending}
                 onClick={reset}
               >
-                Скасувати
+                {tc("cancel")}
               </Button>
             </div>
           </>
@@ -112,7 +115,7 @@ export function StageQuestions({
       </div>
 
       <p className="text-xs text-subtle">
-        Ці питання враховуються, коли система готує вас до наступних етапів.
+        {t("hint")}
       </p>
     </section>
   );

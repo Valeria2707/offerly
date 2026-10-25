@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { IconButton } from "@/components/core/icon-button";
@@ -26,6 +27,9 @@ export function StageNotes({
   onAdd,
   onRemove,
 }: StageNotesProps) {
+  const t = useTranslations("workflow.notes");
+  const tc = useTranslations("common.actions");
+  const locale = useLocale();
   const [draft, setDraft] = useState("");
 
   const submit = () => {
@@ -38,7 +42,7 @@ export function StageNotes({
   return (
     <section className="grid gap-4 rounded-xl bg-card p-5 ring-1 ring-foreground/10">
       <h2 className="font-heading text-base font-bold tracking-tight">
-        Замітки етапу
+        {t("title")}
       </h2>
 
       {notes.length > 0 && (
@@ -50,13 +54,13 @@ export function StageNotes({
             >
               <div className="grid min-w-0 flex-1 gap-1">
                 <span className="font-mono text-[10px] text-subtle">
-                  {formatStageDate(note.createdAt)}
+                  {formatStageDate(note.createdAt, locale)}
                 </span>
                 <p className="text-sm whitespace-pre-wrap">{note.content}</p>
               </div>
 
               <IconButton
-                label="Видалити замітку"
+                label={t("remove")}
                 disabled={pending}
                 onClick={() => onRemove(note.id)}
                 className="hover:text-destructive"
@@ -73,8 +77,8 @@ export function StageNotes({
           rows={3}
           value={draft}
           maxLength={NOTE_MAX_LENGTH}
-          aria-label="Нова замітка"
-          placeholder="Враження, тон розмови, що запамʼятати перед наступним етапом…"
+          aria-label={t("new")}
+          placeholder={t("placeholder")}
           className={cn(
             "field-sizing-fixed max-h-40 resize-none overflow-y-auto py-2.5",
             FIELD_CLASS,
@@ -86,7 +90,7 @@ export function StageNotes({
           <div className="flex gap-2">
             <Button size="sm" disabled={pending} onClick={submit}>
               {pending && <Loader2 className="animate-spin" />}
-              Зберегти
+              {tc("save")}
             </Button>
             <Button
               size="sm"
@@ -94,7 +98,7 @@ export function StageNotes({
               disabled={pending}
               onClick={() => setDraft("")}
             >
-              Скасувати
+              {tc("cancel")}
             </Button>
           </div>
         )}

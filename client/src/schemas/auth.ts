@@ -1,9 +1,23 @@
 import { z } from "zod";
 
-const email = z.email("Введіть коректний email");
-const password = z
-  .string()
-  .min(8, "Пароль має містити щонайменше 8 символів");
+/** Повідомлення схем — ключі `validation.*`; перекладає їх FormField. */
+export const VALIDATION_KEYS = [
+  "email",
+  "passwordMin",
+  "nameRequired",
+  "nameMax",
+  "terms",
+  "passwordsMismatch",
+] as const;
+
+export type ValidationKey = (typeof VALIDATION_KEYS)[number];
+
+export function isValidationKey(value: string): value is ValidationKey {
+  return VALIDATION_KEYS.some((key) => key === value);
+}
+
+const email = z.email("email" satisfies ValidationKey);
+const password = z.string().min(8, "passwordMin" satisfies ValidationKey);
 
 export const loginSchema = z.object({ email, password });
 
@@ -11,17 +25,17 @@ export const registerSchema = z
   .object({
     name: z
       .string()
-      .min(2, "Введіть ім’я")
-      .max(150, "Не більше 150 символів"),
+      .min(2, "nameRequired" satisfies ValidationKey)
+      .max(150, "nameMax" satisfies ValidationKey),
     email,
     password,
     confirmPassword: z.string(),
-    terms: z
-      .boolean()
-      .refine((value) => value, { message: "Потрібно погодитись з умовами" }),
+    terms: z.boolean().refine((value) => value, {
+      message: "terms" satisfies ValidationKey,
+    }),
   })
   .refine((values) => values.password === values.confirmPassword, {
-    message: "Паролі не збігаються",
+    message: "passwordsMismatch" satisfies ValidationKey,
     path: ["confirmPassword"],
   });
 
@@ -30,7 +44,7 @@ export const forgotPasswordSchema = z.object({ email });
 export const resetPasswordSchema = z
   .object({ password, confirmPassword: z.string() })
   .refine((values) => values.password === values.confirmPassword, {
-    message: "Паролі не збігаються",
+    message: "passwordsMismatch" satisfies ValidationKey,
     path: ["confirmPassword"],
   });
 

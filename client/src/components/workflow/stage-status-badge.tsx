@@ -1,11 +1,12 @@
-import {
-  STAGE_STATUS_CLASSES,
-  STAGE_STATUS_LABELS,
-} from "@/constants/workflow";
+import { useTranslations } from "next-intl";
+
+import { STAGE_STATUS_CLASSES } from "@/constants/workflow";
 import { cn } from "@/lib/utils";
 import type { StageStatus } from "@/types/workflow";
 
 export function StageStatusBadge({ status }: { status: StageStatus }) {
+  const t = useTranslations("workflow.status");
+
   return (
     <span
       className={cn(
@@ -13,7 +14,7 @@ export function StageStatusBadge({ status }: { status: StageStatus }) {
         STAGE_STATUS_CLASSES[status],
       )}
     >
-      {STAGE_STATUS_LABELS[status]}
+      {t(status)}
     </span>
   );
 }

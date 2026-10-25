@@ -1,13 +1,15 @@
+import { useLocale, useTranslations } from "next-intl";
+
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import {
   DEADLINE_LINE_CLASS,
   UPCOMING_LINE_CLASSES,
 } from "@/constants/dashboard";
 import { ROUTES } from "@/constants/routes";
+import { useStageName } from "@/hooks/use-stage-name";
 import type { CalendarEntry } from "@/lib/calendar";
 import { whenLabel } from "@/lib/dashboard";
 import { cn } from "@/lib/utils";
-import { stageName } from "@/lib/workflow";
 
 export function UpcomingList({
   entries,
@@ -18,14 +20,18 @@ export function UpcomingList({
   companyOf: (vacancyId: string) => string | null;
   now: Date;
 }) {
+  const t = useTranslations("dashboard.upcoming");
+  const locale = useLocale();
+  const stageName = useStageName();
+
   return (
     <DashboardCard
-      title="Найближче"
-      link={{ href: ROUTES.calendar, label: "календар" }}
+      title={t("title")}
+      link={{ href: ROUTES.calendar, label: t("link") }}
     >
       {entries.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          На найближчі два тижні нічого не заплановано.
+          {t("empty")}
         </p>
       ) : (
         <ol className="grid gap-3">
@@ -47,13 +53,13 @@ export function UpcomingList({
                   <p className="truncate text-sm">
                     <span className="font-medium">
                       {entry.kind === "deadline"
-                        ? "Дедлайн"
+                        ? t("deadline")
                         : stageName(entry.event.name)}
                     </span>
                     {company && ` · ${company}`}
                   </p>
                   <p className="font-mono text-[11px] text-subtle">
-                    {whenLabel(entry, now)}
+                    {whenLabel(entry, now, locale)}
                   </p>
                 </div>
               </li>

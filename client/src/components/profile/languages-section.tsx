@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { AddRow } from "@/components/core/add-row";
@@ -15,11 +16,12 @@ import type { ProfileData } from "@/types/profile";
 
 export function LanguagesSection() {
   const { control, register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.languages");
   const languages = useFieldArray({ control, name: "languages" });
 
   return (
     <SectionCard
-      title="Мови"
+      title={t("title")}
       path="data.languages"
       name="languages"
       count={languages.fields.length}
@@ -32,7 +34,7 @@ export function LanguagesSection() {
               className="flex items-center gap-2 rounded-lg bg-muted pr-1 pl-3.5"
             >
               <Input
-                aria-label="Мова"
+                aria-label={t("item")}
                 placeholder="name"
                 className={cn("h-10 flex-1 bg-transparent px-0", FIELD_CLASS)}
                 {...register(`languages.${index}.name`)}
@@ -47,7 +49,7 @@ export function LanguagesSection() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Видалити мову"
+                aria-label={t("remove")}
                 className="text-subtle"
                 onClick={() => languages.remove(index)}
               >
@@ -58,7 +60,7 @@ export function LanguagesSection() {
         </div>
 
         <AddRow
-          label="Додати мову"
+          label={t("add")}
           onAdd={() => languages.append({ name: "", level: null })}
         />
       </div>

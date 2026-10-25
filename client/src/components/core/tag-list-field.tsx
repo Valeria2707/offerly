@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -11,13 +12,14 @@ import { Input } from "@/components/ui/input";
 export function TagListField({
   name,
   label,
-  placeholder = "Додати та Enter",
+  placeholder,
 }: {
   name: string;
   label: string;
   placeholder?: string;
 }) {
   const { control } = useFormContext();
+  const t = useTranslations("common.actions");
   const [draft, setDraft] = useState("");
 
   return (
@@ -49,7 +51,7 @@ export function TagListField({
                     type="button"
                     variant="ghost"
                     size="icon-xs"
-                    aria-label={`Видалити ${item}`}
+                    aria-label={`${t("delete")}: ${item}`}
                     className="text-subtle"
                     onClick={() =>
                       field.onChange(
@@ -64,7 +66,7 @@ export function TagListField({
 
               <Input
                 value={draft}
-                placeholder={placeholder}
+                placeholder={placeholder ?? t("addAndEnter")}
                 aria-label={label}
                 className="h-8 w-44 rounded-md border-transparent bg-muted px-2.5 font-mono text-[11px] shadow-none disabled:cursor-default disabled:opacity-100"
                 onChange={(event) => setDraft(event.target.value)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import { FieldLabel } from "@/components/core/field-label";
@@ -13,6 +14,7 @@ import type { ProfileData } from "@/types/profile";
 
 export function BasicsSection() {
   const { control, register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.basics");
   const links = useFieldArray({ control, name: "basics.links" });
 
   const filledLinks = (
@@ -20,7 +22,7 @@ export function BasicsSection() {
   ).filter((link) => link?.label || link?.url).length;
 
   return (
-    <SectionCard title="Основне" path="data.basics" name="basics">
+    <SectionCard title={t("title")} path="data.basics" name="basics">
       <div className="grid gap-5 md:grid-cols-3">
         <TextField
           id="fullName"
@@ -65,7 +67,7 @@ export function BasicsSection() {
             onClick={() => links.append({ label: "", url: "" })}
           >
             <Plus />
-            Додати
+            {t("addLink")}
           </Button>
         </div>
 
@@ -84,7 +86,7 @@ export function BasicsSection() {
         id="summary"
         label="summary"
         rows={3}
-        placeholder="Коротко про досвід: стек, роки, галузь…"
+        placeholder={t("summaryPlaceholder")}
         {...register("basics.summary")}
       />
     </SectionCard>

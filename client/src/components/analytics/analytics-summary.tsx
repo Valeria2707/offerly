@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { addedHint, formatDays } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import type { AnalyticsSummary as Summary } from "@/types/analytics";
@@ -9,28 +11,32 @@ export function AnalyticsSummary({
   summary: Summary;
   period: number | null;
 }) {
+  const t = useTranslations();
   const cards = [
     {
-      label: "Вакансій додано",
+      label: t("analytics.summary.added"),
       value: summary.added,
-      hint: addedHint(summary, period),
+      hint: addedHint(summary, period, t),
     },
     {
-      label: "Активні процеси",
+      label: t("analytics.summary.active"),
       value: summary.active,
-      hint: `${summary.awaiting} чекають відповіді`,
+      hint: t("analytics.summary.awaiting", { count: summary.awaiting }),
     },
     {
-      label: "Конверсія в оффер",
+      label: t("analytics.summary.offerRate"),
       value: `${summary.offerRate}%`,
-      hint: `${summary.offers} з ${summary.added}`,
+      hint: t("analytics.summary.offersOf", {
+        offers: summary.offers,
+        added: summary.added,
+      }),
       className: "text-success",
       cardClassName: "bg-success-muted ring-success/20",
     },
     {
-      label: "Середня тривалість",
-      value: formatDays(summary.averageDays),
-      hint: "від додавання до результату",
+      label: t("analytics.summary.duration"),
+      value: formatDays(summary.averageDays, t),
+      hint: t("analytics.summary.durationHint"),
     },
   ];
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ import type { Profile, ProfileData } from "@/types/profile";
 type Source = { importId: string; filename: string };
 
 export function ProfileForm({ profile }: { profile: Profile }) {
+  const t = useTranslations("profile");
   const form = useForm<ProfileData>({
     defaultValues: withBlankLink(profile.data),
   });
@@ -39,7 +41,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         onSuccess: (saved) => {
           setSource(null);
           form.reset(withBlankLink(saved.data));
-          toast.success("Профіль збережено");
+          toast.success(t("saved"));
         },
       },
     ),
@@ -57,11 +59,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           importId: cvImport.id,
           filename: cvImport.originalFilename,
         });
-        toast.success("CV розібрано — перевірте поля й збережіть");
+        toast.success(t("cv.parsed"));
       },
       onError: () => {
         setPendingFile(null);
-        toast.error("Не вдалося розібрати CV");
+        toast.error(t("cv.failed"));
       },
     });
   };
@@ -74,11 +76,10 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="grid gap-1">
             <h1 className="font-heading text-2xl font-bold tracking-tight">
-              Профіль користувача
+              {t("title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              кар’єрний профіль, навички та досвід — основа для CV, cover letter
-              і підготовки AI
+              {t("description")}
             </p>
           </div>
 
@@ -94,13 +95,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 disabled={save.isPending || importCv.isPending || !dirty}
               >
                 {save.isPending && <Loader2 className="animate-spin" />}
-                Зберегти
+                {t("save")}
               </Button>
             </div>
 
             {source && (
               <span className="font-mono text-[10px] text-terracotta">
-                дані з CV не збережені
+                {t("cv.unsaved")}
               </span>
             )}
           </div>
@@ -111,8 +112,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             <span className="font-mono text-[10px] leading-5 tracking-wider text-foreground">
               CV
             </span>
-            {source.filename} використано як джерело даних. Файл не зберігається
-            — у профілі лишаються тільки поля нижче.
+            {t("cv.source", { filename: source.filename })}
           </p>
         )}
 

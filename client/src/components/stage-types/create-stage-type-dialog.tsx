@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { CheckboxRow } from "@/components/core/checkbox-row";
@@ -14,10 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  MAX_STAGE_DURATION_MINUTES,
-  STAGE_CATEGORY_LABELS,
-} from "@/constants/workflow";
+import { MAX_STAGE_DURATION_MINUTES } from "@/constants/workflow";
 import { cn } from "@/lib/utils";
 import {
   STAGE_CATEGORIES,
@@ -45,6 +43,7 @@ export function CreateStageTypeDialog({
   onClose,
   onCreate,
 }: CreateStageTypeDialogProps) {
+  const t = useTranslations();
   const [draft, setDraft] = useState<StageTypeDraft>(EMPTY);
   const [duration, setDuration] = useState("");
 
@@ -59,25 +58,25 @@ export function CreateStageTypeDialog({
     <Dialog open onOpenChange={(open) => !open && !pending && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Створити тип етапу</DialogTitle>
+          <DialogTitle>{t("stageTypes.form.title")}</DialogTitle>
           <DialogDescription>
-            власний тип стає доступним у довіднику поряд зі стандартними
+            {t("stageTypes.form.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4">
           <TextField
             id="stage-type-name"
-            label="Назва типу"
+            label={t("stageTypes.form.name")}
             value={draft.name}
-            placeholder="Архітектурне рев’ю"
+            placeholder={t("stageTypes.form.namePlaceholder")}
             onChange={(event) =>
               setDraft({ ...draft, name: event.target.value })
             }
           />
 
           <div className="grid gap-2">
-            <FieldLabel>Категорія</FieldLabel>
+            <FieldLabel>{t("stageTypes.form.category")}</FieldLabel>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {STAGE_CATEGORIES.map((category: StageCategory) => (
                 <Button
@@ -92,7 +91,7 @@ export function CreateStageTypeDialog({
                   )}
                   onClick={() => setDraft({ ...draft, category })}
                 >
-                  {STAGE_CATEGORY_LABELS[category]}
+                  {t(`workflow.category.${category}`)}
                 </Button>
               ))}
             </div>
@@ -100,7 +99,7 @@ export function CreateStageTypeDialog({
 
           <TextField
             id="stage-type-duration"
-            label="Очікувана тривалість, хв"
+            label={t("stageTypes.form.duration")}
             type="number"
             min={1}
             max={MAX_STAGE_DURATION_MINUTES}
@@ -113,7 +112,7 @@ export function CreateStageTypeDialog({
           <div className="grid gap-3">
             <CheckboxRow
               id="stage-type-preparation"
-              label="Потребує підготовки"
+              label={t("stageTypes.form.requiresPreparation")}
               checked={draft.requiresPreparation}
               onChange={(requiresPreparation) =>
                 setDraft({ ...draft, requiresPreparation })
@@ -121,7 +120,7 @@ export function CreateStageTypeDialog({
             />
             <CheckboxRow
               id="stage-type-deadline"
-              label="Має дедлайн"
+              label={t("stageTypes.form.supportsDeadline")}
               checked={draft.supportsDeadline}
               onChange={(supportsDeadline) =>
                 setDraft({ ...draft, supportsDeadline })
@@ -129,7 +128,7 @@ export function CreateStageTypeDialog({
             />
             <CheckboxRow
               id="stage-type-artifact"
-              label="Передбачає артефакт (документ, код)"
+              label={t("stageTypes.form.producesArtifact")}
               checked={draft.producesArtifact}
               onChange={(producesArtifact) =>
                 setDraft({ ...draft, producesArtifact })
@@ -139,7 +138,7 @@ export function CreateStageTypeDialog({
         </div>
 
         <DialogActions
-          submitLabel="Створити тип"
+          submitLabel={t("stageTypes.form.submit")}
           pending={pending}
           disabled={!draft.name.trim() || !isDurationValid}
           onCancel={onClose}

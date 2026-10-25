@@ -1,3 +1,4 @@
+import type { Translator } from "@/lib/i18n";
 import type { PreparationData, QuestionAnswerItem } from "@/types/preparation";
 
 export type PreparationCard =
@@ -19,26 +20,31 @@ const questionCards = (
 ): PreparationCard[] =>
   items.map((item) => ({ kind: "question", caption, item }));
 
-export function preparationCards(data: PreparationData): PreparationCard[] {
+export function preparationCards(
+  data: PreparationData,
+  t: Translator,
+): PreparationCard[] {
+  const materials = t("preparation.cards.materials");
+
   switch (data.type) {
     case "CV_COVER_LETTER":
       return [
         {
           kind: "list",
-          caption: "матеріали",
-          title: "Що підтягнути в CV",
+          caption: materials,
+          title: t("preparation.cards.cvTips"),
           items: data.content.cvTips,
         },
         {
           kind: "text",
-          caption: "матеріали",
-          title: "Чернетка супровідного листа",
+          caption: materials,
+          title: t("preparation.cards.coverLetter"),
           body: data.content.coverLetterDraft,
         },
         {
           kind: "terms",
-          caption: "матеріали",
-          title: "Ключові слова під вакансію",
+          caption: materials,
+          title: t("preparation.cards.keywords"),
           terms: data.content.tailoredKeywords,
         },
       ];
@@ -47,15 +53,18 @@ export function preparationCards(data: PreparationData): PreparationCard[] {
       return [
         {
           kind: "text",
-          caption: "матеріали",
-          title: "Розповідь про себе",
+          caption: materials,
+          title: t("preparation.cards.pitch"),
           body: data.content.elevatorPitch,
         },
-        ...questionCards("очікуване питання", data.content.commonQuestions),
+        ...questionCards(
+          t("preparation.cards.expectedQuestion"),
+          data.content.commonQuestions,
+        ),
         {
           kind: "list",
-          caption: "матеріали",
-          title: "Що запитати в рекрутера",
+          caption: materials,
+          title: t("preparation.cards.askRecruiter"),
           items: data.content.questionsToAskInterviewer,
         },
       ];
@@ -64,18 +73,18 @@ export function preparationCards(data: PreparationData): PreparationCard[] {
       return [
         {
           kind: "terms",
-          caption: "матеріали",
-          title: "Стек під вакансію",
+          caption: materials,
+          title: t("preparation.cards.stack"),
           terms: data.content.targetStack,
         },
         ...questionCards(
-          "теоретичне питання",
+          t("preparation.cards.theoryQuestion"),
           data.content.theoreticalQuestions,
         ),
         ...data.content.codingTasks.map((task, index): PreparationCard => ({
           kind: "task",
-          caption: "практична задача",
-          title: `Задача ${index + 1}`,
+          caption: t("preparation.cards.practiceTask"),
+          title: t("preparation.cards.task", { index: index + 1 }),
           body: task.task,
           hint: task.hint,
         })),
@@ -85,11 +94,11 @@ export function preparationCards(data: PreparationData): PreparationCard[] {
       return [
         {
           kind: "text",
-          caption: "матеріали",
-          title: "Що очікується на етапі",
+          caption: materials,
+          title: t("preparation.cards.expected"),
           body: data.content.instructions,
         },
-        ...questionCards("питання", data.content.items),
+        ...questionCards(t("preparation.cards.question"), data.content.items),
       ];
   }
 }

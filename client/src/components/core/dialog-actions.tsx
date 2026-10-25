@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,10 +18,12 @@ export function DialogActions({
   onCancel: () => void;
   onSubmit: () => void;
 }) {
+  const t = useTranslations("common.actions");
+
   return (
     <div className="mt-4 grid grid-cols-2 gap-3">
       <Button type="button" variant="secondary" onClick={onCancel}>
-        Скасувати
+        {t("cancel")}
       </Button>
       <Button
         type="button"

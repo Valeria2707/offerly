@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { use, useState } from "react";
 import { toast } from "sonner";
 
@@ -11,13 +12,13 @@ import { Button } from "@/components/ui/button";
 import { PreparationCardView } from "@/components/workflow/preparation-card-view";
 import { PreparationProgress } from "@/components/workflow/preparation-progress";
 import { StageNotes } from "@/components/workflow/stage-notes";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
-import { PREPARATION_ERROR_MESSAGES } from "@/constants/preparation";
 import { vacancyRoute } from "@/constants/routes";
 import {
   useAnswerPreparationQuestion,
   usePreparation,
 } from "@/hooks/use-preparation";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import { useStageName } from "@/hooks/use-stage-name";
 import { useVacancy } from "@/hooks/use-vacancies";
 import {
   useAddStageNote,
@@ -26,7 +27,6 @@ import {
 } from "@/hooks/use-workflow";
 import { ApiError } from "@/lib/api-client";
 import { preparationCards } from "@/lib/preparation-cards";
-import { stageName } from "@/lib/workflow";
 
 export default function StagePreparationPage({
   params,
@@ -34,6 +34,9 @@ export default function StagePreparationPage({
   params: Promise<{ id: string; stageId: string }>;
 }) {
   const { id, stageId } = use(params);
+  const t = useTranslations();
+  const stageName = useStageName();
+  const errorMessage = useErrorMessage();
 
   const { data: vacancy } = useVacancy(id);
   const { data: workflow, isPending: isWorkflowPending } =
@@ -55,14 +58,11 @@ export default function StagePreparationPage({
   const [draft, setDraft] = useState<string | null>(null);
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError
-        ? (PREPARATION_ERROR_MESSAGES[cause.status] ?? cause.message)
-        : DEFAULT_API_ERROR_MESSAGE,
-      { id: "preparation-error" },
-    );
+    toast.error(errorMessage(cause, "preparation"), {
+      id: "preparation-error",
+    });
 
-  const cards = preparation ? preparationCards(preparation.data) : [];
+  const cards = preparation ? preparationCards(preparation.data, t) : [];
   const card = cards[index];
   const saved = card?.kind === "question" ? (card.item.userAnswer ?? "") : "";
 
@@ -95,7 +95,7 @@ export default function StagePreparationPage({
         className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
-        {stage ? stageName(stage.name) : "Етапи заявки"}
+        {stage ? stageName(stage.name) : t("preparation.page.back")}
         {vacancy?.company ? ` · ${vacancy.company}` : ""}
       </Link>
 
@@ -113,8 +113,14 @@ export default function StagePreparationPage({
                 <PreparationProgress cards={cards} index={index} />
                 <span className="shrink-0 font-mono text-[11px] text-subtle">
                   {card.kind === "question"
-                    ? `питання ${questionNumber} з ${questionTotal}`
-                    : `картка ${index + 1} з ${cards.length}`}
+                    ? t("preparation.page.questionOf", {
+                        number: questionNumber,
+                        total: questionTotal,
+                      })
+                    : t("preparation.page.cardOf", {
+                        number: index + 1,
+                        total: cards.length,
+                      })}
                 </span>
               </div>
 
@@ -132,26 +138,25 @@ export default function StagePreparationPage({
                   onClick={() => go(-1)}
                 >
                   <ArrowLeft />
-                  Назад
+                  {t("preparation.page.previous")}
                 </Button>
 
                 <span className="text-xs text-subtle">
-                  відповідь зберігається при переході
+                  {t("preparation.page.autosave")}
                 </span>
 
                 <Button
                   disabled={index === cards.length - 1}
                   onClick={() => go(1)}
                 >
-                  Далі
+                  {t("preparation.page.next")}
                   <ArrowRight />
                 </Button>
               </div>
             </>
           ) : (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Підготовки для цього етапу ще немає — згенеруйте її на сторінці
-              заявки.
+              {t("preparation.page.missing")}
             </p>
           )}
         </section>

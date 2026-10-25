@@ -1,13 +1,15 @@
 import { Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
-  AI_NOTE,
   APPLICATION_STAGES,
   CURRENT_STAGE_INDEX,
 } from "@/constants/landing";
 import { cn } from "@/lib/utils";
 
 export function ApplicationPreview() {
+  const t = useTranslations("landing.preview");
+
   return (
     <article className="rounded-2xl bg-card p-6 shadow-[0_20px_44px_-28px_rgba(36,31,27,0.45)] ring-1 ring-foreground/10">
       <header className="flex items-center gap-3">
@@ -17,7 +19,7 @@ export function ApplicationPreview() {
         <div className="min-w-0">
           <h3 className="font-heading font-medium">Platform Engineer</h3>
           <p className="truncate text-sm text-muted-foreground">
-            Helios Labs · Берлін, гібрид
+            {t("company")}
           </p>
         </div>
       </header>
@@ -54,14 +56,16 @@ export function ApplicationPreview() {
                 {isDone ? (
                   <>
                     <Check className="size-3.5" aria-hidden />
-                    <span className="sr-only">пройдено</span>
+                    <span className="sr-only">{t("done")}</span>
                   </>
                 ) : (
                   index + 1
                 )}
               </span>
 
-              <span className="text-[11px] text-subtle">{stage}</span>
+              <span className="text-[11px] text-subtle">
+                {t(`stages.${stage}`)}
+              </span>
             </li>
           );
         })}
@@ -72,7 +76,7 @@ export function ApplicationPreview() {
           AI
         </span>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          {AI_NOTE}
+          {t("aiNote")}
         </p>
       </div>
     </article>

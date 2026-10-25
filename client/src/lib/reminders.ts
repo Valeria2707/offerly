@@ -1,9 +1,8 @@
-import {
-  CLOSED_STAGE_STATUSES,
-  STAGE_STATUS_LABELS,
-} from "@/constants/workflow";
+import type { Locale } from "@/constants/i18n";
+import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
 import { eventTime, relativeDay } from "@/lib/calendar";
-import { stageName } from "@/lib/workflow";
+import type { Translator } from "@/lib/i18n";
+import type { StageNameFormatter } from "@/lib/workflow";
 import type { Reminder } from "@/types/calendar";
 import type { WorkflowStage } from "@/types/workflow";
 
@@ -16,14 +15,23 @@ export type ReminderView = {
   urgent: boolean;
 };
 
-export function reminderView(reminder: Reminder): ReminderView {
+export function reminderView(
+  reminder: Reminder,
+  t: Translator,
+  stageName: StageNameFormatter,
+  locale: Locale,
+): ReminderView {
   const name = stageName(reminder.name);
+  const when = relativeDay(reminder.days, locale);
 
   switch (reminder.kind) {
     case "record_result":
       return {
-        title: `Внести результат · ${name}`,
-        note: `Співбесіда була ${relativeDay(reminder.days)}, статус досі «${STAGE_STATUS_LABELS[reminder.status]}». Питання забуваються за кілька днів.`,
+        title: t("calendar.reminder.recordTitle", { name }),
+        note: t("calendar.reminder.recordNote", {
+          when,
+          status: t(`workflow.status.${reminder.status}`),
+        }),
         action: "record",
         urgent: true,
       };
@@ -31,23 +39,30 @@ export function reminderView(reminder: Reminder): ReminderView {
     case "interview_tomorrow":
       return {
         title: reminder.scheduledAt
-          ? `${name} ${relativeDay(reminder.days)} о ${eventTime(new Date(reminder.scheduledAt))}`
+          ? t("calendar.reminder.interviewTitle", {
+              name,
+              when,
+              time: eventTime(new Date(reminder.scheduledAt)),
+            })
           : name,
-        note: "Варто перечитати підготовку перед розмовою.",
+        note: t("calendar.reminder.interviewNote"),
         action: "prepare",
         urgent: false,
       };
     case "deadline_soon":
       return {
-        title: `Дедлайн ${relativeDay(reminder.days)} · ${name}`,
-        note: "Залишилось небагато часу, щоб завершити й надіслати.",
+        title: t("calendar.reminder.deadlineTitle", { name, when }),
+        note: t("calendar.reminder.deadlineNote"),
         action: "open",
         urgent: reminder.days === 0,
       };
     default:
       return {
-        title: `Тиша ${Math.abs(reminder.days)} дн. · ${name}`,
-        note: "Компанія давно не відповідає. Можна написати рекрутеру.",
+        title: t("calendar.reminder.silenceTitle", {
+          name,
+          days: Math.abs(reminder.days),
+        }),
+        note: t("calendar.reminder.silenceNote"),
         action: "open",
         urgent: false,
       };
@@ -64,6 +79,8 @@ export type VacancyReminder = {
 export function vacancyReminders(
   stages: WorkflowStage[],
   now: Date,
+  t: Translator,
+  stageName: StageNameFormatter,
 ): VacancyReminder[] {
   const reminders: VacancyReminder[] = [];
 
@@ -85,7 +102,7 @@ export function vacancyReminders(
     if (scheduled && scheduled.getTime() <= now.getTime())
       reminders.push({
         key: `result-${stage.id}`,
-        title: `Внести результат · ${name}`,
+        title: t("calendar.reminder.recordTitle", { name }),
         at: scheduled,
         tone: "action",
       });
@@ -93,7 +110,7 @@ export function vacancyReminders(
     if (deadline && deadline.getTime() > now.getTime())
       reminders.push({
         key: `deadline-${stage.id}`,
-        title: `Дедлайн · ${name}`,
+        title: t("calendar.reminder.deadlineShort", { name }),
         at: deadline,
         tone: "deadline",
       });

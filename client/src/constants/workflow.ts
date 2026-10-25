@@ -1,27 +1,10 @@
 import type { StageCategory, StageStatus } from "@/types/workflow";
 
-export const STAGE_CATEGORY_LABELS: Record<StageCategory, string> = {
-  screening: "Скринінг",
-  technical: "Технічний",
-  behavioral: "Поведінковий",
-  administrative: "Адміністративний",
-};
-
 export const STAGE_CATEGORY_CLASSES: Record<StageCategory, string> = {
   screening: "bg-secondary text-muted-foreground",
   technical: "bg-success-muted text-success",
   behavioral: "bg-ai-muted text-ai",
   administrative: "bg-warning-muted text-warning",
-};
-
-export const STAGE_STATUS_LABELS: Record<StageStatus, string> = {
-  not_started: "Ще не було",
-  scheduled: "Заплановано",
-  in_progress: "Триває",
-  awaiting_result: "Очікую результат",
-  completed: "Пройдено",
-  cancelled: "Відмова",
-  skipped: "Пропущено",
 };
 
 export const STAGE_STATUS_CLASSES: Record<StageStatus, string> = {
@@ -34,21 +17,23 @@ export const STAGE_STATUS_CLASSES: Record<StageStatus, string> = {
   skipped: "bg-muted text-subtle",
 };
 
-export const SYSTEM_STAGE_NAMES: Record<string, string> = {
-  Submitted: "Подано",
-  "HR screening": "HR-скринінг",
-  "Pre-tech screening": "Pre-tech скринінг",
-  "Test task": "Тестове завдання",
-  "Technical interview": "Технічна співбесіда",
-  "Live coding": "Live coding",
-  "System Design": "System Design",
-  "Team interview": "Співбесіда з командою",
-  "Culture fit": "Culture fit",
-  "Final interview": "Фінальна співбесіда",
-  "Offer negotiation": "Переговори про оффер",
-  Offer: "Оффер",
-  Rejection: "Відмова",
-};
+export const SYSTEM_STAGE_KEYS = {
+  Submitted: "submitted",
+  "HR screening": "hrScreening",
+  "Pre-tech screening": "preTechScreening",
+  "Test task": "testTask",
+  "Technical interview": "technicalInterview",
+  "Live coding": "liveCoding",
+  "System Design": "systemDesign",
+  "Team interview": "teamInterview",
+  "Culture fit": "cultureFit",
+  "Final interview": "finalInterview",
+  "Offer negotiation": "offerNegotiation",
+  Offer: "offer",
+  Rejection: "rejection",
+} as const;
+
+export type SystemStageName = keyof typeof SYSTEM_STAGE_KEYS;
 
 export const CLOSED_STAGE_STATUSES: StageStatus[] = [
   "completed",

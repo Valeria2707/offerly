@@ -9,12 +9,13 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { uk } from "date-fns/locale";
 
+import type { Locale } from "@/constants/i18n";
 import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
+import { dateFnsLocale } from "@/lib/date-locale";
 import type { CalendarEvent } from "@/types/calendar";
 
-const WEEK_OPTIONS = { weekStartsOn: 1, locale: uk } as const;
+const WEEK_OPTIONS = { weekStartsOn: 1 } as const;
 
 export type CalendarEntry = {
   key: string;
@@ -23,12 +24,12 @@ export type CalendarEntry = {
   event: CalendarEvent;
 };
 
-export function monthTitle(month: Date): string {
-  return format(month, "LLLL yyyy", { locale: uk });
+export function monthTitle(month: Date, locale: Locale): string {
+  return format(month, "LLLL yyyy", { locale: dateFnsLocale(locale) });
 }
 
-export function dayTitle(day: Date): string {
-  return format(day, "EEEE, d MMMM", { locale: uk });
+export function dayTitle(day: Date, locale: Locale): string {
+  return format(day, "EEEE, d MMMM", { locale: dateFnsLocale(locale) });
 }
 
 export function eventTime(value: Date): string {
@@ -104,10 +105,17 @@ export function entriesOfWeek(
   });
 }
 
-export function relativeDay(days: number): string {
-  if (days === 0) return "сьогодні";
-  if (days === 1) return "завтра";
-  if (days === -1) return "вчора";
+export function relativeDay(days: number, locale: Locale): string {
+  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(
+    days,
+    "day",
+  );
+}
 
-  return days > 0 ? `через ${days} дн.` : `${Math.abs(days)} дн. тому`;
+export function weekdayLabels(locale: Locale): string[] {
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
+
+  return Array.from({ length: 7 }, (_, index) =>
+    formatter.format(new Date(2024, 0, 1 + index)),
+  );
 }

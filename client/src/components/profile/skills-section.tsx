@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 import { AddRow } from "@/components/core/add-row";
@@ -15,11 +16,12 @@ import type { ProfileData } from "@/types/profile";
 
 export function SkillsSection() {
   const { control, register } = useFormContext<ProfileData>();
+  const t = useTranslations("profile.skills");
   const skills = useFieldArray({ control, name: "skills" });
 
   return (
     <SectionCard
-      title="Навички"
+      title={t("title")}
       path="data.skills"
       name="skills"
       count={skills.fields.length}
@@ -32,7 +34,7 @@ export function SkillsSection() {
               className="flex items-center gap-2 rounded-lg bg-muted pr-1 pl-3.5"
             >
               <Input
-                aria-label="Навичка"
+                aria-label={t("item")}
                 placeholder="name"
                 className={cn("h-10 flex-1 bg-transparent px-0", FIELD_CLASS)}
                 {...register(`skills.${index}.name`)}
@@ -47,7 +49,7 @@ export function SkillsSection() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Видалити навичку"
+                aria-label={t("remove")}
                 className="text-subtle"
                 onClick={() => skills.remove(index)}
               >
@@ -58,7 +60,7 @@ export function SkillsSection() {
         </div>
 
         <AddRow
-          label="Додати навичку"
+          label={t("add")}
           onAdd={() => skills.append({ name: "", level: null })}
         />
       </div>

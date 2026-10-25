@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -10,15 +11,13 @@ import { CreateStageTypeDialog } from "@/components/stage-types/create-stage-typ
 import { StageTypeCard } from "@/components/stage-types/stage-type-card";
 import { StageTypeGridSkeleton } from "@/components/stage-types/stage-type-grid-skeleton";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_API_ERROR_MESSAGE } from "@/constants/api";
-import { STAGE_CATEGORY_LABELS } from "@/constants/workflow";
 import {
   useCreateStageType,
   useDeleteStageType,
   useStageTypes,
 } from "@/hooks/use-workflow";
-import { ApiError } from "@/lib/api-client";
-import { stageName } from "@/lib/workflow";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import { useStageName } from "@/hooks/use-stage-name";
 import {
   STAGE_CATEGORIES,
   type StageCategory,
@@ -29,12 +28,10 @@ type Filter = StageCategory | "all";
 
 const FILTERS: Filter[] = ["all", ...STAGE_CATEGORIES];
 
-const FILTER_LABELS: Record<Filter, string> = {
-  all: "Усі",
-  ...STAGE_CATEGORY_LABELS,
-};
-
 export default function StageTypesPage() {
+  const t = useTranslations();
+  const stageName = useStageName();
+  const errorMessage = useErrorMessage();
   const { data: stageTypes, isPending, error } = useStageTypes();
   const createStageType = useCreateStageType();
   const deleteStageType = useDeleteStageType();
@@ -44,10 +41,7 @@ export default function StageTypesPage() {
   const [typeToDelete, setTypeToDelete] = useState<StageType | null>(null);
 
   const notify = (cause: unknown) =>
-    toast.error(
-      cause instanceof ApiError ? cause.message : DEFAULT_API_ERROR_MESSAGE,
-      { id: "stage-type-error" },
-    );
+    toast.error(errorMessage(cause), { id: "stage-type-error" });
 
   const visible =
     filter === "all"
@@ -59,11 +53,10 @@ export default function StageTypesPage() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="grid gap-1">
           <h1 className="font-heading text-2xl font-bold tracking-tight">
-            Довідник типів етапів
+            {t("stageTypes.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            стандартні типи для будь-якого процесу відбору — використовуйте як є
-            або створіть власний
+            {t("stageTypes.description")}
           </p>
         </div>
 
@@ -72,7 +65,7 @@ export default function StageTypesPage() {
           disabled={createStageType.isPending}
         >
           <Plus />
-          Створити власний тип
+          {t("stageTypes.create")}
         </Button>
       </header>
 
@@ -91,9 +84,11 @@ export default function StageTypesPage() {
 
       {typeToDelete && (
         <ConfirmDialog
-          title="Видалити тип етапу?"
-          description={`«${stageName(typeToDelete.name)}» зникне з довідника. Етапи, уже додані до вакансій, залишаться на місці.`}
-          confirmLabel="Видалити"
+          title={t("stageTypes.delete.title")}
+          description={t("stageTypes.delete.description", {
+            name: stageName(typeToDelete.name),
+          })}
+          confirmLabel={t("common.actions.delete")}
           pending={deleteStageType.isPending}
           onCancel={() => setTypeToDelete(null)}
           onConfirm={() =>
@@ -115,7 +110,9 @@ export default function StageTypesPage() {
             className="rounded-full text-xs"
             onClick={() => setFilter(item)}
           >
-            {FILTER_LABELS[item]}
+            {item === "all"
+              ? t("stageTypes.all")
+              : t(`workflow.category.${item}`)}
           </Button>
         ))}
       </div>
@@ -126,7 +123,7 @@ export default function StageTypesPage() {
         <StageTypeGridSkeleton />
       ) : visible.length === 0 ? (
         <p className="rounded-xl bg-card px-6 py-16 text-center text-sm text-muted-foreground ring-1 ring-foreground/10">
-          У цій категорії поки немає типів.
+          {t("stageTypes.empty")}
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
