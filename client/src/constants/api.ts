@@ -37,6 +37,7 @@ export const VACANCY_ROUTES = {
   importText: "/vacancies/imports/text",
   vacancyImport: (id: string) => `/vacancies/imports/${id}`,
   applyImport: (id: string) => `/vacancies/imports/${id}/apply`,
+  offerRecommendation: "/vacancies/offers/recommendation",
 } as const;
 
 export const WORKFLOW_ROUTES = {

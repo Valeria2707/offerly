@@ -8,6 +8,7 @@ export const ROUTES = {
   profile: "/profile",
   vacancies: "/vacancies",
   vacancyArchive: "/vacancies/archive",
+  offers: "/vacancies/offers",
   calendar: "/calendar",
   analytics: "/analytics",
   stageTypes: "/stage-types",

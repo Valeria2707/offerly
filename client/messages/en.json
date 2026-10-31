@@ -625,7 +625,8 @@
         "recruiterUrl": "https://linkedin.com/in/…"
       },
       "description": "who you’re talking to about this vacancy — all fields are optional"
-    }
+    },
+    "compareOffers": "Compare offers · {count}"
   },
   "profile": {
     "title": "User profile",
@@ -893,5 +894,41 @@
     "preparationDeleted": "Preparation deleted",
     "settingsSaved": "Settings saved",
     "subscriptionReady": "Calendar link created"
+  },
+  "offers": {
+    "title": "Compare offers",
+    "description": "The system will help you pick the offer that best fits what matters to you.",
+    "back": "My vacancies",
+    "notEnough": "You need at least 2 vacancies at the Offer stage to compare.",
+    "step1": "1. What they offer",
+    "step2": "2. What matters more to you?",
+    "salaryPlaceholder": "Amount",
+    "conditionsHint": "format, team, benefits",
+    "criteria": {
+      "salary": "Salary",
+      "growth": "Growth",
+      "conditions": "Conditions"
+    },
+    "equal": "Equally important",
+    "moreImportant": "{criterion} — {strength}",
+    "strength": {
+      "0": "equal",
+      "1": "slightly more important",
+      "2": "more important",
+      "3": "much more important",
+      "4": "extremely more important"
+    },
+    "compare": "Compare",
+    "fillAll": "Fill in the salary and ratings for every offer",
+    "recommended": "We recommend accepting",
+    "matchTitle": "Match with your priorities",
+    "consistent": "Your answers are logical — you can rely on this recommendation.",
+    "inconsistent": "Your answers in step 2 don't quite agree with each other, so the recommendation may be inaccurate.",
+    "pairText": "{winner} is {strength} than {loser}",
+    "pairEqual": "{left} and {right} are equally important",
+    "explanation": "Why: you said that {first}, and that {second}. That implies {implied}, but you chose: {actual}.",
+    "suggestionIntro": "To make your answers consistent, choose one of the options:",
+    "suggestion": "in the «{left} ↔ {right}» row — «{answer}»",
+    "applySuggestion": "Apply"
   }
 }

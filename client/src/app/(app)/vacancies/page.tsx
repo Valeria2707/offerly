@@ -1,5 +1,6 @@
 "use client";
 
+import { Scale } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,7 @@ import { VacancyStats } from "@/components/vacancies/vacancy-stats";
 import { VacancyBoard } from "@/components/vacancies/vacancy-board";
 import { VacancyTable } from "@/components/vacancies/vacancy-table";
 import { VacancyViewToggle } from "@/components/vacancies/vacancy-view-toggle";
+import { Button } from "@/components/ui/button";
 import type { BoardColumn } from "@/constants/board";
 import { ROUTES, vacancyImportRoute } from "@/constants/routes";
 import {
@@ -36,6 +38,7 @@ import {
   useWorkflowSummaries,
 } from "@/hooks/use-workflow";
 import { MissingBoardStageError } from "@/lib/board";
+import { offerVacancies } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 import { filterVacancies } from "@/lib/vacancy-search";
 import type { Vacancy } from "@/types/vacancy";
@@ -98,6 +101,7 @@ export default function VacanciesPage() {
   );
   const archivedCount = (vacancies?.length ?? 0) - current.length;
   const visible = filterVacancies(current, query);
+  const offerCount = offerVacancies(current, summaries).length;
 
   return (
     <>
@@ -126,6 +130,17 @@ export default function VacanciesPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {offerCount >= 2 && (
+              <Button
+                variant="secondary"
+                nativeButton={false}
+                render={<Link href={ROUTES.offers} />}
+              >
+                <Scale />
+                {t("compareOffers", { count: offerCount })}
+              </Button>
+            )}
+
             {archivedCount > 0 && (
               <Link
                 href={ROUTES.vacancyArchive}

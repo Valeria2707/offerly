@@ -27,15 +27,24 @@ export type RecruiterContact = {
   recruiterUrl: string | null;
 };
 
+export type OfferDetails = {
+  offerSalary: number | null;
+  offerGrowth: number | null;
+  offerConditions: number | null;
+};
+
 export type Vacancy = VacancyDraft &
-  RecruiterContact & {
+  RecruiterContact &
+  OfferDetails & {
     id: string;
     lifecycle: VacancyLifecycle;
     createdAt: string;
     updatedAt: string;
   };
 
-export type VacancyPatch = Partial<VacancyDraft & RecruiterContact> & {
+export type VacancyPatch = Partial<
+  VacancyDraft & RecruiterContact & OfferDetails
+> & {
   lifecycle?: VacancyLifecycle;
 };
 

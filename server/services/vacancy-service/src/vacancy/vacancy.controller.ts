@@ -35,6 +35,10 @@ import {
   VacancyImportResponseDto,
   VacancyResponseDto
 } from './dto/vacancy.dto';
+import {
+  OfferRecommendationDto,
+  OfferRecommendationRequestDto
+} from '../offers/offer-recommendation.dto';
 import { VacancyService } from './vacancy.service';
 
 @ApiTags('vacancies')
@@ -83,6 +87,24 @@ export class VacancyController {
     @Param('id', ParseUUIDPipe) id: string
   ): Promise<void> {
     return this.vacancies.delete(request.user.sub, id);
+  }
+  @Post('offers/recommendation')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Recommend which offer to accept (analytic hierarchy process: salary, growth, conditions)'
+  })
+  @ApiOkResponse({ type: OfferRecommendationDto })
+  @ApiBadRequestResponse({
+    description:
+      'Invalid comparisons or an offer without salary/growth/conditions'
+  })
+  @ApiNotFoundResponse({ description: 'Vacancy not found' })
+  recommendOffer(
+    @Req() request: AuthenticatedRequest,
+    @Body() input: OfferRecommendationRequestDto
+  ): Promise<OfferRecommendationDto> {
+    return this.vacancies.recommendOffer(request.user.sub, input);
   }
   @Post('imports/url')
   @HttpCode(HttpStatus.OK)

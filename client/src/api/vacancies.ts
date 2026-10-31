@@ -6,6 +6,7 @@ import type {
   VacancyImport,
   VacancyPatch,
 } from "@/types/vacancy";
+import type { CriteriaComparisons, OfferRecommendation } from "@/types/offer";
 
 const withVacancyService = { baseUrl: VACANCY_API_BASE_URL };
 
@@ -71,5 +72,17 @@ export const deleteVacancyRequest = (token: string, vacancyId: string) =>
   apiRequest<void>(VACANCY_ROUTES.vacancy(vacancyId), {
     ...withVacancyService,
     method: "DELETE",
+    token,
+  });
+
+export const offerRecommendationRequest = (
+  token: string,
+  vacancyIds: string[],
+  comparisons: CriteriaComparisons,
+) =>
+  apiRequest<OfferRecommendation>(VACANCY_ROUTES.offerRecommendation, {
+    ...withVacancyService,
+    method: "POST",
+    body: { vacancyIds, comparisons },
     token,
   });

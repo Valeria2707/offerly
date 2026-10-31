@@ -87,6 +87,12 @@ export class Vacancy {
     nullable: true
   })
   recruiterUrl!: string | null;
+  @Column({ name: 'offer_salary', type: 'integer', nullable: true })
+  offerSalary!: number | null;
+  @Column({ name: 'offer_growth', type: 'smallint', nullable: true })
+  offerGrowth!: number | null;
+  @Column({ name: 'offer_conditions', type: 'smallint', nullable: true })
+  offerConditions!: number | null;
   @Column({
     type: 'enum',
     enum: VacancyLifecycle,

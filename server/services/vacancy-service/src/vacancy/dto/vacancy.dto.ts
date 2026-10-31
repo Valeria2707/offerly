@@ -10,12 +10,15 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   IsUrl,
   Length,
   Matches,
+  Max,
   MaxLength,
+  Min,
   ValidateNested
 } from 'class-validator';
 import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
@@ -118,9 +121,45 @@ export class RecruiterContactDto {
   recruiterUrl?: string | null;
 }
 
+export class OfferDetailsDto {
+  @ApiPropertyOptional({
+    nullable: true,
+    minimum: 1,
+    description: 'Offered salary'
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100_000_000)
+  offerSalary?: number | null;
+  @ApiPropertyOptional({
+    nullable: true,
+    minimum: 1,
+    maximum: 5,
+    description: 'Growth opportunities, 1–5'
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  offerGrowth?: number | null;
+  @ApiPropertyOptional({
+    nullable: true,
+    minimum: 1,
+    maximum: 5,
+    description: 'Work conditions: format, team, benefits, 1–5'
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  offerConditions?: number | null;
+}
+
 export class UpdateVacancyDto extends IntersectionType(
   PartialType(VacancyDraftDto),
-  RecruiterContactDto
+  RecruiterContactDto,
+  OfferDetailsDto
 ) {
   @ApiPropertyOptional({ enum: VacancyLifecycle })
   @IsOptional()
@@ -160,7 +199,8 @@ export class ApplyVacancyImportDto {
 
 export class VacancyResponseDto extends IntersectionType(
   VacancyDraftDto,
-  RecruiterContactDto
+  RecruiterContactDto,
+  OfferDetailsDto
 ) {
   @ApiProperty() id!: string;
   @ApiProperty({ enum: VacancyLifecycle }) lifecycle!: VacancyLifecycle;

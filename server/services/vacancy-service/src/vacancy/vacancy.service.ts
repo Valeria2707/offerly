@@ -13,6 +13,11 @@ import {
 } from './dto/vacancy.dto';
 import { resolveVacancyImportDraft } from '../utils/vacancy.utils';
 import { VacancyRepository } from './vacancy.repository';
+import {
+  OfferRecommendationDto,
+  OfferRecommendationRequestDto
+} from '../offers/offer-recommendation.dto';
+import { recommendOffer } from '../offers/offer-recommendation';
 
 @Injectable()
 export class VacancyService {
@@ -37,6 +42,15 @@ export class VacancyService {
     Object.assign(vacancy, input);
     const saved = await this.repository.save(vacancy);
     return saved;
+  }
+  async recommendOffer(
+    userId: string,
+    input: OfferRecommendationRequestDto
+  ): Promise<OfferRecommendationDto> {
+    const offers = await Promise.all(
+      input.vacancyIds.map((id) => this.repository.find(userId, id))
+    );
+    return recommendOffer(offers, input.comparisons);
   }
   async delete(userId: string, id: string): Promise<void> {
     const vacancy = await this.repository.find(userId, id);
