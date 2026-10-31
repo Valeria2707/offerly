@@ -9,6 +9,7 @@ import { VacancyImport } from './vacancy/entities/vacancy-import.entity';
 import { VacancyModule } from './vacancy/vacancy.module';
 import { OutboxEvent } from './outbox/entities/outbox-event.entity';
 import { OutboxModule } from './outbox/outbox.module';
+import { AiOperation } from './ai-log/ai-operation.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -21,7 +22,7 @@ import { OutboxModule } from './outbox/outbox.module';
         database: config.getOrThrow<string>('DATABASE_NAME'),
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
-        entities: [Vacancy, VacancyImport, OutboxEvent],
+        entities: [Vacancy, VacancyImport, OutboxEvent, AiOperation],
         synchronize: true
       }),
       dataSourceFactory: (options) =>

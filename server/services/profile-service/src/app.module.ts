@@ -8,6 +8,7 @@ import { HealthController } from './health.controller';
 import { CvImport } from './profile/entities/cv-import.entity';
 import { Profile } from './profile/entities/profile.entity';
 import { ProfileModule } from './profile/profile.module';
+import { AiOperation } from './ai-log/ai-operation.entity';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { ProfileModule } from './profile/profile.module';
         database: config.getOrThrow<string>('DATABASE_NAME'),
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
-        entities: [Profile, CvImport],
+        entities: [Profile, CvImport, AiOperation],
         synchronize: true
       }),
       dataSourceFactory: (options) =>

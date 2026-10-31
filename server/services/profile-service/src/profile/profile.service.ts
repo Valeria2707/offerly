@@ -19,13 +19,15 @@ import {
 } from './dto/profile.dto';
 import { CvImportStatus } from './enums/cv-import-status.enum';
 import { ProfileRepository } from './profile.repository';
+import { AiLogService } from '../ai-log/ai-log.service';
 
 @Injectable()
 export class ProfileService {
   constructor(
     private readonly repository: ProfileRepository,
     private readonly textExtractor: CvTextExtractorService,
-    private readonly cvParser: OpenAiCvParserService
+    private readonly cvParser: OpenAiCvParserService,
+    private readonly aiLog: AiLogService
   ) {}
 
   async getProfile(userId: string): Promise<ProfileResponseDto> {
@@ -63,7 +65,9 @@ export class ProfileService {
     try {
       const text = await this.textExtractor.extract(file);
       const { text: anonymized, emails, phones } = anonymize(text);
-      const draft = await this.cvParser.parse(anonymized);
+      const draft = await this.aiLog.track(userId, 'cv_import', () =>
+        this.cvParser.parse(anonymized)
+      );
       draft.basics.email = emails[0] ?? null;
       draft.basics.phone = phones[0] ?? null;
       cvImport.draftData = draft;

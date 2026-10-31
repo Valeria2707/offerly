@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WorkflowModule } from '../workflow/workflow.module';
 import { StageQuestion } from '../workflow/entities/stage-question.entity';
+import { AiOperation } from '../ai-log/ai-operation.entity';
+import { AiLogService } from '../ai-log/ai-log.service';
 import { StagePreparationData } from './entities/stage-preparation.entity';
 import { PreparationController } from './preparation.controller';
 import { PreparationService } from './preparation.service';
@@ -16,11 +18,12 @@ import { TechnicalPreparationStrategy } from './strategies/technical-preparation
 @Module({
   imports: [
     WorkflowModule,
-    TypeOrmModule.forFeature([StagePreparationData, StageQuestion])
+    TypeOrmModule.forFeature([StagePreparationData, StageQuestion, AiOperation])
   ],
   controllers: [PreparationController],
   providers: [
     PreparationService,
+    AiLogService,
     PreparationContextService,
     PreparationGeneratorService,
     AnswerReviewerService,

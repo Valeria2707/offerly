@@ -7,12 +7,19 @@ import { VacancyController } from './vacancy.controller';
 import { VacancyRepository } from './vacancy.repository';
 import { VacancyService } from './vacancy.service';
 import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
+import { AiOperation } from '../ai-log/ai-operation.entity';
+import { AiLogService } from '../ai-log/ai-log.service';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Vacancy, VacancyImport, OutboxEvent]),
+    TypeOrmModule.forFeature([
+      Vacancy,
+      VacancyImport,
+      OutboxEvent,
+      AiOperation
+    ]),
     ImportModule
   ],
   controllers: [VacancyController],
-  providers: [VacancyRepository, VacancyService]
+  providers: [VacancyRepository, VacancyService, AiLogService]
 })
 export class VacancyModule {}

@@ -1,3 +1,4 @@
+import { AiOperation } from './ai-log/ai-operation.entity';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { ReminderSettings } from './calendar/entities/reminder-settings.entity';
@@ -42,7 +43,8 @@ import { WorkflowModule } from './workflow/workflow.module';
           StagePreparationData,
           ReminderSettings,
           SentReminder,
-          OutboxEvent
+          OutboxEvent,
+          AiOperation
         ],
         synchronize: true
       }),

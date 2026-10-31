@@ -20,6 +20,7 @@ import {
 } from './preparation.constants';
 import { PastQuestion } from './preparation.types';
 import { StagePreparationData } from './entities/stage-preparation.entity';
+import { AiLogService } from '../ai-log/ai-log.service';
 import { AnswerReviewerService } from './services/answer-reviewer.service';
 import { PreparationContextService } from './services/preparation-context.service';
 import { PreparationStrategyFactory } from './strategies/preparation-strategy.factory';
@@ -38,7 +39,8 @@ export class PreparationService {
     private readonly context: PreparationContextService,
     private readonly factory: PreparationStrategyFactory,
     private readonly dataSource: DataSource,
-    private readonly reviewer: AnswerReviewerService
+    private readonly reviewer: AnswerReviewerService,
+    private readonly aiLog: AiLogService
   ) {}
   async get(
     userId: string,
@@ -85,17 +87,19 @@ export class PreparationService {
         this.context.load(workflow.vacancyId, authorization),
         this.pastQuestions(userId, workflowId, stageId, stage.category)
       ]);
-      const data = await this.factory.getStrategy(type).generate({
-        ...context,
-        stage: {
-          name: stage.name,
-          category: stage.category,
-          code: stageType.code
-        },
-        instructions:
-          anonymize(instructions).text || `Prepare for ${stage.name}`,
-        pastQuestions
-      });
+      const data = await this.aiLog.track(userId, 'preparation', () =>
+        this.factory.getStrategy(type).generate({
+          ...context,
+          stage: {
+            name: stage.name,
+            category: stage.category,
+            code: stageType.code
+          },
+          instructions:
+            anonymize(instructions).text || `Prepare for ${stage.name}`,
+          pastQuestions
+        })
+      );
       return await this.dataSource.transaction(async (manager) => {
         await this.lockStage(manager, workflowId, stageId);
         if (await manager.existsBy(StagePreparationData, { stageId }))
@@ -223,14 +227,16 @@ export class PreparationService {
         workflow.vacancyId,
         authorization
       );
-      const review = await this.reviewer.review({
-        ...context,
-        stage: { name: stage.name, category: stage.category },
-        question: question.question,
-        interviewerFocus: question.tips,
-        referenceAnswer: question.expectedAnswer,
-        candidateAnswer: anonymize(answer).text
-      });
+      const review = await this.aiLog.track(userId, 'answer_review', () =>
+        this.reviewer.review({
+          ...context,
+          stage: { name: stage.name, category: stage.category },
+          question: question.question,
+          interviewerFocus: question.tips,
+          referenceAnswer: question.expectedAnswer,
+          candidateAnswer: anonymize(answer).text
+        })
+      );
       return await this.dataSource.transaction(async (manager) => {
         await this.lockStage(manager, workflowId, stageId);
         const preparation = await manager.findOneBy(StagePreparationData, {

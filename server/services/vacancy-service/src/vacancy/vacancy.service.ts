@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { anonymize } from '@offerly/helpers';
+import { AiLogService } from '../ai-log/ai-log.service';
 import { JobPageFetcherService } from '../import/job-page-fetcher.service';
 import { OpenAiVacancyParserService } from '../import/openai-vacancy-parser.service';
 import {
@@ -18,7 +19,8 @@ export class VacancyService {
   constructor(
     private readonly repository: VacancyRepository,
     private readonly pages: JobPageFetcherService,
-    private readonly parser: OpenAiVacancyParserService
+    private readonly parser: OpenAiVacancyParserService,
+    private readonly aiLog: AiLogService
   ) {}
   list(userId: string): Promise<VacancyResponseDto[]> {
     return this.repository.list(userId);
@@ -45,9 +47,8 @@ export class VacancyService {
     input: ImportVacancyUrlDto
   ): Promise<VacancyImportResponseDto> {
     const page = await this.pages.fetch(input.url);
-    const draft = await this.parser.parse(
-      anonymize(page.content).text,
-      page.url
+    const draft = await this.aiLog.track(userId, 'vacancy_import', () =>
+      this.parser.parse(anonymize(page.content).text, page.url)
     );
     return this.repository.createImport(userId, page.url, draft);
   }
@@ -55,9 +56,8 @@ export class VacancyService {
     userId: string,
     input: ImportVacancyTextDto
   ): Promise<VacancyImportResponseDto> {
-    const draft = await this.parser.parse(
-      anonymize(input.text.trim()).text,
-      null
+    const draft = await this.aiLog.track(userId, 'vacancy_import', () =>
+      this.parser.parse(anonymize(input.text.trim()).text, null)
     );
     return this.repository.createImport(userId, null, draft);
   }

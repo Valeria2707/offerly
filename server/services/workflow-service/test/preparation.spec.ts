@@ -23,6 +23,7 @@ import { HrPreparationStrategy } from '../src/preparation/strategies/hr-preparat
 import { PreparationStrategyFactory } from '../src/preparation/strategies/preparation-strategy.factory';
 import { TechnicalPreparationStrategy } from '../src/preparation/strategies/technical-preparation.strategy';
 import { StageQuestion } from '../src/workflow/entities/stage-question.entity';
+import { AiLogService } from '../src/ai-log/ai-log.service';
 import { AnswerReviewerService } from '../src/preparation/services/answer-reviewer.service';
 import { parseAnswerReview } from '../src/preparation/output/preparation-output.parser';
 
@@ -276,7 +277,11 @@ function fixture(): {
       { load } as unknown as PreparationContextService,
       factory,
       dataSource as unknown as DataSource,
-      { review: reviewAnswer } as unknown as AnswerReviewerService
+      { review: reviewAnswer } as unknown as AnswerReviewerService,
+      {
+        track: (_userId: string, _operation: string, run: () => unknown) =>
+          run()
+      } as unknown as AiLogService
     ),
     preparations,
     workflows,
