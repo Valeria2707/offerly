@@ -15,6 +15,7 @@ import type { ProfileData } from "@/types/profile";
 export function BasicsSection() {
   const { control, register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.basics");
+  const tf = useTranslations("profile.fields");
   const links = useFieldArray({ control, name: "basics.links" });
 
   const filledLinks = (
@@ -22,36 +23,36 @@ export function BasicsSection() {
   ).filter((link) => link?.label || link?.url).length;
 
   return (
-    <SectionCard title={t("title")} path="data.basics" name="basics">
+    <SectionCard title={t("title")} name="basics">
       <div className="grid gap-5 md:grid-cols-3">
         <TextField
           id="fullName"
-          label="fullName"
+          label={tf("fullName")}
           placeholder="Olena Kovalchuk"
           {...register("basics.fullName")}
         />
         <TextField
           id="headline"
-          label="headline"
+          label={tf("headline")}
           placeholder="Senior Backend Engineer"
           {...register("basics.headline")}
         />
         <TextField
           id="location"
-          label="location"
+          label={tf("location")}
           placeholder="Berlin, DE"
           {...register("basics.location")}
         />
         <TextField
           id="email"
-          label="email"
+          label={tf("email")}
           type="email"
           placeholder="olena@example.com"
           {...register("basics.email")}
         />
         <TextField
           id="phone"
-          label="phone"
+          label={tf("phone")}
           placeholder="+380000000000"
           {...register("basics.phone")}
         />
@@ -59,7 +60,7 @@ export function BasicsSection() {
 
       <div className="grid gap-2 border-t border-border pt-5">
         <div className="flex items-center justify-between gap-2">
-          <FieldLabel>{`links · ${filledLinks}`}</FieldLabel>
+          <FieldLabel>{`${tf("links")} · ${filledLinks}`}</FieldLabel>
           <Button
             type="button"
             variant="secondary"
@@ -84,7 +85,7 @@ export function BasicsSection() {
 
       <TextareaField
         id="summary"
-        label="summary"
+        label={tf("summary")}
         rows={3}
         placeholder={t("summaryPlaceholder")}
         {...register("basics.summary")}

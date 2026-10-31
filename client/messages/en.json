@@ -687,6 +687,39 @@
       "title": "Education",
       "remove": "Delete education",
       "add": "Add education"
+    },
+    "fields": {
+      "fullName": "Full name",
+      "headline": "Headline",
+      "location": "Location",
+      "email": "Email",
+      "phone": "Phone",
+      "links": "Links",
+      "linkName": "label",
+      "summary": "Summary",
+      "desiredPosition": "Desired position",
+      "level": "Level",
+      "workFormat": "Work format",
+      "expectedSalary": "Expected salary",
+      "institution": "Institution",
+      "degree": "Degree",
+      "field": "Field of study",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "description": "Description",
+      "company": "Company",
+      "title": "Job title",
+      "highlights": "Highlights",
+      "skills": "Skills",
+      "name": "Name",
+      "url": "URL",
+      "current": "Current job"
+    },
+    "levels": {
+      "BEGINNER": "Beginner",
+      "INTERMEDIATE": "Intermediate",
+      "ADVANCED": "Advanced",
+      "Native": "Native"
     }
   },
   "analytics": {

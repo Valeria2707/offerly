@@ -687,6 +687,39 @@
       "title": "Освіта",
       "remove": "Видалити освіту",
       "add": "Додати освіту"
+    },
+    "fields": {
+      "fullName": "Повне ім’я",
+      "headline": "Посада",
+      "location": "Локація",
+      "email": "Email",
+      "phone": "Телефон",
+      "links": "Посилання",
+      "linkName": "назва",
+      "summary": "Про себе",
+      "desiredPosition": "Бажана посада",
+      "level": "Рівень",
+      "workFormat": "Формат роботи",
+      "expectedSalary": "Очікувана зарплата",
+      "institution": "Навчальний заклад",
+      "degree": "Ступінь",
+      "field": "Спеціальність",
+      "startDate": "Початок",
+      "endDate": "Завершення",
+      "description": "Опис",
+      "company": "Компанія",
+      "title": "Посада",
+      "highlights": "Досягнення",
+      "skills": "Навички",
+      "name": "Назва",
+      "url": "Посилання",
+      "current": "Працюю зараз"
+    },
+    "levels": {
+      "BEGINNER": "Початковий",
+      "INTERMEDIATE": "Середній",
+      "ADVANCED": "Просунутий",
+      "Native": "Рідна"
     }
   },
   "analytics": {

@@ -11,7 +11,6 @@ import type { ProfileData } from "@/types/profile";
 
 type SectionCardProps = {
   title: string;
-  path: string;
   name: Path<ProfileData>;
   count?: number;
   className?: string;
@@ -20,7 +19,6 @@ type SectionCardProps = {
 
 export function SectionCard({
   title,
-  path,
   name,
   count,
   className,
@@ -40,10 +38,11 @@ export function SectionCard({
     >
       <header className="mb-5 flex items-center gap-3">
         <h2 className="font-heading text-base font-semibold">{title}</h2>
-        <span className="font-mono text-[10px] tracking-[0.14em] text-subtle uppercase">
-          {path}
-          {count === undefined ? "" : ` · ${count}`}
-        </span>
+        {count !== undefined && (
+          <span className="font-mono text-[10px] tracking-[0.14em] text-subtle">
+            {count}
+          </span>
+        )}
 
         {editing ? (
           <div className="ml-auto flex items-center gap-1">

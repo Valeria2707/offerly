@@ -9,3 +9,15 @@ export const LANGUAGE_LEVELS = [
   "C2",
   "Native",
 ] as const;
+
+const TRANSLATED_LEVELS = [
+  "BEGINNER",
+  "INTERMEDIATE",
+  "ADVANCED",
+  "Native",
+] as const;
+
+export type TranslatedLevel = (typeof TRANSLATED_LEVELS)[number];
+
+export const isTranslatedLevel = (level: string): level is TranslatedLevel =>
+  TRANSLATED_LEVELS.some((item) => item === level);

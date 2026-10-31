@@ -87,7 +87,7 @@ export function ImportReviewForm({
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="grid min-w-0 gap-6">
-            <ReviewCard title={t("parsed")} path="vacancy">
+            <ReviewCard title={t("parsed")}>
               <div className="grid gap-5 md:grid-cols-2">
                 <div className="grid gap-1">
                   <TextField
@@ -162,7 +162,7 @@ export function ImportReviewForm({
               />
             </ReviewCard>
 
-            <ReviewCard title={t("requirements")} path="requirements">
+            <ReviewCard title={t("requirements")}>
               <TagListField name="requiredSkills" label="Required skills" />
               <TagListField name="preferredSkills" label="Preferred skills" />
 
@@ -188,7 +188,7 @@ export function ImportReviewForm({
 
           <div className="grid content-start gap-4">
             {vacancyImport.sourceUrl && (
-              <ReviewCard title={t("source")} path="source">
+              <ReviewCard title={t("source")}>
                 <a
                   href={vacancyImport.sourceUrl}
                   target="_blank"

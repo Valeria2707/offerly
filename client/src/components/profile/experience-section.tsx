@@ -30,12 +30,12 @@ const EMPTY_EXPERIENCE: ProfileExperience = {
 export function ExperienceSection() {
   const { control, register, setValue, watch } = useFormContext<ProfileData>();
   const t = useTranslations("profile.experience");
+  const tf = useTranslations("profile.fields");
   const experience = useFieldArray({ control, name: "experience" });
 
   return (
     <SectionCard
       title={t("title")}
-      path="data.experience"
       name="experience"
       count={experience.fields.length}
     >
@@ -52,14 +52,14 @@ export function ExperienceSection() {
                 <div className="grid min-w-0 flex-1 gap-5 md:grid-cols-2">
                   <TextField
                     id={`experience-company-${index}`}
-                    label="company"
+                    label={tf("company")}
                     placeholder="Nordic Freight"
                     className="bg-card"
                     {...register(`experience.${index}.company`)}
                   />
                   <TextField
                     id={`experience-title-${index}`}
-                    label="title"
+                    label={tf("title")}
                     placeholder="Backend Engineer"
                     className="bg-card"
                     {...register(`experience.${index}.title`)}
@@ -75,16 +75,16 @@ export function ExperienceSection() {
               <div className="grid gap-5 md:grid-cols-3">
                 <MonthField
                   name={`experience.${index}.startDate`}
-                  label="startDate"
+                  label={tf("startDate")}
                 />
                 <MonthField
                   name={`experience.${index}.endDate`}
-                  label="endDate"
+                  label={tf("endDate")}
                   disabled={current}
                 />
                 <TextField
                   id={`experience-location-${index}`}
-                  label="location"
+                  label={tf("location")}
                   placeholder="Berlin, DE"
                   className="bg-card"
                   {...register(`experience.${index}.location`)}
@@ -103,13 +103,13 @@ export function ExperienceSection() {
                   htmlFor={`experience-current-${index}`}
                   className="font-mono text-[10px] tracking-[0.12em] text-subtle uppercase"
                 >
-                  current
+                  {tf("current")}
                 </Label>
               </div>
 
               <TextareaField
                 id={`experience-description-${index}`}
-                label="description"
+                label={tf("description")}
                 rows={2}
                 className="bg-card"
                 {...register(`experience.${index}.description`)}
@@ -117,12 +117,12 @@ export function ExperienceSection() {
 
               <BulletListField
                 name={`experience.${index}.highlights`}
-                label="highlights"
+                label={tf("highlights")}
                 placeholder={t("highlightPlaceholder")}
               />
               <TagListField
                 name={`experience.${index}.skills`}
-                label="skills"
+                label={tf("skills")}
               />
             </article>
           );

@@ -23,12 +23,12 @@ const EMPTY_EDUCATION: ProfileEducation = {
 export function EducationSection() {
   const { control, register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.education");
+  const tf = useTranslations("profile.fields");
   const education = useFieldArray({ control, name: "education" });
 
   return (
     <SectionCard
       title={t("title")}
-      path="data.education"
       name="education"
       count={education.fields.length}
     >
@@ -41,7 +41,7 @@ export function EducationSection() {
             <div className="flex items-end gap-3">
               <TextField
                 id={`education-institution-${index}`}
-                label="institution"
+                label={tf("institution")}
                 placeholder="KNU"
                 wrapperClassName="min-w-0 flex-1"
                 className="bg-card"
@@ -57,28 +57,31 @@ export function EducationSection() {
             <div className="grid gap-5 md:grid-cols-2">
               <TextField
                 id={`education-degree-${index}`}
-                label="degree"
+                label={tf("degree")}
                 placeholder="MSc"
                 className="bg-card"
                 {...register(`education.${index}.degree`)}
               />
               <TextField
                 id={`education-field-${index}`}
-                label="field"
+                label={tf("field")}
                 placeholder="Computer Science"
                 className="bg-card"
                 {...register(`education.${index}.field`)}
               />
               <MonthField
                 name={`education.${index}.startDate`}
-                label="startDate"
+                label={tf("startDate")}
               />
-              <MonthField name={`education.${index}.endDate`} label="endDate" />
+              <MonthField
+                name={`education.${index}.endDate`}
+                label={tf("endDate")}
+              />
             </div>
 
             <TextareaField
               id={`education-description-${index}`}
-              label="description"
+              label={tf("description")}
               rows={2}
               className="bg-card"
               {...register(`education.${index}.description`)}

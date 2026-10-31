@@ -19,12 +19,13 @@ export function LinkRow({
 }) {
   const { register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.basics");
+  const tf = useTranslations("profile.fields");
 
   return (
     <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
       <Input
         aria-label={t("linkLabel")}
-        placeholder="label"
+        placeholder={tf("linkName")}
         className={cn(
           "h-9 w-24 rounded-md bg-card px-2.5 font-mono text-[11px]",
           FIELD_CLASS,

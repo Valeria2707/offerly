@@ -9,7 +9,7 @@ import { SelectField } from "@/components/core/select-field";
 import { SectionCard } from "@/components/profile/section-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SKILL_LEVELS } from "@/constants/levels";
+import { isTranslatedLevel, SKILL_LEVELS } from "@/constants/levels";
 import { cn } from "@/lib/utils";
 import { FIELD_CLASS } from "@/styles/field-styles";
 import type { ProfileData } from "@/types/profile";
@@ -17,15 +17,12 @@ import type { ProfileData } from "@/types/profile";
 export function SkillsSection() {
   const { control, register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.skills");
+  const tf = useTranslations("profile.fields");
+  const tl = useTranslations("profile.levels");
   const skills = useFieldArray({ control, name: "skills" });
 
   return (
-    <SectionCard
-      title={t("title")}
-      path="data.skills"
-      name="skills"
-      count={skills.fields.length}
-    >
+    <SectionCard title={t("title")} name="skills" count={skills.fields.length}>
       <div className="grid gap-2">
         <div className="grid max-h-96 gap-2 overflow-y-auto pr-1">
           {skills.fields.map((field, index) => (
@@ -35,14 +32,17 @@ export function SkillsSection() {
             >
               <Input
                 aria-label={t("item")}
-                placeholder="name"
+                placeholder={t("item")}
                 className={cn("h-10 flex-1 bg-transparent px-0", FIELD_CLASS)}
                 {...register(`skills.${index}.name`)}
               />
               <SelectField
                 name={`skills.${index}.level`}
-                label="level"
+                label={tf("level")}
                 options={SKILL_LEVELS}
+                formatOption={(level) =>
+                  isTranslatedLevel(level) ? tl(level) : level
+                }
                 className="w-36"
               />
               <Button

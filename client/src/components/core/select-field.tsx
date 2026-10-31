@@ -16,11 +16,13 @@ export function SelectField({
   label,
   options,
   className,
+  formatOption = (value) => value,
 }: {
   name: string;
   label: string;
   options: readonly string[];
   className?: string;
+  formatOption?: (value: string) => string;
 }) {
   const { control } = useFormContext();
 
@@ -43,7 +45,11 @@ export function SelectField({
                 className,
               )}
             >
-              <SelectValue placeholder={label} />
+              <SelectValue>
+                {(selected: string | null) =>
+                  selected ? formatOption(selected) : label
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {items.map((item) => (
@@ -52,7 +58,7 @@ export function SelectField({
                   value={item}
                   className="font-mono text-xs"
                 >
-                  {item}
+                  {formatOption(item)}
                 </SelectItem>
               ))}
             </SelectContent>

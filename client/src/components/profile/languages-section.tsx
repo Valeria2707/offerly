@@ -9,7 +9,7 @@ import { SelectField } from "@/components/core/select-field";
 import { SectionCard } from "@/components/profile/section-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LANGUAGE_LEVELS } from "@/constants/levels";
+import { isTranslatedLevel, LANGUAGE_LEVELS } from "@/constants/levels";
 import { cn } from "@/lib/utils";
 import { FIELD_CLASS } from "@/styles/field-styles";
 import type { ProfileData } from "@/types/profile";
@@ -17,12 +17,13 @@ import type { ProfileData } from "@/types/profile";
 export function LanguagesSection() {
   const { control, register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.languages");
+  const tf = useTranslations("profile.fields");
+  const tl = useTranslations("profile.levels");
   const languages = useFieldArray({ control, name: "languages" });
 
   return (
     <SectionCard
       title={t("title")}
-      path="data.languages"
       name="languages"
       count={languages.fields.length}
     >
@@ -35,14 +36,17 @@ export function LanguagesSection() {
             >
               <Input
                 aria-label={t("item")}
-                placeholder="name"
+                placeholder={t("item")}
                 className={cn("h-10 flex-1 bg-transparent px-0", FIELD_CLASS)}
                 {...register(`languages.${index}.name`)}
               />
               <SelectField
                 name={`languages.${index}.level`}
-                label="level"
+                label={tf("level")}
                 options={LANGUAGE_LEVELS}
+                formatOption={(level) =>
+                  isTranslatedLevel(level) ? tl(level) : level
+                }
                 className="w-28"
               />
               <Button

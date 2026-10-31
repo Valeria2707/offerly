@@ -26,12 +26,12 @@ const EMPTY_PROJECT: ProfileProject = {
 export function ProjectsSection() {
   const { control, register } = useFormContext<ProfileData>();
   const t = useTranslations("profile.projects");
+  const tf = useTranslations("profile.fields");
   const projects = useFieldArray({ control, name: "projects" });
 
   return (
     <SectionCard
       title={t("title")}
-      path="data.projects"
       name="projects"
       count={projects.fields.length}
     >
@@ -44,7 +44,7 @@ export function ProjectsSection() {
             <div className="flex items-end gap-3">
               <TextField
                 id={`project-name-${index}`}
-                label="name"
+                label={tf("name")}
                 placeholder="Offerly"
                 wrapperClassName="min-w-0 flex-1"
                 className="bg-card"
@@ -60,14 +60,17 @@ export function ProjectsSection() {
             <div className="grid gap-5 md:grid-cols-2">
               <MonthField
                 name={`projects.${index}.startDate`}
-                label="startDate"
+                label={tf("startDate")}
               />
-              <MonthField name={`projects.${index}.endDate`} label="endDate" />
+              <MonthField
+                name={`projects.${index}.endDate`}
+                label={tf("endDate")}
+              />
             </div>
 
             <TextField
               id={`project-url-${index}`}
-              label="url"
+              label={tf("url")}
               type="url"
               placeholder="https://github.com/…"
               className="bg-card"
@@ -76,7 +79,7 @@ export function ProjectsSection() {
 
             <TextareaField
               id={`project-description-${index}`}
-              label="description"
+              label={tf("description")}
               rows={2}
               className="bg-card"
               {...register(`projects.${index}.description`)}
@@ -84,18 +87,18 @@ export function ProjectsSection() {
 
             <BulletListField
               name={`projects.${index}.highlights`}
-              label="highlights"
+              label={tf("highlights")}
               placeholder={t("highlightPlaceholder")}
             />
-            <TagListField name={`projects.${index}.skills`} label="skills" />
+            <TagListField
+              name={`projects.${index}.skills`}
+              label={tf("skills")}
+            />
           </article>
         ))}
       </div>
 
-      <AddRow
-        label={t("add")}
-        onAdd={() => projects.append(EMPTY_PROJECT)}
-      />
+      <AddRow label={t("add")} onAdd={() => projects.append(EMPTY_PROJECT)} />
     </SectionCard>
   );
 }
