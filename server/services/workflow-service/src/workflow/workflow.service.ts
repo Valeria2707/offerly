@@ -77,8 +77,8 @@ export class WorkflowService {
             position: index + 1,
             isRequired: true,
             status:
-              index === 0 ? StageStatus.COMPLETED : StageStatus.NOT_STARTED,
-            completedAt: index === 0 ? new Date() : null,
+              index === 0 ? StageStatus.IN_PROGRESS : StageStatus.NOT_STARTED,
+            completedAt: null,
             scheduledAt: null,
             deadlineAt: null,
             artifactUrl: null

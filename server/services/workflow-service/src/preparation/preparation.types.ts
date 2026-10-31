@@ -29,6 +29,16 @@ export interface PreparationContext {
   pastQuestions: PastQuestion[];
 }
 
+export interface AnswerReviewContext {
+  vacancy: Record<string, unknown>;
+  profile: Record<string, unknown>;
+  stage: { name: string; category: string };
+  question: string;
+  interviewerFocus: string;
+  referenceAnswer: string;
+  candidateAnswer: string;
+}
+
 export interface StackAnalysis {
   role: string;
   company: string;

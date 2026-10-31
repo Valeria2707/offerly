@@ -23,7 +23,16 @@ import { HrPreparationStrategy } from '../src/preparation/strategies/hr-preparat
 import { PreparationStrategyFactory } from '../src/preparation/strategies/preparation-strategy.factory';
 import { TechnicalPreparationStrategy } from '../src/preparation/strategies/technical-preparation.strategy';
 import { StageQuestion } from '../src/workflow/entities/stage-question.entity';
+import { AnswerReviewerService } from '../src/preparation/services/answer-reviewer.service';
+import { parseAnswerReview } from '../src/preparation/output/preparation-output.parser';
 
+const review = {
+  score: 3,
+  verdict: 'Relevant but generic',
+  strengths: ['Mentions the project'],
+  improvements: ['Add the result in numbers'],
+  improvedAnswer: 'In my last project I...'
+};
 const hrContent = {
   elevatorPitch: 'My experience',
   commonQuestions: [
@@ -154,6 +163,34 @@ describe('preparation selection and validation', () => {
     expect(items[0].id).toMatch(/^[0-9a-f-]{36}$/);
     expect(items[0].userAnswer).toBeUndefined();
   });
+  it('never trusts generated feedback either', () => {
+    const data = parsePreparation(PreparationType.HR_SCREENING, {
+      ...hrContent,
+      commonQuestions: [
+        {
+          ...hrContent.commonQuestions[0],
+          feedback: { ...review, reviewedAt: new Date().toISOString() }
+        }
+      ]
+    });
+    expect(questionItems(data)[0].feedback).toBeUndefined();
+  });
+  it('validates AI answer reviews', () => {
+    expect(parseAnswerReview(review)).toEqual(review);
+    for (const raw of [
+      null,
+      { ...review, score: 0 },
+      { ...review, score: 6 },
+      { ...review, score: 3.5 },
+      { ...review, verdict: '  ' },
+      { ...review, strengths: [1] },
+      { ...review, improvedAnswer: '' },
+      { ...review, extra: true }
+    ])
+      expect(() => parseAnswerReview(raw)).toThrow(
+        UnprocessableEntityException
+      );
+  });
 });
 function fixture(): {
   service: PreparationService;
@@ -173,6 +210,7 @@ function fixture(): {
   };
   load: jest.Mock;
   generate: jest.Mock;
+  reviewAnswer: jest.Mock;
 } {
   const preparations = {
     existsBy: jest.fn().mockResolvedValue(false),
@@ -229,6 +267,7 @@ function fixture(): {
   ])
     questionQuery[method] = () => questionQuery;
   const questions = { createQueryBuilder: () => questionQuery };
+  const reviewAnswer = jest.fn().mockResolvedValue(review);
   return {
     service: new PreparationService(
       preparations as unknown as Repository<StagePreparationData>,
@@ -236,13 +275,15 @@ function fixture(): {
       workflows as unknown as WorkflowService,
       { load } as unknown as PreparationContextService,
       factory,
-      dataSource as unknown as DataSource
+      dataSource as unknown as DataSource,
+      { review: reviewAnswer } as unknown as AnswerReviewerService
     ),
     preparations,
     workflows,
     manager,
     load,
-    generate
+    generate,
+    reviewAnswer
   };
 }
 describe('preparation persistence business rules', () => {
@@ -376,6 +417,101 @@ describe('preparation persistence business rules', () => {
     await expect(
       f.service.answer('user', 'workflow', 'stage', 'missing', 'answer')
     ).rejects.toThrow(NotFoundException);
+  });
+  it('clears stale feedback only when the answer text changes', async () => {
+    const f = fixture();
+    const data = parsePreparation(PreparationType.HR_SCREENING, hrContent);
+    const question = questionItems(data)[0];
+    question.userAnswer = 'Same';
+    question.feedback = { ...review, reviewedAt: new Date().toISOString() };
+    f.manager.findOneBy.mockResolvedValue({ stageId: 'stage', data });
+    await f.service.answer('user', 'workflow', 'stage', question.id, 'Same');
+    expect(question.feedback).toBeDefined();
+    await f.service.answer('user', 'workflow', 'stage', question.id, 'New');
+    expect(question.feedback).toBeUndefined();
+  });
+  it('saves the answer, reviews it with vacancy context and stores the feedback', async () => {
+    const f = fixture();
+    f.workflows.requireStage.mockResolvedValue({
+      id: 'stage',
+      name: 'HR',
+      category: StageCategory.SCREENING
+    });
+    const data = parsePreparation(PreparationType.HR_SCREENING, hrContent);
+    const question = questionItems(data)[0];
+    f.manager.findOneBy.mockResolvedValue({ stageId: 'stage', data });
+    const result = await f.service.review(
+      'user',
+      'workflow',
+      'stage',
+      question.id,
+      '  My answer  ',
+      'Bearer token'
+    );
+    expect(f.load).toHaveBeenCalledWith('vacancy', 'Bearer token');
+    expect(f.reviewAnswer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stage: { name: 'HR', category: StageCategory.SCREENING },
+        question: 'Tell me about a project',
+        interviewerFocus: 'Use STAR',
+        referenceAnswer: 'Describe your contribution',
+        candidateAnswer: 'My answer'
+      })
+    );
+    const saved = questionItems(result.data)[0];
+    expect(saved.userAnswer).toBe('My answer');
+    expect(saved.feedback).toMatchObject(review);
+    expect(saved.feedback?.reviewedAt).toEqual(expect.any(String));
+  });
+  it('refuses empty answers and foreign users before calling AI', async () => {
+    const f = fixture();
+    await expect(
+      f.service.review('user', 'workflow', 'stage', 'q', '   ', 'token')
+    ).rejects.toThrow(BadRequestException);
+    f.workflows.requireWorkflow.mockRejectedValueOnce(new ForbiddenException());
+    await expect(
+      f.service.review('user', 'workflow', 'stage', 'q', 'Answer', 'token')
+    ).rejects.toThrow(ForbiddenException);
+    expect(f.reviewAnswer).not.toHaveBeenCalled();
+  });
+  it('does not attach feedback to an answer that changed during the review', async () => {
+    const f = fixture();
+    const data = parsePreparation(PreparationType.HR_SCREENING, hrContent);
+    const question = questionItems(data)[0];
+    f.manager.findOneBy.mockResolvedValue({ stageId: 'stage', data });
+    f.reviewAnswer.mockImplementationOnce(() => {
+      question.userAnswer = 'Edited meanwhile';
+      return Promise.resolve(review);
+    });
+    await expect(
+      f.service.review('user', 'workflow', 'stage', question.id, 'A', 'token')
+    ).rejects.toThrow(ConflictException);
+    expect(question.feedback).toBeUndefined();
+  });
+  it('rejects a second review of the same question while the first is running', async () => {
+    const f = fixture();
+    const data = parsePreparation(PreparationType.HR_SCREENING, hrContent);
+    const question = questionItems(data)[0];
+    f.manager.findOneBy.mockResolvedValue({ stageId: 'stage', data });
+    let finish: (value: unknown) => void = () => undefined;
+    f.reviewAnswer.mockImplementationOnce(
+      () => new Promise((resolve) => (finish = resolve))
+    );
+    const first = f.service.review(
+      'user',
+      'workflow',
+      'stage',
+      question.id,
+      'A',
+      'token'
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+    await expect(
+      f.service.review('user', 'workflow', 'stage', question.id, 'A', 'token')
+    ).rejects.toThrow(ConflictException);
+    finish(review);
+    await first;
+    expect(question.feedback).toBeDefined();
   });
   it('reports missing preparation and deletes explicitly', async () => {
     const f = fixture();

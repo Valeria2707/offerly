@@ -1,10 +1,12 @@
 "use client";
 
+import { Loader2, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BulletList } from "@/components/core/bullet-list";
 import { TermList } from "@/components/core/term-list";
+import { AnswerFeedback } from "@/components/workflow/answer-feedback";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { USER_ANSWER_MAX_LENGTH } from "@/constants/preparation";
@@ -12,16 +14,24 @@ import type { PreparationCard } from "@/lib/preparation-cards";
 import { cn } from "@/lib/utils";
 import { FIELD_CLASS } from "@/styles/field-styles";
 
+export type AnswerReviewControls = {
+  pending: boolean;
+  stale: boolean;
+  onReview: () => void;
+};
+
 type PreparationCardViewProps = {
   card: PreparationCard;
   answer: string;
   onAnswerChange: (answer: string) => void;
+  review: AnswerReviewControls;
 };
 
 export function PreparationCardView({
   card,
   answer,
   onAnswerChange,
+  review,
 }: PreparationCardViewProps) {
   const t = useTranslations("preparation.card");
   return (
@@ -35,6 +45,7 @@ export function PreparationCardView({
           card={card}
           answer={answer}
           onAnswerChange={onAnswerChange}
+          review={review}
         />
       ) : (
         <>
@@ -68,12 +79,16 @@ function QuestionCard({
   card,
   answer,
   onAnswerChange,
+  review,
 }: {
   card: Extract<PreparationCard, { kind: "question" }>;
   answer: string;
   onAnswerChange: (answer: string) => void;
+  review: AnswerReviewControls;
 }) {
   const t = useTranslations("preparation.card");
+  const tReview = useTranslations("preparation.review");
+  const feedback = card.item.feedback;
 
   return (
     <>
@@ -84,6 +99,7 @@ function QuestionCard({
       <Textarea
         rows={4}
         value={answer}
+        disabled={review.pending}
         maxLength={USER_ANSWER_MAX_LENGTH}
         aria-label={t("yourAnswer")}
         placeholder={t("answerPlaceholder")}
@@ -95,16 +111,33 @@ function QuestionCard({
       />
 
       <div className="flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          disabled={review.pending || !answer.trim()}
+          onClick={review.onReview}
+        >
+          {review.pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          {review.pending
+            ? tReview("pending")
+            : feedback
+              ? tReview("again")
+              : tReview("action")}
+        </Button>
         {card.item.tips && (
           <Reveal label={t("showHint")} text={card.item.tips} />
         )}
         {card.item.expectedAnswer && (
-          <Reveal
-            label={t("expectedAnswer")}
-            text={card.item.expectedAnswer}
-          />
+          <Reveal label={t("expectedAnswer")} text={card.item.expectedAnswer} />
         )}
       </div>
+
+      {feedback && (
+        <AnswerFeedback
+          key={feedback.reviewedAt}
+          feedback={feedback}
+          stale={review.stale}
+        />
+      )}
     </>
   );
 }

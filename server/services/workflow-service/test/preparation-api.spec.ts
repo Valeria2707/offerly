@@ -35,6 +35,7 @@ const service = {
   get: jest.fn(),
   generate: jest.fn(),
   answer: jest.fn(),
+  review: jest.fn(),
   remove: jest.fn()
 };
 @Module({
@@ -89,6 +90,7 @@ describe('preparation HTTP API', () => {
     service.get.mockResolvedValue(result);
     service.generate.mockResolvedValue(result);
     service.answer.mockResolvedValue(result);
+    service.review.mockResolvedValue(result);
     service.remove.mockResolvedValue(undefined);
   });
   afterAll(async () => {
@@ -113,6 +115,7 @@ describe('preparation HTTP API', () => {
       ['GET', ''],
       ['POST', ''],
       ['PATCH', `/questions/${questionId}`],
+      ['POST', `/questions/${questionId}/review`],
       ['DELETE', '']
     ]) {
       expect((await fetch(base + path, { method })).status).toBe(401);
@@ -193,6 +196,38 @@ describe('preparation HTTP API', () => {
     ).toBe(400);
     expect(service.answer).not.toHaveBeenCalled();
   });
+  it('reviews an answer with the authenticated subject and validates the body', async () => {
+    const reviewed = await request(
+      'POST',
+      { userAnswer: 'My answer' },
+      `/questions/${questionId}/review`
+    );
+    expect(reviewed.status).toBe(200);
+    expect(service.review).toHaveBeenCalledWith(
+      'user',
+      workflowId,
+      stageId,
+      questionId,
+      'My answer',
+      expect.stringMatching(/^Bearer /)
+    );
+    service.review.mockClear();
+    for (const body of [
+      {},
+      { userAnswer: '' },
+      { userAnswer: '   ' },
+      { userAnswer: 'x'.repeat(10001) },
+      { userAnswer: 'ok', feedback: { score: 5 } }
+    ])
+      expect(
+        (await request('POST', body, `/questions/${questionId}/review`)).status
+      ).toBe(400);
+    expect(
+      (await request('POST', { userAnswer: 'ok' }, '/questions/invalid/review'))
+        .status
+    ).toBe(400);
+    expect(service.review).not.toHaveBeenCalled();
+  });
   it('preserves authorization errors from the service', async () => {
     service.get.mockRejectedValueOnce(
       new ForbiddenException('Workflow does not belong to user')
@@ -213,5 +248,11 @@ describe('preparation HTTP API', () => {
     expect(route.delete?.responses['204']).toBeDefined();
     expect(document.components?.schemas?.PreparationResponseDto).toBeDefined();
     expect(document.components?.schemas?.TechnicalContent).toBeDefined();
+    expect(document.components?.schemas?.AnswerFeedback).toBeDefined();
+    expect(
+      document.paths[
+        '/api/v1/workflows/{workflowId}/stages/{stageId}/preparation/questions/{questionId}/review'
+      ]?.post?.responses['200']
+    ).toBeDefined();
   });
 });

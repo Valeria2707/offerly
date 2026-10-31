@@ -9,6 +9,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 import { WorkflowService } from '../workflow/workflow.service';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
 import { questionItems } from '../utils/preparation.utils';
+import { QuestionAnswerItem } from './dto/preparation-content.dto';
 import { GeneratePreparationDto } from './dto/preparation.dto';
 import { StageQuestion } from '../workflow/entities/stage-question.entity';
 import { StageCategory } from '../workflow/workflow.enums';
@@ -18,12 +19,15 @@ import {
 } from './preparation.constants';
 import { PastQuestion } from './preparation.types';
 import { StagePreparationData } from './entities/stage-preparation.entity';
+import { AnswerReviewerService } from './services/answer-reviewer.service';
 import { PreparationContextService } from './services/preparation-context.service';
 import { PreparationStrategyFactory } from './strategies/preparation-strategy.factory';
 @Injectable()
 export class PreparationService {
   /** Stages with an AI call in progress in this instance. */
   private readonly generating = new Set<string>();
+  /** Questions with an AI answer review in progress in this instance. */
+  private readonly reviewing = new Set<string>();
   constructor(
     @InjectRepository(StagePreparationData)
     private readonly preparations: Repository<StagePreparationData>,
@@ -32,7 +36,8 @@ export class PreparationService {
     private readonly workflows: WorkflowService,
     private readonly context: PreparationContextService,
     private readonly factory: PreparationStrategyFactory,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    private readonly reviewer: AnswerReviewerService
   ) {}
   async get(
     userId: string,
@@ -174,9 +179,86 @@ export class PreparationService {
       );
       if (!question)
         throw new NotFoundException('Preparation question not found');
+
+      if (question.userAnswer !== userAnswer) delete question.feedback;
       question.userAnswer = userAnswer;
       return manager.save(StagePreparationData, preparation);
     });
+  }
+
+  async review(
+    userId: string,
+    workflowId: string,
+    stageId: string,
+    questionId: string,
+    userAnswer: string,
+    authorization: string
+  ): Promise<StagePreparationData> {
+    const answer = userAnswer.trim();
+    if (!answer)
+      throw new BadRequestException(
+        'Write an answer before requesting a review'
+      );
+    const workflow = await this.workflows.requireWorkflow(userId, workflowId);
+    const stage = await this.workflows.requireStage(
+      userId,
+      workflowId,
+      stageId
+    );
+    if (this.reviewing.has(questionId))
+      throw new ConflictException('This answer is already being reviewed');
+    this.reviewing.add(questionId);
+    try {
+      const saved = await this.answer(
+        userId,
+        workflowId,
+        stageId,
+        questionId,
+        answer
+      );
+      const question = this.findQuestion(saved, questionId);
+      const context = await this.context.load(
+        workflow.vacancyId,
+        authorization
+      );
+      const review = await this.reviewer.review({
+        ...context,
+        stage: { name: stage.name, category: stage.category },
+        question: question.question,
+        interviewerFocus: question.tips,
+        referenceAnswer: question.expectedAnswer,
+        candidateAnswer: answer
+      });
+      return await this.dataSource.transaction(async (manager) => {
+        await this.lockStage(manager, workflowId, stageId);
+        const preparation = await manager.findOneBy(StagePreparationData, {
+          stageId
+        });
+        if (!preparation)
+          throw new NotFoundException('Stage preparation not found');
+        const current = this.findQuestion(preparation, questionId);
+        if (current.userAnswer !== answer)
+          throw new ConflictException(
+            'The answer changed while it was being reviewed'
+          );
+        current.feedback = { ...review, reviewedAt: new Date().toISOString() };
+        return manager.save(StagePreparationData, preparation);
+      });
+    } finally {
+      this.reviewing.delete(questionId);
+    }
+  }
+
+  private findQuestion(
+    preparation: StagePreparationData,
+    questionId: string
+  ): QuestionAnswerItem {
+    const question = questionItems(preparation.data).find(
+      (item) => item.id === questionId
+    );
+    if (!question)
+      throw new NotFoundException('Preparation question not found');
+    return question;
   }
   async remove(
     userId: string,

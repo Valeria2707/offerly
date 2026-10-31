@@ -15,6 +15,12 @@
       "409": "Preparation for this stage already exists.",
       "422": "The AI returned an invalid response. Try generating again.",
       "503": "AI preparation is unavailable right now."
+    },
+    "review": {
+      "400": "Write an answer before reviewing it.",
+      "409": "The answer is already being reviewed or has changed. Try again.",
+      "422": "The AI returned an invalid review. Try again.",
+      "503": "AI answer review is unavailable right now."
     }
   },
   "metadata": {
@@ -466,6 +472,25 @@
       "next": "Next",
       "autosave": "your answer is saved when you move on",
       "missing": "There’s no preparation for this stage yet — generate it on the application page."
+    },
+    "review": {
+      "action": "Review answer",
+      "again": "Review again",
+      "pending": "Reviewing your answer…",
+      "title": "Answer review",
+      "score": "{score} of 5",
+      "scores": {
+        "1": "Off-topic",
+        "2": "Weak",
+        "3": "Fine but generic",
+        "4": "Good",
+        "5": "Interview-ready"
+      },
+      "strengths": "What is already good",
+      "improvements": "What to improve",
+      "improvedAnswer": "Show a stronger answer",
+      "improvedTitle": "A stronger version of your answer",
+      "stale": "You changed the answer — review it again to update the score."
     }
   },
   "vacancies": {

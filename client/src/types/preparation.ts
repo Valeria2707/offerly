@@ -7,12 +7,22 @@ export const PREPARATION_TYPES = [
 
 export type PreparationType = (typeof PREPARATION_TYPES)[number];
 
+export type AnswerFeedback = {
+  score: number;
+  verdict: string;
+  strengths: string[];
+  improvements: string[];
+  improvedAnswer: string;
+  reviewedAt: string;
+};
+
 export type QuestionAnswerItem = {
   id: string;
   question: string;
   tips: string;
   expectedAnswer: string;
   userAnswer?: string;
+  feedback?: AnswerFeedback;
 };
 
 export type CodingTask = {

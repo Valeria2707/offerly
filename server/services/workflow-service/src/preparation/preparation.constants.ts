@@ -3,6 +3,7 @@ import { PreparationType } from './preparation.enums';
 export const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 export const OPENAI_TIMEOUT_MS = 60_000;
 export const OPENAI_SCHEMA_NAME = 'stage_preparation';
+export const REVIEW_SCHEMA_NAME = 'answer_review';
 
 export const DEFAULT_VACANCY_SERVICE_URL = 'http://localhost:3003';
 export const DEFAULT_PROFILE_SERVICE_URL = 'http://localhost:3002';
@@ -63,3 +64,7 @@ export const TEXT_MAX_LENGTH = 5000;
 export const LIST_ITEM_MAX_LENGTH = 1000;
 export const TERM_MAX_LENGTH = 200;
 export const COVER_LETTER_MAX_LENGTH = 10_000;
+
+export const REVIEW_SCORE_MIN = 1;
+export const REVIEW_SCORE_MAX = 5;
+export const REVIEW_LIST_MAX_ITEMS = 6;

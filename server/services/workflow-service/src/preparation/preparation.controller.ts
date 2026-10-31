@@ -29,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthenticatedRequest, JwtAuthGuard } from '@offerly/auth';
 import {
+  AnswerFeedback,
   CodingTask,
   CustomContent,
   CvCoverLetterContent,
@@ -39,6 +40,7 @@ import {
 import {
   GeneratePreparationDto,
   PreparationResponseDto,
+  ReviewAnswerDto,
   UpdateAnswerDto
 } from './dto/preparation.dto';
 import { PreparationService } from './preparation.service';
@@ -50,6 +52,7 @@ import { PreparationService } from './preparation.service';
   TechnicalContent,
   CustomContent,
   QuestionAnswerItem,
+  AnswerFeedback,
   CodingTask
 )
 @ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token' })
@@ -121,6 +124,39 @@ export class PreparationController {
       stageId,
       questionId,
       input.userAnswer
+    );
+  }
+  @Post('questions/:questionId/review')
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Save the user answer and get AI feedback on it (score, strengths, improvements, improved answer)'
+  })
+  @ApiOkResponse({ type: PreparationResponseDto })
+  @ApiConflictResponse({
+    description:
+      'The answer is already being reviewed or changed during the review'
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Context service or AI unavailable, or AI not configured'
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'AI returned invalid feedback'
+  })
+  review(
+    @Req() req: AuthenticatedRequest,
+    @Param('workflowId', ParseUUIDPipe) workflowId: string,
+    @Param('stageId', ParseUUIDPipe) stageId: string,
+    @Param('questionId', ParseUUIDPipe) questionId: string,
+    @Body() input: ReviewAnswerDto
+  ): Promise<PreparationResponseDto> {
+    return this.service.review(
+      req.user.sub,
+      workflowId,
+      stageId,
+      questionId,
+      input.userAnswer,
+      req.headers.authorization ?? ''
     );
   }
   @Delete()

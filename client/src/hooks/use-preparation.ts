@@ -9,6 +9,7 @@ import {
   deletePreparationRequest,
   generatePreparationRequest,
   preparationRequest,
+  reviewPreparationAnswerRequest,
 } from "@/api/preparation";
 import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type { GeneratePreparationInput } from "@/types/preparation";
@@ -34,12 +35,7 @@ export function useGeneratePreparation(workflowId: string, stageId: string) {
 
   return useMutation({
     mutationFn: (input: GeneratePreparationInput) =>
-      generatePreparationRequest(
-        getAccessToken()!,
-        workflowId,
-        stageId,
-        input,
-      ),
+      generatePreparationRequest(getAccessToken()!, workflowId, stageId, input),
     onSuccess: (preparation) => {
       toast.success(t("toasts.preparationReady"));
       queryClient.setQueryData(preparationKeys.stage(stageId), preparation);
@@ -62,6 +58,33 @@ export function useAnswerPreparationQuestion(
       userAnswer: string;
     }) =>
       answerPreparationQuestionRequest(
+        getAccessToken()!,
+        workflowId,
+        stageId,
+        questionId,
+        userAnswer,
+      ),
+    onSuccess: (preparation) => {
+      queryClient.setQueryData(preparationKeys.stage(stageId), preparation);
+    },
+  });
+}
+
+export function useReviewPreparationAnswer(
+  workflowId: string,
+  stageId: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      questionId,
+      userAnswer,
+    }: {
+      questionId: string;
+      userAnswer: string;
+    }) =>
+      reviewPreparationAnswerRequest(
         getAccessToken()!,
         workflowId,
         stageId,

@@ -36,6 +36,7 @@ import {
   useWorkflowSummaries,
 } from "@/hooks/use-workflow";
 import { MissingBoardStageError } from "@/lib/board";
+import { cn } from "@/lib/utils";
 import { filterVacancies } from "@/lib/vacancy-search";
 import type { Vacancy } from "@/types/vacancy";
 
@@ -45,6 +46,7 @@ export default function VacanciesPage() {
   const errorMessage = useErrorMessage();
   const { data: vacancies, isPending, error } = useVacancies();
   const importVacancy = useImportVacancy();
+  const isImporting = importVacancy.isPending || importVacancy.isSuccess;
   const updateVacancy = useUpdateVacancy();
   const deleteVacancy = useDeleteVacancy();
   const { data: summaries } = useWorkflowSummaries(
@@ -99,13 +101,15 @@ export default function VacanciesPage() {
 
   return (
     <>
-      {importVacancy.isPending && (
-        <div className="absolute inset-0 z-40 flex bg-background">
+      {isImporting && (
+        <div className="flex min-h-full">
           <VacancyImportProgress sourceUrl={importSource} />
         </div>
       )}
 
-      <div className="mx-auto grid max-w-6xl gap-6">
+      <div
+        className={cn("mx-auto grid max-w-6xl gap-6", isImporting && "hidden")}
+      >
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="grid gap-1">
             <h1 className="font-heading text-2xl font-bold tracking-tight">
@@ -135,10 +139,7 @@ export default function VacanciesPage() {
 
             <VacancyViewToggle value={view} onChange={setView} />
 
-            <AddVacancyPanel
-              pending={importVacancy.isPending}
-              onImport={startImport}
-            />
+            <AddVacancyPanel pending={isImporting} onImport={startImport} />
           </div>
         </header>
 
@@ -188,14 +189,13 @@ export default function VacanciesPage() {
                   vacancies={visible}
                   summaries={summaries}
                   pending={updateVacancy.isPending || deleteVacancy.isPending}
-                  emptyMessage={
-                    query
-                      ? t("notFound", { query })
-                      : t("empty")
-                  }
+                  emptyMessage={query ? t("notFound", { query }) : t("empty")}
                   onToggleArchive={(vacancy) =>
                     updateVacancy.mutate(
-                      { vacancyId: vacancy.id, patch: { lifecycle: "archived" } },
+                      {
+                        vacancyId: vacancy.id,
+                        patch: { lifecycle: "archived" },
+                      },
                       { onError: notify },
                     )
                   }

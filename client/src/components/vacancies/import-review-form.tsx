@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
@@ -23,7 +24,7 @@ type ImportReviewFormProps = {
 
 export function ImportReviewForm({
   vacancyImport,
-  duplicate,
+  duplicate: liveDuplicate,
 }: ImportReviewFormProps) {
   const t = useTranslations("vacancies.review");
   const router = useRouter();
@@ -36,7 +37,16 @@ export function ImportReviewForm({
     formState: { errors },
   } = form;
 
-  const pending = applyImport.isPending || updateVacancy.isPending;
+  const [submitted, setSubmitted] = useState<{ duplicate?: Vacancy } | null>(
+    null,
+  );
+  const duplicate = submitted ? submitted.duplicate : liveDuplicate;
+
+  const pending =
+    applyImport.isPending ||
+    updateVacancy.isPending ||
+    applyImport.isSuccess ||
+    updateVacancy.isSuccess;
   const error = applyImport.error ?? updateVacancy.error;
 
   const onSubmit = form.handleSubmit((values) => {
@@ -45,7 +55,10 @@ export function ImportReviewForm({
       onSuccess: () => {
         router.push(ROUTES.vacancies);
       },
+      onError: () => setSubmitted(null),
     };
+
+    setSubmitted({ duplicate });
 
     if (duplicate) {
       updateVacancy.mutate({ vacancyId: duplicate.id, patch: draft }, options);

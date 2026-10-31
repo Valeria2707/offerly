@@ -5,6 +5,7 @@ import { StageQuestion } from '../workflow/entities/stage-question.entity';
 import { StagePreparationData } from './entities/stage-preparation.entity';
 import { PreparationController } from './preparation.controller';
 import { PreparationService } from './preparation.service';
+import { AnswerReviewerService } from './services/answer-reviewer.service';
 import { PreparationContextService } from './services/preparation-context.service';
 import { PreparationGeneratorService } from './services/preparation-generator.service';
 import { CustomPreparationStrategy } from './strategies/custom-preparation.strategy';
@@ -22,6 +23,7 @@ import { TechnicalPreparationStrategy } from './strategies/technical-preparation
     PreparationService,
     PreparationContextService,
     PreparationGeneratorService,
+    AnswerReviewerService,
     CvPreparationStrategy,
     HrPreparationStrategy,
     TechnicalPreparationStrategy,

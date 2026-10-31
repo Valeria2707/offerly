@@ -65,6 +65,12 @@ export const WORKFLOW_ROUTES = {
     questionId: string,
   ) =>
     `/workflows/${workflowId}/stages/${stageId}/preparation/questions/${questionId}`,
+  preparationReview: (
+    workflowId: string,
+    stageId: string,
+    questionId: string,
+  ) =>
+    `/workflows/${workflowId}/stages/${stageId}/preparation/questions/${questionId}/review`,
 } as const;
 
 export const CALENDAR_ROUTES = {
@@ -84,3 +90,5 @@ export const ANALYTICS_ROUTES = {
 export const HTTP_ERROR_STATUSES = [400, 401, 409, 413, 422, 429, 503] as const;
 
 export const PREPARATION_ERROR_STATUSES = [400, 409, 422, 503] as const;
+
+export const REVIEW_ERROR_STATUSES = [400, 409, 422, 503] as const;

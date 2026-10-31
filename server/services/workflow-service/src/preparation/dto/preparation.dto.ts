@@ -50,6 +50,16 @@ export class UpdateAnswerDto {
   @MaxLength(USER_ANSWER_MAX_LENGTH)
   userAnswer!: string;
 }
+export class ReviewAnswerDto {
+  @ApiProperty({
+    maxLength: USER_ANSWER_MAX_LENGTH,
+    description: 'The answer to save and review; it must not be empty'
+  })
+  @IsString()
+  @Matches(/\S/)
+  @MaxLength(USER_ANSWER_MAX_LENGTH)
+  userAnswer!: string;
+}
 export class PreparationResponseDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty({ format: 'uuid' }) stageId!: string;

@@ -55,11 +55,19 @@ export function useVacancyImport(importId: string) {
 }
 
 export function useImportVacancy() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (input: { url: string } | { text: string }) =>
       "url" in input
         ? importVacancyUrlRequest(getAccessToken()!, input.url)
         : importVacancyTextRequest(getAccessToken()!, input.text),
+    onSuccess: (vacancyImport) => {
+      queryClient.setQueryData(
+        vacancyKeys.import(vacancyImport.id),
+        vacancyImport,
+      );
+    },
   });
 }
 
@@ -97,7 +105,9 @@ export function useUpdateVacancy() {
     onSuccess: (_vacancy, { vacancyId, patch }) => {
       toast.success(vacancyUpdateToast(patch, t));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
-      queryClient.invalidateQueries({ queryKey: vacancyKeys.detail(vacancyId) });
+      queryClient.invalidateQueries({
+        queryKey: vacancyKeys.detail(vacancyId),
+      });
     },
   });
 }

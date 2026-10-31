@@ -3,6 +3,7 @@ import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { isRecord } from '@offerly/helpers';
 import {
+  AnswerReviewContent,
   CustomContent,
   CvCoverLetterContent,
   HrScreeningContent,
@@ -26,6 +27,17 @@ function validateContent<T extends object>(
   return result;
 }
 
+export function parseAnswerReview(raw: unknown): AnswerReviewContent {
+  if (!isRecord(raw))
+    throw new UnprocessableEntityException('Invalid answer review content');
+  const result = plainToInstance(AnswerReviewContent, raw);
+  if (
+    validateSync(result, { whitelist: true, forbidNonWhitelisted: true }).length
+  )
+    throw new UnprocessableEntityException('Invalid answer review content');
+  return { ...result };
+}
+
 export function parsePreparation(
   type: PreparationType,
   raw: unknown
@@ -46,6 +58,9 @@ export function parsePreparation(
       data = { type, content: validateContent(CustomContent, value) };
       break;
   }
-  for (const item of questionItems(data)) delete item.userAnswer;
+  for (const item of questionItems(data)) {
+    delete item.userAnswer;
+    delete item.feedback;
+  }
   return data;
 }

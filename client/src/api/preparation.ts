@@ -47,6 +47,23 @@ export const answerPreparationQuestionRequest = (
     },
   );
 
+export const reviewPreparationAnswerRequest = (
+  token: string,
+  workflowId: string,
+  stageId: string,
+  questionId: string,
+  userAnswer: string,
+) =>
+  apiRequest<StagePreparation>(
+    WORKFLOW_ROUTES.preparationReview(workflowId, stageId, questionId),
+    {
+      ...withWorkflowService,
+      method: "POST",
+      body: { userAnswer },
+      token,
+    },
+  );
+
 export const deletePreparationRequest = (
   token: string,
   workflowId: string,

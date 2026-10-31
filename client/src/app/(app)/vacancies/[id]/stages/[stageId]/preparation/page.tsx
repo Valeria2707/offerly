@@ -16,6 +16,7 @@ import { vacancyRoute } from "@/constants/routes";
 import {
   useAnswerPreparationQuestion,
   usePreparation,
+  useReviewPreparationAnswer,
 } from "@/hooks/use-preparation";
 import { useErrorMessage } from "@/hooks/use-error-message";
 import { useStageName } from "@/hooks/use-stage-name";
@@ -51,6 +52,7 @@ export default function StagePreparationPage({
     error,
   } = usePreparation(workflowId, stageId);
   const answer = useAnswerPreparationQuestion(workflowId, stageId);
+  const review = useReviewPreparationAnswer(workflowId, stageId);
   const addNote = useAddStageNote(id);
   const removeNote = useRemoveStageNote(id);
 
@@ -65,9 +67,25 @@ export default function StagePreparationPage({
   const cards = preparation ? preparationCards(preparation.data, t) : [];
   const card = cards[index];
   const saved = card?.kind === "question" ? (card.item.userAnswer ?? "") : "";
+  const isDirty = draft !== null && draft.trim() !== saved;
+
+  const reviewAnswer = () => {
+    if (card?.kind !== "question") return;
+
+    review.mutate(
+      { questionId: card.item.id, userAnswer: (draft ?? saved).trim() },
+      {
+        onSuccess: () => setDraft(null),
+        onError: (cause) =>
+          toast.error(errorMessage(cause, "review"), {
+            id: "answer-review-error",
+          }),
+      },
+    );
+  };
 
   const go = (offset: number) => {
-    if (card?.kind === "question" && draft !== null && draft.trim() !== saved)
+    if (card?.kind === "question" && isDirty)
       answer.mutate(
         { questionId: card.item.id, userAnswer: draft.trim() },
         { onError: notify },
@@ -129,12 +147,17 @@ export default function StagePreparationPage({
                 card={card}
                 answer={draft ?? saved}
                 onAnswerChange={setDraft}
+                review={{
+                  pending: review.isPending,
+                  stale: isDirty,
+                  onReview: reviewAnswer,
+                }}
               />
 
               <div className="flex items-center justify-between gap-4">
                 <Button
                   variant="secondary"
-                  disabled={index === 0}
+                  disabled={index === 0 || review.isPending}
                   onClick={() => go(-1)}
                 >
                   <ArrowLeft />
@@ -146,7 +169,7 @@ export default function StagePreparationPage({
                 </span>
 
                 <Button
-                  disabled={index === cards.length - 1}
+                  disabled={index === cards.length - 1 || review.isPending}
                   onClick={() => go(1)}
                 >
                   {t("preparation.page.next")}

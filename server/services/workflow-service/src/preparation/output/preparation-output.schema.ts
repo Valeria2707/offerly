@@ -10,6 +10,16 @@ const object = (properties: Record<string, JsonSchema>): JsonSchema => ({
   additionalProperties: false
 });
 
+const integer: JsonSchema = { type: 'integer' };
+
+export const ANSWER_REVIEW_SCHEMA: JsonSchema = object({
+  score: integer,
+  verdict: string,
+  strengths: array(string),
+  improvements: array(string),
+  improvedAnswer: string
+});
+
 const questions = array(
   object({ question: string, tips: string, expectedAnswer: string })
 );
