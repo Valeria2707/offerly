@@ -36,11 +36,8 @@ export const PROFILE_CONTEXT_FIELDS = [
   'projects',
   'languages'
 ];
-export const PROFILE_BASICS_CONTEXT_FIELDS = [
-  'fullName',
-  'headline',
-  'summary'
-];
+
+export const PROFILE_BASICS_CONTEXT_FIELDS = ['headline', 'summary'];
 
 export const CV_STAGE_CODE = 'submitted';
 

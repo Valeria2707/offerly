@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { anonymize } from '@offerly/helpers';
 import { JobPageFetcherService } from '../import/job-page-fetcher.service';
 import { OpenAiVacancyParserService } from '../import/openai-vacancy-parser.service';
 import {
@@ -44,14 +45,20 @@ export class VacancyService {
     input: ImportVacancyUrlDto
   ): Promise<VacancyImportResponseDto> {
     const page = await this.pages.fetch(input.url);
-    const draft = await this.parser.parse(page.content, page.url);
+    const draft = await this.parser.parse(
+      anonymize(page.content).text,
+      page.url
+    );
     return this.repository.createImport(userId, page.url, draft);
   }
   async importText(
     userId: string,
     input: ImportVacancyTextDto
   ): Promise<VacancyImportResponseDto> {
-    const draft = await this.parser.parse(input.text.trim(), null);
+    const draft = await this.parser.parse(
+      anonymize(input.text.trim()).text,
+      null
+    );
     return this.repository.createImport(userId, null, draft);
   }
   getImport(userId: string, id: string): Promise<VacancyImportResponseDto> {

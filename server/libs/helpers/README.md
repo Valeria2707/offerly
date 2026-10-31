@@ -10,6 +10,7 @@ Shared, framework-independent backend helpers. Import from `@offerly/helpers`; d
 - `getErrorCode(error, maxLength?)` — derives a safe, bounded error class name.
 - `normalizeUrl(url)` — trims a URL and adds `https://` when the scheme is absent.
 - `isOpenAiResponse(value)` — validates the common OpenAI Responses API output envelope.
+- `anonymize(text)` — replaces e-mails and phone numbers with `[email]` and `[phone]` before text is sent to an AI provider; also returns the removed values.
 
 ## Rules for adding helpers
 

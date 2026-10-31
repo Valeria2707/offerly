@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CvTextExtractorService } from '../cv/cv-text-extractor.service';
 import { OpenAiCvParserService } from '../cv/openai-cv-parser.service';
 import { CV_SCHEMA_VERSION } from '../cv/cv.constants';
-import { calculateSha256, getErrorCode } from '@offerly/helpers';
+import { anonymize, calculateSha256, getErrorCode } from '@offerly/helpers';
 import { sanitizeFilename } from '../utils/file.utils';
 import {
   mergeProfileDraft,
@@ -62,7 +62,11 @@ export class ProfileService {
 
     try {
       const text = await this.textExtractor.extract(file);
-      cvImport.draftData = await this.cvParser.parse(text);
+      const { text: anonymized, emails, phones } = anonymize(text);
+      const draft = await this.cvParser.parse(anonymized);
+      draft.basics.email = emails[0] ?? null;
+      draft.basics.phone = phones[0] ?? null;
+      cvImport.draftData = draft;
       cvImport.status = CvImportStatus.Ready;
       return toCvImportResponse(await this.repository.saveImport(cvImport));
     } catch (error) {

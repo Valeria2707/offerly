@@ -159,7 +159,8 @@ describe('preparation provider boundary', () => {
       title: 'Developer',
       requiredSkills: ['React']
     });
-    expect(result.profile.basics).toEqual({ fullName: 'Candidate' });
+
+    expect(result.profile.basics).toEqual({});
     expect(
       mock.mock.calls.every(
         (call) =>

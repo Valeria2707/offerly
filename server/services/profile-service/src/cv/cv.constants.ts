@@ -20,5 +20,6 @@ export const CV_EXTRACTION_INSTRUCTIONS = [
   'Do not place a project in experience unless the CV explicitly presents it as employment or a client engagement under an employer.',
   'If a project is mentioned without enough detail, still include it and use null or empty arrays for the missing fields.',
   'Career preferences (desiredPosition, level, workFormat, expectedSalary) are not CV facts and must always be null.',
-  'A skill level must be null unless the CV explicitly states it.'
+  'A skill level must be null unless the CV explicitly states it.',
+  '[email] and [phone] mark hidden contacts: return null for email and phone.'
 ].join(' ');
