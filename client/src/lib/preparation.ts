@@ -3,8 +3,14 @@ import {
   NO_PREPARATION_STAGE_CODES,
   TECHNICAL_SCREENING_CODES,
 } from "@/constants/preparation";
-import type { PreparationType } from "@/types/preparation";
+import type { PreparationLanguage, PreparationType } from "@/types/preparation";
 import type { StageType } from "@/types/workflow";
+
+export function detectLanguage(text: string): PreparationLanguage {
+  const cyrillic = text.match(/\p{Script=Cyrillic}/gu)?.length ?? 0;
+  const latin = text.match(/\p{Script=Latin}/gu)?.length ?? 0;
+  return cyrillic > latin ? "uk" : "en";
+}
 
 export function hasPreparation(stageType: StageType): boolean {
   return (

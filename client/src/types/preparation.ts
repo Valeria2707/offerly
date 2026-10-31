@@ -7,6 +7,10 @@ export const PREPARATION_TYPES = [
 
 export type PreparationType = (typeof PREPARATION_TYPES)[number];
 
+export const PREPARATION_LANGUAGES = ["uk", "en"] as const;
+
+export type PreparationLanguage = (typeof PREPARATION_LANGUAGES)[number];
+
 export type AnswerFeedback = {
   score: number;
   verdict: string;
@@ -71,4 +75,5 @@ export type StagePreparation = {
 export type GeneratePreparationInput = {
   type?: PreparationType;
   instructions?: string;
+  language?: PreparationLanguage;
 };

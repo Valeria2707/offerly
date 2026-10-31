@@ -97,7 +97,8 @@ export class PreparationService {
           },
           instructions:
             anonymize(instructions).text || `Prepare for ${stage.name}`,
-          pastQuestions
+          pastQuestions,
+          language: input.language
         })
       );
       return await this.dataSource.transaction(async (manager) => {

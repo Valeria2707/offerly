@@ -374,6 +374,11 @@
     "generated": "generated {when}",
     "regenerate": "Generate again",
     "format": "Preparation format",
+    "language": "Preparation language",
+    "languages": {
+      "uk": "Ukrainian",
+      "en": "English"
+    },
     "instructionsRequired": "What is expected at this stage",
     "instructionsOptional": "Additional context — optional",
     "instructionsPlaceholder": "Who runs it, what they emphasised, what you’ve already discussed…",

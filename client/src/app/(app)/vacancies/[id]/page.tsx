@@ -37,7 +37,7 @@ import {
 } from "@/hooks/use-workflow";
 import { useErrorMessage } from "@/hooks/use-error-message";
 import { useStageName } from "@/hooks/use-stage-name";
-import { hasPreparation } from "@/lib/preparation";
+import { detectLanguage, hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
 import { currentStageIndex, movedStageIds } from "@/lib/workflow";
 import type {
@@ -287,6 +287,9 @@ export default function VacancyWorkflowPage({
                     workflowId={workflow.id}
                     stageId={selected.id}
                     stageType={selectedType}
+                    vacancyLanguage={detectLanguage(
+                      `${vacancy?.title ?? ""} ${vacancy?.description ?? ""}`,
+                    )}
                   />
                 )}
 

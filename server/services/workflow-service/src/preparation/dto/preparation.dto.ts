@@ -5,6 +5,7 @@ import {
 } from '@nestjs/swagger';
 import {
   IsEnum,
+  IsIn,
   IsString,
   Matches,
   MaxLength,
@@ -12,10 +13,11 @@ import {
 } from 'class-validator';
 import {
   INSTRUCTIONS_MAX_LENGTH,
+  PREPARATION_LANGUAGES,
   USER_ANSWER_MAX_LENGTH
 } from '../preparation.constants';
 import { PreparationType } from '../preparation.enums';
-import { PreparationData } from '../preparation.types';
+import { PreparationData, PreparationLanguage } from '../preparation.types';
 import {
   CustomContent,
   CvCoverLetterContent,
@@ -40,6 +42,14 @@ export class GeneratePreparationDto {
   @Matches(/\S/)
   @MaxLength(INSTRUCTIONS_MAX_LENGTH)
   instructions?: string;
+  @ApiPropertyOptional({
+    enum: PREPARATION_LANGUAGES,
+    description:
+      'Language of the generated preparation; defaults to the vacancy language'
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsIn(PREPARATION_LANGUAGES)
+  language?: PreparationLanguage;
 }
 export class UpdateAnswerDto {
   @ApiProperty({

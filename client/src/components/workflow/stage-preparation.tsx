@@ -19,6 +19,7 @@ import { ApiError } from "@/lib/api-client";
 import { resolvePreparationType } from "@/lib/preparation";
 import { preparationCards } from "@/lib/preparation-cards";
 import { formatDaysAgo } from "@/lib/utils";
+import type { PreparationLanguage } from "@/types/preparation";
 import type { StageType } from "@/types/workflow";
 
 type StagePreparationProps = {
@@ -26,6 +27,7 @@ type StagePreparationProps = {
   workflowId: string;
   stageId: string;
   stageType: StageType;
+  vacancyLanguage: PreparationLanguage;
 };
 
 export function StagePreparation({
@@ -33,6 +35,7 @@ export function StagePreparation({
   workflowId,
   stageId,
   stageType,
+  vacancyLanguage,
 }: StagePreparationProps) {
   const t = useTranslations();
   const locale = useLocale();
@@ -98,6 +101,7 @@ export function StagePreparation({
       ) : (
         <PreparationEmpty
           expectedType={expectedType}
+          defaultLanguage={vacancyLanguage}
           pending={generate.isPending}
           onGenerate={(input) => generate.mutate(input, { onError: notify })}
         />

@@ -167,6 +167,8 @@ describe('preparation HTTP API', () => {
     { instructions: null },
     { instructions: '   ' },
     { instructions: 'x'.repeat(5001) },
+    { language: 'de' },
+    { language: null },
     { unknown: true }
   ])('validates generation body %j', async (body) => {
     expect((await request('POST', body)).status).toBe(400);

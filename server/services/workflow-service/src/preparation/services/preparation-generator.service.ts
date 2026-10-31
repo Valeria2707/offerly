@@ -6,7 +6,10 @@ import { PREPARATION_OUTPUT_SCHEMAS } from '../output/preparation-output.schema'
 import { OPENAI_SCHEMA_NAME } from '../preparation.constants';
 import { PreparationType } from '../preparation.enums';
 import { PreparationContext, PreparationData } from '../preparation.types';
-import { BASE_INSTRUCTIONS } from '../prompts/preparation-prompts.constants';
+import {
+  BASE_INSTRUCTIONS,
+  LANGUAGE_INSTRUCTIONS
+} from '../prompts/preparation-prompts.constants';
 import { requestStructuredOutput } from './openai-structured-output';
 
 @Injectable()
@@ -25,7 +28,13 @@ export class PreparationGeneratorService {
     let content = await requestStructuredOutput({
       apiKey: this.apiKey,
       model: this.model,
-      instructions: `${BASE_INSTRUCTIONS}\n\n${stageInstructions}`,
+      instructions: [
+        BASE_INSTRUCTIONS,
+        stageInstructions,
+        context.language ? LANGUAGE_INSTRUCTIONS[context.language] : ''
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
       input: JSON.stringify(context),
       schemaName: OPENAI_SCHEMA_NAME,
       schema: PREPARATION_OUTPUT_SCHEMAS[type],

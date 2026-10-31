@@ -4,6 +4,7 @@ import {
   HrScreeningContent,
   TechnicalContent
 } from './dto/preparation-content.dto';
+import { PREPARATION_LANGUAGES } from './preparation.constants';
 import { PreparationType } from './preparation.enums';
 
 export type PreparationData =
@@ -21,7 +22,10 @@ export interface PastQuestion {
   sameVacancy: boolean;
 }
 
+export type PreparationLanguage = (typeof PREPARATION_LANGUAGES)[number];
+
 export interface PreparationContext {
+  language?: PreparationLanguage;
   vacancy: Record<string, unknown>;
   profile: Record<string, unknown>;
   stage: { name: string; category: string; code: string | null };

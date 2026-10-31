@@ -62,6 +62,40 @@ describe('preparation provider boundary', () => {
     expect(body.store).toBe(false);
     expect(body.text.format.strict).toBe(true);
   });
+  it('asks for the language chosen by the user, otherwise leaves it to the vacancy', async () => {
+    const content = {
+      cvTips: ['Use metrics'],
+      coverLetterDraft: 'Dear team',
+      tailoredKeywords: ['React']
+    };
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      Promise.resolve(
+        Response.json({
+          output: [
+            {
+              content: [{ type: 'output_text', text: JSON.stringify(content) }]
+            }
+          ]
+        })
+      )
+    );
+    const service = new PreparationGeneratorService(
+      new ConfigService({ OPENAI_API_KEY: 'test', OPENAI_MODEL: 'test-model' })
+    );
+    const instructions = (call: number): string =>
+      (
+        JSON.parse(String(fetchMock.mock.calls[call][1]?.body)) as {
+          instructions: string;
+        }
+      ).instructions;
+    await service.generate(PreparationType.CV_COVER_LETTER, 'CV', {
+      ...context,
+      language: 'uk'
+    });
+    await service.generate(PreparationType.CV_COVER_LETTER, 'CV', context);
+    expect(instructions(0)).toContain('Write all text in Ukrainian');
+    expect(instructions(1)).not.toContain('Write all text in');
+  });
   it('keeps the user description for custom stages and lets the server set question ids', async () => {
     const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
       Response.json({

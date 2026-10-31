@@ -39,6 +39,8 @@ export const PROFILE_CONTEXT_FIELDS = [
 
 export const PROFILE_BASICS_CONTEXT_FIELDS = ['headline', 'summary'];
 
+export const PREPARATION_LANGUAGES = ['uk', 'en'] as const;
+
 export const CV_STAGE_CODE = 'submitted';
 
 export const TECHNICAL_SCREENING_CODES = new Set(['pre_tech_screening']);

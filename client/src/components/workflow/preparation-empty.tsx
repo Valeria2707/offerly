@@ -19,27 +19,31 @@ import {
   PREPARATION_HIGHLIGHTS,
 } from "@/constants/preparation";
 import {
+  PREPARATION_LANGUAGES,
   PREPARATION_TYPES,
   type GeneratePreparationInput,
+  type PreparationLanguage,
   type PreparationType,
 } from "@/types/preparation";
 
 type PreparationEmptyProps = {
-  // null — власний тип етапу: формат обирає користувач,
-  // а бекенд вимагає опис того, що очікується.
   expectedType: PreparationType | null;
+  defaultLanguage: PreparationLanguage;
   pending: boolean;
   onGenerate: (input: GeneratePreparationInput) => void;
 };
 
 export function PreparationEmpty({
   expectedType,
+  defaultLanguage,
   pending,
   onGenerate,
 }: PreparationEmptyProps) {
   const t = useTranslations("preparation");
   const [instructions, setInstructions] = useState("");
   const [chosenType, setChosenType] = useState<PreparationType>("CUSTOM");
+  const [language, setLanguage] =
+    useState<PreparationLanguage>(defaultLanguage);
 
   const type = expectedType ?? chosenType;
   const isPersonalStage = expectedType === null;
@@ -93,6 +97,29 @@ export function PreparationEmpty({
       )}
 
       <div className="grid gap-2">
+        <FieldLabel>{t("language")}</FieldLabel>
+        <div
+          role="group"
+          aria-label={t("language")}
+          className="flex w-fit gap-1 rounded-lg bg-secondary p-1"
+        >
+          {PREPARATION_LANGUAGES.map((item) => (
+            <Button
+              key={item}
+              type="button"
+              size="sm"
+              variant={item === language ? "default" : "ghost"}
+              aria-pressed={item === language}
+              disabled={pending}
+              onClick={() => setLanguage(item)}
+            >
+              {t(`languages.${item}`)}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-2">
         <FieldLabel htmlFor="preparation-instructions">
           {isPersonalStage
             ? t("instructionsRequired")
@@ -114,6 +141,7 @@ export function PreparationEmpty({
         disabled={pending || (isPersonalStage && !trimmed)}
         onClick={() =>
           onGenerate({
+            language,
             ...(isPersonalStage ? { type: chosenType } : {}),
             ...(trimmed ? { instructions: trimmed } : {}),
           })
