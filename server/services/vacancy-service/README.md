@@ -34,7 +34,7 @@ Payload: `{ eventId, eventType, occurredAt, producer, data: { vacancyId, userId 
 
 Only public `http(s)` URLs are loaded: private, local and IPv4-mapped private addresses are rejected, redirects are followed manually (max 5) and every hop is checked again. The page is limited to 2 MB. The address is checked before the request, so a DNS answer that changes between the check and the request (DNS rebinding) is not caught.
 
-Text is anonymized with `anonymize()` before it goes to OpenAI (Responses API, strict JSON schema, `store: false`); the result is validated with `class-validator`. Both `OPENAI_API_KEY` and `OPENAI_MODEL` must be set, or both left empty (import then returns 503).
+Text is anonymized with `anonymize()` before it goes to OpenAI (Responses API, strict JSON schema, `store: false`, `max_output_tokens`); the prompt tells the model to treat the page as untrusted data and never follow instructions inside it; the result is validated with `class-validator`. Both `OPENAI_API_KEY` and `OPENAI_MODEL` must be set, or both left empty (import then returns 503).
 
 ## Local development
 

@@ -7,6 +7,8 @@ import {
 import { PreparationGeneratorService } from '../src/preparation/services/preparation-generator.service';
 import { PreparationContextService } from '../src/preparation/services/preparation-context.service';
 import { PreparationType } from '../src/preparation/preparation.enums';
+import { JsonSchema } from '../src/preparation/preparation.types';
+import { requestStructuredOutput } from '../src/preparation/services/openai-structured-output';
 import { UpstreamService } from '../src/upstream/upstream.service';
 
 const SERVICE_URLS = {
@@ -222,5 +224,31 @@ describe('preparation provider boundary', () => {
     await expect(
       contextService().load('vacancy', 'Bearer token')
     ).rejects.toThrow(NotFoundException);
+  });
+  it('removes e-mails and phones from everything sent to the AI', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
+      Response.json({
+        output: [{ content: [{ type: 'output_text', text: '{}' }] }]
+      })
+    );
+    await requestStructuredOutput({
+      apiKey: 'key',
+      model: 'model',
+      instructions: 'Prompt',
+      input: JSON.stringify({
+        summary: 'Write to jane@example.com or call +380 67 123 45 67'
+      }),
+      schemaName: 'test',
+      schema: {} as JsonSchema,
+      label: 'test'
+    });
+    const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body)) as {
+      input: string;
+      max_output_tokens: number;
+    };
+    expect(body.input).not.toContain('jane@example.com');
+    expect(body.input).toContain('[email]');
+    expect(body.input).toContain('[phone]');
+    expect(body.max_output_tokens).toBeGreaterThan(0);
   });
 });

@@ -14,6 +14,7 @@ import { normalizeProfileUrls } from '../utils/url.utils';
 import {
   getValidationPaths,
   isOpenAiResponse,
+  OPENAI_MAX_OUTPUT_TOKENS,
   OPENAI_RESPONSES_URL,
   OPENAI_TIMEOUT_MS
 } from '@offerly/helpers';
@@ -47,6 +48,7 @@ export class OpenAiCvParserService {
         body: JSON.stringify({
           model: this.model,
           store: false,
+          max_output_tokens: OPENAI_MAX_OUTPUT_TOKENS,
           instructions: CV_EXTRACTION_INSTRUCTIONS,
           input: text,
           text: {

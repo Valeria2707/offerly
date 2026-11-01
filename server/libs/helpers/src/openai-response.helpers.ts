@@ -2,6 +2,7 @@ import { isRecord } from './type.helpers';
 
 export const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 export const OPENAI_TIMEOUT_MS = 60_000;
+export const OPENAI_MAX_OUTPUT_TOKENS = 16_000;
 
 export interface OpenAiContentItem {
   type?: string;

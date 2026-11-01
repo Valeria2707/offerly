@@ -21,6 +21,8 @@ Swagger: `http://localhost:3002/docs` outside production.
 
 The file signature is checked, the text is extracted (`pdf-parse` / `mammoth`) and anonymized with `anonymize()` from `@offerly/helpers`: e-mails and phones are replaced before the text goes to OpenAI and restored into the draft afterwards. The call uses the Responses API with a strict JSON schema and `store: false`; the result is validated with `class-validator`. Every call is written to `ai_operations` through `AiLogService` from `@offerly/nest-common`.
 
+The prompt tells the model to treat the document as untrusted data, and `max_output_tokens` caps the cost of one call. Known limitation: the full name, city and profile links stay in the text, because the model has to extract them and a regular expression cannot find a name reliably. `store: false` disables response storage, but OpenAI may keep requests for up to 30 days for abuse monitoring.
+
 `OPENAI_API_KEY` and `OPENAI_MODEL` empty → import returns 503. Invalid AI output → 422. No automatic retries.
 
 ## Local development

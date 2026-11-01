@@ -5,7 +5,6 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { anonymize } from '@offerly/helpers';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { WorkflowService } from '../workflow/workflow.service';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
@@ -95,8 +94,7 @@ export class PreparationService {
             category: stage.category,
             code: stageType.code
           },
-          instructions:
-            anonymize(instructions).text || `Prepare for ${stage.name}`,
+          instructions: instructions || `Prepare for ${stage.name}`,
           pastQuestions,
           language: input.language
         })
@@ -218,7 +216,7 @@ export class PreparationService {
           question: question.question,
           interviewerFocus: question.tips,
           referenceAnswer: question.expectedAnswer,
-          candidateAnswer: anonymize(answer).text
+          candidateAnswer: answer
         })
       );
       return await this.dataSource.transaction(async (manager) => {

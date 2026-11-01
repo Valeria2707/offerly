@@ -3,7 +3,9 @@ import {
   UnprocessableEntityException
 } from '@nestjs/common';
 import {
+  anonymize,
   isOpenAiResponse,
+  OPENAI_MAX_OUTPUT_TOKENS,
   OPENAI_RESPONSES_URL,
   OPENAI_TIMEOUT_MS
 } from '@offerly/helpers';
@@ -38,8 +40,9 @@ export async function requestStructuredOutput(
       body: JSON.stringify({
         model: request.model,
         store: false,
+        max_output_tokens: OPENAI_MAX_OUTPUT_TOKENS,
         instructions: request.instructions,
-        input: request.input,
+        input: anonymize(request.input).text,
         text: {
           format: {
             type: 'json_schema',

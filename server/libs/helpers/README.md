@@ -15,7 +15,7 @@ Shared, framework-independent backend helpers. Import from `@offerly/helpers`; d
 - `isUniqueViolation(error)` — true for a Postgres unique constraint violation (`23505`).
 - `escapeHtml(text)` — escapes user text before it goes into an HTML email.
 - `KAFKA_TOPICS`, `createIntegrationEvent(topic, producer, data)` — topics shared between services and the common event envelope (`eventId`, `eventType`, `occurredAt`, `producer`, `data`).
-- `API_PREFIX`, `MINUTE_MS`, `DAY_MS`, `OPENAI_RESPONSES_URL`, `OPENAI_TIMEOUT_MS` — shared constants.
+- `API_PREFIX`, `MINUTE_MS`, `DAY_MS`, `OPENAI_RESPONSES_URL`, `OPENAI_TIMEOUT_MS`, `OPENAI_MAX_OUTPUT_TOKENS` — shared constants.
 
 ## Rules for adding helpers
 
