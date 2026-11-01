@@ -1,11 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'node:crypto';
-import { calculateSha256 } from '@offerly/helpers';
-import { IsNull, MoreThan, Repository } from 'typeorm';
+import { calculateSha256, MINUTE_MS } from '@offerly/helpers';
+import { DataSource, IsNull, MoreThan, Repository } from 'typeorm';
+import {
+  PASSWORD_RESET_TOKEN_BYTES,
+  PASSWORD_RESET_TTL_MINUTES
+} from './auth.constants';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { User } from './entities/user.entity';
 import { MailService } from './mail.service';
-import { UsersService } from './users.service';
+import { RefreshTokenService } from './refresh-token.service';
+import { hashPassword, UsersService } from './users.service';
 
 @Injectable()
 export class PasswordResetService {
@@ -13,7 +19,9 @@ export class PasswordResetService {
     @InjectRepository(PasswordResetToken)
     private readonly tokens: Repository<PasswordResetToken>,
     private readonly users: UsersService,
-    private readonly mail: MailService
+    private readonly mail: MailService,
+    private readonly refreshTokens: RefreshTokenService,
+    private readonly dataSource: DataSource
   ) {}
 
   async request(email: string): Promise<void> {
@@ -21,12 +29,14 @@ export class PasswordResetService {
     if (!user) return;
 
     await this.tokens.delete({ userId: user.id, usedAt: IsNull() });
-    const token = randomBytes(32).toString('hex');
+    const token = randomBytes(PASSWORD_RESET_TOKEN_BYTES).toString('hex');
     await this.tokens.save(
       this.tokens.create({
         userId: user.id,
         tokenHash: calculateSha256(token),
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+        expiresAt: new Date(
+          Date.now() + PASSWORD_RESET_TTL_MINUTES * MINUTE_MS
+        ),
         usedAt: null
       })
     );
@@ -34,18 +44,26 @@ export class PasswordResetService {
   }
 
   async reset(token: string, password: string): Promise<void> {
-    const record = await this.tokens.findOne({
-      where: {
-        tokenHash: calculateSha256(token),
-        usedAt: IsNull(),
-        expiresAt: MoreThan(new Date())
-      }
+    const passwordHash = await hashPassword(password);
+    const userId = await this.dataSource.transaction(async (manager) => {
+      const record = await manager.findOne(PasswordResetToken, {
+        where: {
+          tokenHash: calculateSha256(token),
+          usedAt: IsNull(),
+          expiresAt: MoreThan(new Date())
+        },
+        lock: { mode: 'pessimistic_write' }
+      });
+      if (!record)
+        throw new BadRequestException('Reset token is invalid or expired');
+      await manager.update(User, { id: record.userId }, { passwordHash });
+      await manager.update(
+        PasswordResetToken,
+        { id: record.id },
+        { usedAt: new Date() }
+      );
+      return record.userId;
     });
-    if (!record)
-      throw new BadRequestException('Reset token is invalid or expired');
-
-    await this.users.updatePassword(record.userId, password);
-    record.usedAt = new Date();
-    await this.tokens.save(record);
+    await this.refreshTokens.revokeAll(userId);
   }
 }

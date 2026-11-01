@@ -12,10 +12,12 @@ import {
   ReminderSettingsDto,
   UpdateReminderSettingsDto
 } from './dto/calendar.dto';
+import { FINISHED_STATUSES } from '../workflow/workflow.constants';
 import {
   ALARM_MINUTES_BEFORE,
   CALENDAR_NAME,
-  FINISHED_STATUSES,
+  CALENDAR_TOKEN_BYTES,
+  ICS_UID_DOMAIN,
   SUBSCRIPTION_MONTHS,
   TRAILING_SLASHES
 } from './calendar.constants';
@@ -41,13 +43,13 @@ export class CalendarService {
   readonly appUrl: string;
   constructor(
     @InjectRepository(WorkflowStage)
-    readonly stages: Repository<WorkflowStage>,
+    private readonly stages: Repository<WorkflowStage>,
     @InjectRepository(ReminderSettings)
-    readonly settingsRepository: Repository<ReminderSettings>,
+    private readonly settingsRepository: Repository<ReminderSettings>,
     config: ConfigService
   ) {
     this.appUrl = config
-      .get<string>('APP_BASE_URL', 'http://localhost:3001')
+      .getOrThrow<string>('APP_BASE_URL')
       .replace(TRAILING_SLASHES, '');
   }
 
@@ -85,14 +87,16 @@ export class CalendarService {
     input: UpdateReminderSettingsDto
   ): Promise<ReminderSettingsDto> {
     const settings = await this.load(userId);
-    await this.settingsRepository.save(Object.assign(settings, input));
-    return toSettings(await this.load(userId));
+    return toSettings(
+      await this.settingsRepository.save(Object.assign(settings, input))
+    );
   }
 
   async subscribe(userId: string): Promise<ReminderSettingsDto> {
     const settings = await this.load(userId);
     if (settings.calendarToken) return toSettings(settings);
-    settings.calendarToken = randomBytes(24).toString('base64url');
+    settings.calendarToken =
+      randomBytes(CALENDAR_TOKEN_BYTES).toString('base64url');
     return toSettings(await this.settingsRepository.save(settings));
   }
 
@@ -141,7 +145,7 @@ export class CalendarService {
       const url = `${this.appUrl}/vacancies/${stage.workflow.vacancyId}`;
       if (stage.scheduledAt)
         events.push({
-          uid: `stage-${stage.id}@offerly`,
+          uid: `stage-${stage.id}@${ICS_UID_DOMAIN}`,
           summary: stage.name,
           url,
           start: stage.scheduledAt,
@@ -149,7 +153,7 @@ export class CalendarService {
         });
       if (stage.deadlineAt)
         events.push({
-          uid: `deadline-${stage.id}@offerly`,
+          uid: `deadline-${stage.id}@${ICS_UID_DOMAIN}`,
           summary: `Дедлайн: ${stage.name}`,
           url,
           start: stage.deadlineAt,

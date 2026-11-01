@@ -1,13 +1,16 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Not, Repository } from 'typeorm';
+import { isUniqueViolation } from '@offerly/helpers';
+import { DataSource, FindOptionsRelations, In, Not, Repository } from 'typeorm';
+import { DEFAULT_STAGE_CODES } from '../stage-type/stage-type.constants';
 import { StageType } from '../stage-type/entities/stage-type.entity';
+import { UpstreamService } from '../upstream/upstream.service';
 import { isCompleteStageOrder } from '../utils/workflow-order.utils';
+import { applyStageUpdate } from '../utils/workflow-stage.utils';
 import { toWorkflowSummary } from '../utils/workflow-summary.utils';
 import { WorkflowSummaryDto } from './dto/workflow-summary.dto';
 import {
@@ -22,70 +25,72 @@ import { StageNote } from './entities/stage-note.entity';
 import { StageQuestion } from './entities/stage-question.entity';
 import { WorkflowStage } from './entities/workflow-stage.entity';
 import { StageStatus } from './workflow.enums';
-const CLOSING_STATUSES = new Set([
-  StageStatus.COMPLETED,
-  StageStatus.CANCELLED,
-  StageStatus.CANCELLED_BY_COMPANY
-]);
 
-const DEFAULT_STAGE_CODES = [
-  'submitted',
-  'hr_screening',
-  'technical_interview',
-  'final_interview',
-  'offer'
-];
 const WORKFLOW_ORDER = {
   stages: { position: 'ASC', createdAt: 'ASC', notes: { createdAt: 'ASC' } }
 } as const;
+const WORKFLOW_RELATIONS = { stages: { notes: true, questions: true } };
+
 @Injectable()
 export class WorkflowService {
   constructor(
     @InjectRepository(ApplicationWorkflow)
-    readonly workflows: Repository<ApplicationWorkflow>,
+    private readonly workflows: Repository<ApplicationWorkflow>,
     @InjectRepository(WorkflowStage)
-    readonly stages: Repository<WorkflowStage>,
-    @InjectRepository(StageType) readonly types: Repository<StageType>,
-    @InjectRepository(StageNote) readonly notes: Repository<StageNote>,
+    private readonly stages: Repository<WorkflowStage>,
+    @InjectRepository(StageType) private readonly types: Repository<StageType>,
+    @InjectRepository(StageNote) private readonly notes: Repository<StageNote>,
     @InjectRepository(StageQuestion)
-    readonly questions: Repository<StageQuestion>,
-    readonly dataSource: DataSource
+    private readonly questions: Repository<StageQuestion>,
+    private readonly dataSource: DataSource,
+    private readonly upstream: UpstreamService
   ) {}
+
+  /** Idempotent: the Kafka consumer and the first GET may run it at the same time. */
   async createDefault(vacancyId: string, userId: string): Promise<void> {
-    await this.dataSource.transaction(async (manager) => {
-      if (await manager.existsBy(ApplicationWorkflow, { vacancyId })) return;
-      const workflow = await manager.save(
-        ApplicationWorkflow,
-        manager.create(ApplicationWorkflow, { vacancyId, userId })
-      );
-      const types = await manager.findBy(StageType, {
-        code: In(DEFAULT_STAGE_CODES)
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        if (await manager.existsBy(ApplicationWorkflow, { vacancyId })) return;
+        const types = await manager.findBy(StageType, {
+          code: In(DEFAULT_STAGE_CODES)
+        });
+        const byCode = new Map(types.map((type) => [type.code, type]));
+        const ordered = DEFAULT_STAGE_CODES.flatMap(
+          (code) => byCode.get(code) ?? []
+        );
+        if (ordered.length !== DEFAULT_STAGE_CODES.length)
+          throw new Error('Default stage type catalog is incomplete');
+        const workflow = await manager.save(
+          ApplicationWorkflow,
+          manager.create(ApplicationWorkflow, { vacancyId, userId })
+        );
+        await manager.save(
+          WorkflowStage,
+          ordered.map((type, index) =>
+            manager.create(WorkflowStage, {
+              workflowId: workflow.id,
+              stageTypeId: type.id,
+              name: type.name,
+              category: type.category,
+              position: index + 1,
+              isRequired: true,
+              status:
+                index === 0 ? StageStatus.IN_PROGRESS : StageStatus.NOT_STARTED,
+              completedAt: null,
+              scheduledAt: null,
+              deadlineAt: null,
+              artifactUrl: null
+            })
+          )
+        );
       });
-      const byCode = new Map(types.map((type) => [type.code, type]));
-      if (DEFAULT_STAGE_CODES.some((code) => !byCode.has(code)))
-        throw new Error('Default stage type catalog is incomplete');
-      await manager.save(
-        WorkflowStage,
-        DEFAULT_STAGE_CODES.map((code, index) => {
-          const type = byCode.get(code);
-          if (!type) throw new Error(`Missing stage type ${code}`);
-          return manager.create(WorkflowStage, {
-            workflowId: workflow.id,
-            stageTypeId: type.id,
-            name: type.name,
-            category: type.category,
-            position: index + 1,
-            isRequired: true,
-            status:
-              index === 0 ? StageStatus.IN_PROGRESS : StageStatus.NOT_STARTED,
-            completedAt: null,
-            scheduledAt: null,
-            deadlineAt: null,
-            artifactUrl: null
-          });
-        })
-      );
-    });
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error;
+    }
+  }
+
+  async removeByVacancy(vacancyId: string, userId: string): Promise<void> {
+    await this.workflows.delete({ vacancyId, userId });
   }
 
   async summaries(
@@ -102,17 +107,18 @@ export class WorkflowService {
 
   async getByVacancy(
     userId: string,
-    vacancyId: string
+    vacancyId: string,
+    authorization: string
   ): Promise<ApplicationWorkflow> {
+    const existing = await this.findByVacancy(userId, vacancyId);
+    if (existing) return existing;
+    await this.upstream.vacancy(vacancyId, authorization);
     await this.createDefault(vacancyId, userId);
-    const workflow = await this.workflows.findOne({
-      where: { vacancyId, userId },
-      relations: { stages: { notes: true, questions: true } },
-      order: WORKFLOW_ORDER
-    });
-    if (!workflow) throw new NotFoundException('Workflow not found');
-    return workflow;
+    const created = await this.findByVacancy(userId, vacancyId);
+    if (!created) throw new NotFoundException('Workflow not found');
+    return created;
   }
+
   async addStage(
     userId: string,
     workflowId: string,
@@ -145,48 +151,22 @@ export class WorkflowService {
       })
     );
   }
+
   async updateStage(
     userId: string,
     workflowId: string,
     stageId: string,
     input: UpdateStageDto
   ): Promise<WorkflowStage> {
-    await this.requireWorkflow(userId, workflowId);
-    const stage = await this.stages.findOneBy({ id: stageId, workflowId });
-    if (!stage) throw new NotFoundException('Workflow stage not found');
-    if (
-      input.status &&
-      (await this.stages.existsBy({
-        workflowId,
-        id: Not(stageId),
-        status: StageStatus.CANCELLED
-      }))
-    )
+    const stage = await this.requireStage(userId, workflowId, stageId);
+    if (input.status && (await this.isRejectedElsewhere(workflowId, stageId)))
       throw new BadRequestException(
         'Vacancy was rejected: other stage statuses are frozen'
       );
-    const status = input.status ?? stage.status;
-    Object.assign(stage, input, {
-      scheduledAt:
-        input.scheduledAt === undefined
-          ? stage.scheduledAt
-          : input.scheduledAt
-            ? new Date(input.scheduledAt)
-            : null,
-      deadlineAt:
-        input.deadlineAt === undefined
-          ? stage.deadlineAt
-          : input.deadlineAt
-            ? new Date(input.deadlineAt)
-            : null
-    });
-    if (input.status) {
-      if (CLOSING_STATUSES.has(input.status)) stage.completedAt ??= new Date();
-      else stage.completedAt = null;
-    }
-    if (status !== StageStatus.CANCELLED) stage.rejectionReason = null;
+    applyStageUpdate(stage, input);
     return this.stages.save(stage);
   }
+
   async removeStage(
     userId: string,
     workflowId: string,
@@ -197,6 +177,7 @@ export class WorkflowService {
     if (!result.affected)
       throw new NotFoundException('Workflow stage not found');
   }
+
   async reorder(
     userId: string,
     workflowId: string,
@@ -223,6 +204,7 @@ export class WorkflowService {
     });
     return this.getById(userId, workflowId);
   }
+
   async addQuestion(
     userId: string,
     workflowId: string,
@@ -302,34 +284,59 @@ export class WorkflowService {
     const result = await this.notes.delete({ id: noteId, stageId });
     if (!result.affected) throw new NotFoundException('Stage note not found');
   }
+
   async requireStage(
     userId: string,
     workflowId: string,
-    stageId: string
+    stageId: string,
+    relations: FindOptionsRelations<WorkflowStage> = {}
   ): Promise<WorkflowStage> {
-    await this.requireWorkflow(userId, workflowId);
-    const stage = await this.stages.findOneBy({ id: stageId, workflowId });
+    const stage = await this.stages.findOne({
+      where: { id: stageId, workflowId, workflow: { userId } },
+      relations
+    });
     if (!stage) throw new NotFoundException('Workflow stage not found');
     return stage;
   }
+
   async requireWorkflow(
     userId: string,
     id: string
   ): Promise<ApplicationWorkflow> {
-    const workflow = await this.workflows.findOneBy({ id });
+    const workflow = await this.workflows.findOneBy({ id, userId });
     if (!workflow) throw new NotFoundException('Workflow not found');
-    if (workflow.userId !== userId)
-      throw new ForbiddenException('Workflow does not belong to user');
     return workflow;
   }
+
   async getById(userId: string, id: string): Promise<ApplicationWorkflow> {
-    await this.requireWorkflow(userId, id);
     const workflow = await this.workflows.findOne({
       where: { id, userId },
-      relations: { stages: { notes: true, questions: true } },
+      relations: WORKFLOW_RELATIONS,
       order: WORKFLOW_ORDER
     });
     if (!workflow) throw new NotFoundException('Workflow not found');
     return workflow;
+  }
+
+  private findByVacancy(
+    userId: string,
+    vacancyId: string
+  ): Promise<ApplicationWorkflow | null> {
+    return this.workflows.findOne({
+      where: { vacancyId, userId },
+      relations: WORKFLOW_RELATIONS,
+      order: WORKFLOW_ORDER
+    });
+  }
+
+  private isRejectedElsewhere(
+    workflowId: string,
+    stageId: string
+  ): Promise<boolean> {
+    return this.stages.existsBy({
+      workflowId,
+      id: Not(stageId),
+      status: StageStatus.CANCELLED
+    });
   }
 }

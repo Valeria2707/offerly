@@ -11,12 +11,13 @@ import { ProfileDataDto } from '../profile/dto/profile.dto';
 import { ProfileData } from '../profile/profile.types';
 import { toProfileData } from '../utils/profile.utils';
 import { normalizeProfileUrls } from '../utils/url.utils';
-import { getValidationPaths, isOpenAiResponse } from '@offerly/helpers';
 import {
-  CV_EXTRACTION_INSTRUCTIONS,
-  OPENAI_REQUEST_TIMEOUT_MS,
-  OPENAI_RESPONSES_URL
-} from './cv.constants';
+  getValidationPaths,
+  isOpenAiResponse,
+  OPENAI_RESPONSES_URL,
+  OPENAI_TIMEOUT_MS
+} from '@offerly/helpers';
+import { CV_EXTRACTION_INSTRUCTIONS } from './cv.constants';
 import { cvProfileJsonSchema } from './cv-profile.schema';
 
 @Injectable()
@@ -26,8 +27,8 @@ export class OpenAiCvParserService {
   readonly model: string;
 
   constructor(config: ConfigService) {
-    this.apiKey = config.getOrThrow<string>('OPENAI_API_KEY');
-    this.model = config.getOrThrow<string>('OPENAI_MODEL');
+    this.apiKey = config.get<string>('OPENAI_API_KEY', '');
+    this.model = config.get<string>('OPENAI_MODEL', '');
   }
 
   async parse(text: string): Promise<ProfileData> {
@@ -57,7 +58,7 @@ export class OpenAiCvParserService {
             }
           }
         }),
-        signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS)
+        signal: AbortSignal.timeout(OPENAI_TIMEOUT_MS)
       });
     } catch {
       throw new ServiceUnavailableException('CV AI provider is unavailable');

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StageType } from '../stage-type/entities/stage-type.entity';
+import { UpstreamModule } from '../upstream/upstream.module';
 import { ApplicationWorkflow } from './entities/application-workflow.entity';
 import { StageNote } from './entities/stage-note.entity';
 import { StageQuestion } from './entities/stage-question.entity';
@@ -15,7 +16,8 @@ import { WorkflowService } from './workflow.service';
       StageNote,
       StageQuestion,
       StageType
-    ])
+    ]),
+    UpstreamModule
   ],
   controllers: [WorkflowController],
   providers: [WorkflowService],

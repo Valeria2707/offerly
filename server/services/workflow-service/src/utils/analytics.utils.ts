@@ -1,12 +1,9 @@
-import { isRecord } from '@offerly/helpers';
+import { DAY_MS, isRecord } from '@offerly/helpers';
 import {
   ACTIVE_LIFECYCLE,
   ALL_TIME_WEEKS,
-  AUTO_STAGE_CODE,
-  DAY_MS,
   MAX_WEEKS,
   MIN_WEEKS,
-  NOT_REACHED_STATUSES,
   TOP_SKILLS_LIMIT,
   WEEK_MS
 } from '../analytics/analytics.constants';
@@ -25,12 +22,10 @@ import {
 import { ApplicationWorkflow } from '../workflow/entities/application-workflow.entity';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
 import { StageCategory, StageStatus } from '../workflow/workflow.enums';
-import {
-  normalizeSkill,
-  profileSkills,
-  readText,
-  readTexts
-} from './preparation.utils';
+import { STAGE_CODES } from '../stage-type/stage-type.constants';
+import { NOT_REACHED_STATUSES } from '../workflow/workflow.constants';
+import { readText, readTexts } from './record.utils';
+import { normalizeSkill, profileSkills } from './skills.utils';
 import { toWorkflowSummary } from './workflow-summary.utils';
 
 export interface Process {
@@ -52,7 +47,7 @@ const percent = (part: number, total: number): number | null =>
   total ? Math.round((part / total) * 100) : null;
 
 const isCounted = (stage: WorkflowStage): boolean =>
-  stage.stageType?.code !== AUTO_STAGE_CODE;
+  stage.stageType?.code !== STAGE_CODES.SUBMITTED;
 
 export function toVacancies(value: unknown[]): AnalyticsVacancy[] {
   return value.filter(isRecord).flatMap((item) => {
@@ -211,7 +206,7 @@ export function buildWeekly(
     vacancies: 0,
     stages: 0
   }));
-  const weekOf = (date: Date) =>
+  const weekOf = (date: Date): (typeof weeks)[number] =>
     weeks[Math.floor((date.getTime() - first) / WEEK_MS)];
   for (const vacancy of vacancies) {
     const week = weekOf(vacancy.createdAt);

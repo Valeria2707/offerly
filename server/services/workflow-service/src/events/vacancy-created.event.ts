@@ -1,16 +1,15 @@
-import { Type, plainToInstance } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   Equals,
   IsDateString,
   IsString,
   IsUUID,
-  ValidateNested,
-  validate
+  ValidateNested
 } from 'class-validator';
-import { VACANCY_CREATED_TOPIC } from './events.constants';
-import { isRecord } from '@offerly/helpers';
+import { KAFKA_TOPICS } from '@offerly/helpers';
+import { parseEvent } from './parse-event';
 
-export class VacancyCreatedData {
+export class VacancyEventData {
   @IsUUID()
   vacancyId!: string;
 
@@ -22,8 +21,8 @@ export class VacancyCreatedEvent {
   @IsUUID()
   eventId!: string;
 
-  @Equals(VACANCY_CREATED_TOPIC)
-  eventType!: typeof VACANCY_CREATED_TOPIC;
+  @Equals(KAFKA_TOPICS.VACANCY_CREATED)
+  eventType!: typeof KAFKA_TOPICS.VACANCY_CREATED;
 
   @IsDateString()
   occurredAt!: string;
@@ -32,18 +31,34 @@ export class VacancyCreatedEvent {
   producer!: string;
 
   @ValidateNested()
-  @Type(() => VacancyCreatedData)
-  data!: VacancyCreatedData;
+  @Type(() => VacancyEventData)
+  data!: VacancyEventData;
 }
 
-export async function parseVacancyCreatedEvent(
-  value: unknown
-): Promise<VacancyCreatedEvent | null> {
-  if (!isRecord(value)) return null;
-  const event = plainToInstance(VacancyCreatedEvent, value);
-  const errors = await validate(event, {
-    whitelist: true,
-    forbidNonWhitelisted: true
-  });
-  return errors.length === 0 ? event : null;
+export class VacancyDeletedEvent {
+  @IsUUID()
+  eventId!: string;
+
+  @Equals(KAFKA_TOPICS.VACANCY_DELETED)
+  eventType!: typeof KAFKA_TOPICS.VACANCY_DELETED;
+
+  @IsDateString()
+  occurredAt!: string;
+
+  @IsString()
+  producer!: string;
+
+  @ValidateNested()
+  @Type(() => VacancyEventData)
+  data!: VacancyEventData;
 }
+
+export const parseVacancyCreatedEvent = (
+  value: unknown
+): Promise<VacancyCreatedEvent | null> =>
+  parseEvent(VacancyCreatedEvent, value);
+
+export const parseVacancyDeletedEvent = (
+  value: unknown
+): Promise<VacancyDeletedEvent | null> =>
+  parseEvent(VacancyDeletedEvent, value);

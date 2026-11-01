@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { escapeHtml } from '@offerly/helpers';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
+import { PASSWORD_RESET_TTL_MINUTES } from './auth.constants';
 
 @Injectable()
 export class MailService {
@@ -28,8 +30,8 @@ export class MailService {
       from: this.config.getOrThrow<string>('SMTP_FROM'),
       to: email,
       subject: 'Відновлення пароля Offerly',
-      text: `Вітаємо, ${name}. Щоб встановити новий пароль, відкрийте: ${resetUrl}. Посилання діє 30 хвилин.`,
-      html: `<p>Вітаємо, ${name}.</p><p><a href="${resetUrl}">Встановити новий пароль</a></p><p>Посилання діє 30 хвилин.</p>`
+      text: `Вітаємо, ${name}. Щоб встановити новий пароль, відкрийте: ${resetUrl}. Посилання діє ${PASSWORD_RESET_TTL_MINUTES} хвилин.`,
+      html: `<p>Вітаємо, ${escapeHtml(name)}.</p><p><a href="${resetUrl}">Встановити новий пароль</a></p><p>Посилання діє ${PASSWORD_RESET_TTL_MINUTES} хвилин.</p>`
     });
   }
 

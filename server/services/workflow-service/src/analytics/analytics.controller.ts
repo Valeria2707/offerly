@@ -16,7 +16,7 @@ import { AnalyticsDto, AnalyticsQueryDto } from './dto/analytics.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(readonly service: AnalyticsService) {}
+  constructor(private readonly service: AnalyticsService) {}
 
   @Get()
   @ApiOperation({

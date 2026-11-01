@@ -5,13 +5,19 @@ import {
   Index,
   PrimaryGeneratedColumn
 } from 'typeorm';
+import { URL_MAX_LENGTH } from '../vacancy.constants';
 import { VacancyDraftData } from '../vacancy.types';
 @Entity({ schema: 'vacancy', name: 'vacancy_imports' })
 @Index('IDX_vacancy_imports_user', ['userId'])
 export class VacancyImport {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'user_id', type: 'uuid' }) userId!: string;
-  @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
+  @Column({
+    name: 'source_url',
+    type: 'varchar',
+    length: URL_MAX_LENGTH,
+    nullable: true
+  })
   sourceUrl!: string | null;
   @Column({ type: 'jsonb' }) draft!: VacancyDraftData;
   @Column({ name: 'applied_at', type: 'timestamptz', nullable: true })

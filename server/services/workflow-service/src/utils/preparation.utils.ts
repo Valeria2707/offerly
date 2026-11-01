@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { isRecord } from '@offerly/helpers';
+import { readText, readTexts } from './record.utils';
+import { normalizeSkill, profileSkills } from './skills.utils';
 import { QuestionAnswerItem } from '../preparation/dto/preparation-content.dto';
 import { QUESTION_KEYS } from '../preparation/preparation.constants';
 import { PreparationType } from '../preparation/preparation.enums';
@@ -10,57 +12,8 @@ import {
   StackAnalysis
 } from '../preparation/preparation.types';
 
-export const readText = (value: unknown): string | null =>
-  typeof value === 'string' && value.trim() ? value.trim() : null;
-
-export const readTexts = (value: unknown): string[] =>
-  Array.isArray(value)
-    ? value.map(readText).filter((item): item is string => item !== null)
-    : [];
-
-export const readRecords = (value: unknown): Record<string, unknown>[] =>
-  Array.isArray(value) ? value.filter(isRecord) : [];
-
-export function pickFields(
-  record: Record<string, unknown>,
-  keys: string[]
-): Record<string, unknown> {
-  return Object.fromEntries(
-    keys.filter((key) => key in record).map((key) => [key, record[key]])
-  );
-}
-
-export function toServiceBaseUrl(value: string): string {
-  const url = new URL(value);
-  if (
-    !['http:', 'https:'].includes(url.protocol) ||
-    url.username ||
-    url.password ||
-    url.search ||
-    url.hash
-  )
-    throw new Error('Invalid preparation context service URL');
-  return value.replace(/\/$/, '');
-}
-
-export const normalizeSkill = (skill: string): string =>
-  skill.toLowerCase().replace(/[\s._-]+/g, '');
-
 export const formatList = (items: string[]): string =>
   items.length ? items.join(', ') : 'not specified';
-
-export function profileSkills(profile: Record<string, unknown>): string[] {
-  const names = [
-    ...readRecords(profile.skills).map((skill) => readText(skill.name)),
-    ...readRecords(profile.experience).flatMap((item) =>
-      readTexts(item.skills)
-    ),
-    ...readRecords(profile.projects).flatMap((item) => readTexts(item.skills))
-  ].filter((name): name is string => name !== null);
-  return [
-    ...new Map(names.map((name) => [normalizeSkill(name), name])).values()
-  ];
-}
 
 export function analyzeStack(context: PreparationContext): StackAnalysis {
   const { vacancy, profile } = context;

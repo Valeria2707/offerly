@@ -2,22 +2,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import {
-  RejectionReason,
-  StageCategory,
-  StageStatus
-} from '../workflow.enums';
+import { RejectionReason, StageCategory, StageStatus } from '../workflow.enums';
 import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { ApplicationWorkflow } from './application-workflow.entity';
 import { StageNote } from './stage-note.entity';
 import { StageQuestion } from './stage-question.entity';
 @Entity({ schema: 'workflow', name: 'workflow_stages' })
+@Index('IDX_workflow_stages_workflow', ['workflowId'])
 export class WorkflowStage {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'workflow_id', type: 'uuid' }) workflowId!: string;

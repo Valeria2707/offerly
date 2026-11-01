@@ -4,13 +4,13 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { OutboxEvent } from '@offerly/nest-common';
+import { createIntegrationEvent, KAFKA_TOPICS } from '@offerly/helpers';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { SERVICE_NAME } from '../app.constants';
 import { Vacancy } from './entities/vacancy.entity';
 import { VacancyImport } from './entities/vacancy-import.entity';
 import { VacancyData, VacancyDraftData } from './vacancy.types';
-import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
-import { VACANCY_CREATED_TOPIC } from '../outbox/outbox.constants';
-import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class VacancyRepository {
@@ -31,11 +31,32 @@ export class VacancyRepository {
     if (!vacancy) throw new NotFoundException('Vacancy not found');
     return vacancy;
   }
+
+  async findMany(userId: string, ids: string[]): Promise<Vacancy[]> {
+    const found = await this.vacancies.findBy({ userId, id: In(ids) });
+    const byId = new Map(found.map((vacancy) => [vacancy.id, vacancy]));
+    return ids.map((id) => {
+      const vacancy = byId.get(id);
+      if (!vacancy) throw new NotFoundException('Vacancy not found');
+      return vacancy;
+    });
+  }
   save(vacancy: Vacancy): Promise<Vacancy> {
     return this.vacancies.save(vacancy);
   }
+
   async remove(vacancy: Vacancy): Promise<void> {
-    await this.vacancies.remove(vacancy);
+    const { id, userId } = vacancy;
+    await this.dataSource.transaction(async (manager) => {
+      await manager.remove(vacancy);
+      await manager.save(
+        OutboxEvent,
+        this.outboxEvent(manager, KAFKA_TOPICS.VACANCY_DELETED, id, {
+          vacancyId: id,
+          userId
+        })
+      );
+    });
   }
   createImport(
     userId: string,
@@ -71,26 +92,30 @@ export class VacancyRepository {
         Vacancy,
         manager.create(Vacancy, { userId, ...data })
       );
-      const occurredAt = new Date().toISOString();
       await manager.save(
         OutboxEvent,
-        manager.create(OutboxEvent, {
-          aggregateId: vacancy.id,
-          eventType: VACANCY_CREATED_TOPIC,
-          payload: {
-            eventId: randomUUID(),
-            eventType: VACANCY_CREATED_TOPIC,
-            occurredAt,
-            producer: 'vacancy-service',
-            data: { vacancyId: vacancy.id, userId }
-          },
-          publishedAt: null,
-          attempts: 0
+        this.outboxEvent(manager, KAFKA_TOPICS.VACANCY_CREATED, vacancy.id, {
+          vacancyId: vacancy.id,
+          userId
         })
       );
       vacancyImport.appliedAt = new Date();
       await manager.save(VacancyImport, vacancyImport);
       return vacancy;
+    });
+  }
+  private outboxEvent(
+    manager: EntityManager,
+    topic: string,
+    aggregateId: string,
+    data: { vacancyId: string; userId: string }
+  ): OutboxEvent {
+    return manager.create(OutboxEvent, {
+      aggregateId,
+      eventType: topic,
+      payload: createIntegrationEvent(topic, SERVICE_NAME, data),
+      publishedAt: null,
+      attempts: 0
     });
   }
 }

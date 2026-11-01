@@ -6,20 +6,25 @@ import { LookupAddress } from 'node:dns';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 
+const IPV4_MAPPED = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/i;
+
 function isPrivateIpv4(address: string): boolean {
-  const octets = address.split('.').map(Number);
+  const [first, second] = address.split('.').map(Number);
   return (
-    octets[0] === 10 ||
-    octets[0] === 127 ||
-    octets[0] === 0 ||
-    (octets[0] === 169 && octets[1] === 254) ||
-    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
-    (octets[0] === 192 && octets[1] === 168) ||
-    octets[0] >= 224
+    first === 10 ||
+    first === 127 ||
+    first === 0 ||
+    (first === 100 && second >= 64 && second <= 127) ||
+    (first === 169 && second === 254) ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 168) ||
+    first >= 224
   );
 }
 
 export function isPublicIp(address: string): boolean {
+  const mapped = IPV4_MAPPED.exec(address);
+  if (mapped) return !isPrivateIpv4(mapped[1]);
   if (isIP(address) === 4) return !isPrivateIpv4(address);
   if (isIP(address) !== 6) return false;
   const normalized = address.toLowerCase();
@@ -31,10 +36,7 @@ export function isPublicIp(address: string): boolean {
     !normalized.startsWith('fe8') &&
     !normalized.startsWith('fe9') &&
     !normalized.startsWith('fea') &&
-    !normalized.startsWith('feb') &&
-    !normalized.startsWith('::ffff:127.') &&
-    !normalized.startsWith('::ffff:10.') &&
-    !normalized.startsWith('::ffff:192.168.')
+    !normalized.startsWith('feb')
   );
 }
 

@@ -20,38 +20,41 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { AuthenticatedRequest, JwtAuthGuard } from '@offerly/auth';
-import { CreateStageTypeDto, UpdateStageTypeDto } from './dto/stage-type.dto';
+import {
+  CreateStageTypeDto,
+  StageTypeResponseDto,
+  UpdateStageTypeDto
+} from './dto/stage-type.dto';
 import { StageTypeService } from './stage-type.service';
-import { StageType } from './entities/stage-type.entity';
 @ApiTags('stage-types')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('stage-types')
 export class StageTypeController {
-  constructor(readonly service: StageTypeService) {}
+  constructor(private readonly service: StageTypeService) {}
   @Get()
   @ApiOperation({ summary: 'List system and personal stage types' })
-  @ApiOkResponse({ type: [StageType] })
-  list(@Req() req: AuthenticatedRequest): Promise<StageType[]> {
+  @ApiOkResponse({ type: [StageTypeResponseDto] })
+  list(@Req() req: AuthenticatedRequest): Promise<StageTypeResponseDto[]> {
     return this.service.list(req.user.sub);
   }
   @Post()
   @ApiOperation({ summary: 'Create a personal stage type' })
-  @ApiCreatedResponse({ type: StageType })
+  @ApiCreatedResponse({ type: StageTypeResponseDto })
   create(
     @Req() req: AuthenticatedRequest,
     @Body() body: CreateStageTypeDto
-  ): Promise<StageType> {
+  ): Promise<StageTypeResponseDto> {
     return this.service.create(req.user.sub, body);
   }
   @Patch(':id')
   @ApiOperation({ summary: 'Update a personal stage type' })
-  @ApiOkResponse({ type: StageType })
+  @ApiOkResponse({ type: StageTypeResponseDto })
   update(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateStageTypeDto
-  ): Promise<StageType> {
+  ): Promise<StageTypeResponseDto> {
     return this.service.update(req.user.sub, id, body);
   }
   @Delete(':id')

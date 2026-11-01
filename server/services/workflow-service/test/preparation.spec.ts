@@ -23,7 +23,7 @@ import { HrPreparationStrategy } from '../src/preparation/strategies/hr-preparat
 import { PreparationStrategyFactory } from '../src/preparation/strategies/preparation-strategy.factory';
 import { TechnicalPreparationStrategy } from '../src/preparation/strategies/technical-preparation.strategy';
 import { StageQuestion } from '../src/workflow/entities/stage-question.entity';
-import { AiLogService } from '../src/ai-log/ai-log.service';
+import { AiLogService } from '@offerly/nest-common';
 import { AnswerReviewerService } from '../src/preparation/services/answer-reviewer.service';
 import { parseAnswerReview } from '../src/preparation/output/preparation-output.parser';
 
@@ -196,11 +196,7 @@ describe('preparation selection and validation', () => {
 function fixture(): {
   service: PreparationService;
   preparations: { existsBy: jest.Mock; findOneBy: jest.Mock };
-  workflows: {
-    requireStage: jest.Mock;
-    requireWorkflow: jest.Mock;
-    stages: { findOne: jest.Mock };
-  };
+  workflows: { requireStage: jest.Mock };
   manager: {
     findOne: jest.Mock;
     findOneBy: jest.Mock;
@@ -218,19 +214,17 @@ function fixture(): {
     findOneBy: jest.fn()
   };
   const workflows = {
-    requireStage: jest.fn().mockResolvedValue({ id: 'stage' }),
-    requireWorkflow: jest.fn().mockResolvedValue({ vacancyId: 'vacancy' }),
-    stages: {
-      findOne: jest.fn().mockResolvedValue({
-        name: 'HR',
-        category: StageCategory.SCREENING,
-        stageType: {
-          ownerUserId: null,
-          code: 'hr_screening',
-          category: StageCategory.SCREENING
-        }
-      })
-    }
+    requireStage: jest.fn().mockResolvedValue({
+      id: 'stage',
+      name: 'HR',
+      category: StageCategory.SCREENING,
+      workflow: { vacancyId: 'vacancy' },
+      stageType: {
+        ownerUserId: null,
+        code: 'hr_screening',
+        category: StageCategory.SCREENING
+      }
+    })
   };
   const manager = {
     findOne: jest.fn().mockResolvedValue({ id: 'stage' }),
@@ -266,8 +260,10 @@ function fixture(): {
     'limit',
     'select'
   ])
-    questionQuery[method] = () => questionQuery;
-  const questions = { createQueryBuilder: () => questionQuery };
+    questionQuery[method] = (): Record<string, unknown> => questionQuery;
+  const questions = {
+    createQueryBuilder: (): Record<string, unknown> => questionQuery
+  };
   const reviewAnswer = jest.fn().mockResolvedValue(review);
   return {
     service: new PreparationService(
@@ -310,9 +306,10 @@ describe('preparation persistence business rules', () => {
   });
   it('requires instructions for personal stages, including overrides', async () => {
     const f = fixture();
-    f.workflows.stages.findOne.mockResolvedValue({
+    f.workflows.requireStage.mockResolvedValue({
       name: 'Portfolio',
       category: StageCategory.TECHNICAL,
+      workflow: { vacancyId: 'vacancy' },
       stageType: { ownerUserId: 'user', code: null }
     });
     await expect(
@@ -329,7 +326,6 @@ describe('preparation persistence business rules', () => {
   it('blocks foreign users before reading materials or calling AI', async () => {
     const f = fixture();
     f.workflows.requireStage.mockRejectedValue(new ForbiddenException());
-    f.workflows.requireWorkflow.mockRejectedValue(new ForbiddenException());
     await expect(f.service.get('other', 'workflow', 'stage')).rejects.toThrow(
       ForbiddenException
     );
@@ -386,7 +382,9 @@ describe('preparation persistence business rules', () => {
   });
   it('reports a missing stage without calling AI', async () => {
     const f = fixture();
-    f.workflows.stages.findOne.mockResolvedValue(null);
+    f.workflows.requireStage.mockRejectedValue(
+      new NotFoundException('Workflow stage not found')
+    );
     await expect(
       f.service.generate('user', 'workflow', 'stage', {}, 'token')
     ).rejects.toThrow(NotFoundException);
@@ -440,7 +438,8 @@ describe('preparation persistence business rules', () => {
     f.workflows.requireStage.mockResolvedValue({
       id: 'stage',
       name: 'HR',
-      category: StageCategory.SCREENING
+      category: StageCategory.SCREENING,
+      workflow: { vacancyId: 'vacancy' }
     });
     const data = parsePreparation(PreparationType.HR_SCREENING, hrContent);
     const question = questionItems(data)[0];
@@ -473,7 +472,7 @@ describe('preparation persistence business rules', () => {
     await expect(
       f.service.review('user', 'workflow', 'stage', 'q', '   ', 'token')
     ).rejects.toThrow(BadRequestException);
-    f.workflows.requireWorkflow.mockRejectedValueOnce(new ForbiddenException());
+    f.workflows.requireStage.mockRejectedValueOnce(new ForbiddenException());
     await expect(
       f.service.review('user', 'workflow', 'stage', 'q', 'Answer', 'token')
     ).rejects.toThrow(ForbiddenException);

@@ -7,7 +7,7 @@ export class HealthController {
   @Get()
   @ApiOperation({ summary: 'Check vacancy service health' })
   @ApiOkResponse({ schema: { example: { status: 'ok' } } })
-  health(): { status: string } {
+  check(): { status: string } {
     return { status: 'ok' };
   }
 }

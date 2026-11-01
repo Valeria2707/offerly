@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { StageType } from '../stage-type/entities/stage-type.entity';
+import { STAGE_CODES } from '../stage-type/stage-type.constants';
 import { StageCategory } from '../workflow/workflow.enums';
 
 type SystemStageType = Pick<
@@ -33,7 +34,7 @@ const stage = (
 
 export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
   stage(
-    'submitted',
+    STAGE_CODES.SUBMITTED,
     'Submitted',
     StageCategory.ADMINISTRATIVE,
     null,
@@ -42,7 +43,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'hr_screening',
+    STAGE_CODES.HR_SCREENING,
     'HR screening',
     StageCategory.SCREENING,
     30,
@@ -51,7 +52,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'pre_tech_screening',
+    STAGE_CODES.PRE_TECH_SCREENING,
     'Pre-tech screening',
     StageCategory.SCREENING,
     30,
@@ -60,7 +61,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'test_task',
+    STAGE_CODES.TEST_TASK,
     'Test task',
     StageCategory.TECHNICAL,
     null,
@@ -69,7 +70,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     true
   ),
   stage(
-    'technical_interview',
+    STAGE_CODES.TECHNICAL_INTERVIEW,
     'Technical interview',
     StageCategory.TECHNICAL,
     60,
@@ -78,7 +79,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'live_coding',
+    STAGE_CODES.LIVE_CODING,
     'Live coding',
     StageCategory.TECHNICAL,
     60,
@@ -87,7 +88,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     true
   ),
   stage(
-    'system_design',
+    STAGE_CODES.SYSTEM_DESIGN,
     'System Design',
     StageCategory.TECHNICAL,
     60,
@@ -96,7 +97,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'team_interview',
+    STAGE_CODES.TEAM_INTERVIEW,
     'Team interview',
     StageCategory.BEHAVIORAL,
     45,
@@ -105,7 +106,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'culture_fit',
+    STAGE_CODES.CULTURE_FIT,
     'Culture fit',
     StageCategory.BEHAVIORAL,
     30,
@@ -114,7 +115,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'final_interview',
+    STAGE_CODES.FINAL_INTERVIEW,
     'Final interview',
     StageCategory.BEHAVIORAL,
     45,
@@ -123,7 +124,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'offer_negotiation',
+    STAGE_CODES.OFFER_NEGOTIATION,
     'Offer negotiation',
     StageCategory.ADMINISTRATIVE,
     null,
@@ -132,7 +133,7 @@ export const SYSTEM_STAGE_TYPES: SystemStageType[] = [
     false
   ),
   stage(
-    'offer',
+    STAGE_CODES.OFFER,
     'Offer',
     StageCategory.ADMINISTRATIVE,
     null,
@@ -148,6 +149,16 @@ export async function seedStageTypes(dataSource: DataSource): Promise<void> {
     .insert()
     .into(StageType)
     .values(SYSTEM_STAGE_TYPES)
-    .orIgnore()
+    .orUpdate(
+      [
+        'name',
+        'category',
+        'expected_duration_minutes',
+        'requires_preparation',
+        'supports_deadline',
+        'produces_artifact'
+      ],
+      ['code']
+    )
     .execute();
 }

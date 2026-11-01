@@ -10,10 +10,11 @@ import {
   MaxLength,
   ValidateNested
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { CvImportStatus } from '../enums/cv-import-status.enum';
 import { ProfileData } from '../profile.types';
 import { normalizeUrlValue } from '../../utils/url.utils';
+import { OptionalText } from './optional-text.decorator';
 
 export class ProfileLinkDto {
   @ApiProperty({ example: 'LinkedIn' })
@@ -29,35 +30,17 @@ export class ProfileLinkDto {
 }
 
 export class ProfileBasicsDto {
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(150)
+  @OptionalText(150)
   fullName?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   headline?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @OptionalText(255)
   email?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
+  @OptionalText(50)
   phone?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   location?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
+  @OptionalText(5000)
   summary?: string | null;
 
   @ApiPropertyOptional({ type: [ProfileLinkDto] })
@@ -70,60 +53,33 @@ export class ProfileBasicsDto {
 }
 
 export class ProfilePreferencesDto {
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   desiredPosition?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
+  @OptionalText(100)
   level?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
+  @OptionalText(100)
   workFormat?: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
+  @OptionalText(100)
   expectedSalary?: string | null;
 }
 
 export class ProfileSkillDto {
   @ApiProperty() @IsString() @MaxLength(100) name!: string;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
+  @OptionalText(50)
   level!: string | null;
 }
 
 export class ProfileExperienceDto {
   @ApiProperty() @IsString() @MaxLength(200) company!: string;
   @ApiProperty() @IsString() @MaxLength(200) title!: string;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   startDate!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   endDate!: string | null;
   @ApiProperty() @IsBoolean() current!: boolean;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   location!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
+  @OptionalText(5000)
   description!: string | null;
   @ApiProperty({ type: [String] })
   @IsArray()
@@ -141,39 +97,21 @@ export class ProfileExperienceDto {
 
 export class ProfileEducationDto {
   @ApiProperty() @IsString() @MaxLength(200) institution!: string;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   degree!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
+  @OptionalText(200)
   field!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   startDate!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   endDate!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
+  @OptionalText(5000)
   description!: string | null;
 }
 
 export class ProfileProjectDto {
   @ApiProperty() @IsString() @MaxLength(200) name!: string;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
+  @OptionalText(5000)
   description!: string | null;
   @ApiPropertyOptional({ nullable: true })
   @Transform(normalizeUrlValue)
@@ -181,15 +119,9 @@ export class ProfileProjectDto {
   @IsUrl({ require_protocol: true })
   @MaxLength(500)
   url!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   startDate!: string | null;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
+  @OptionalText(10)
   endDate!: string | null;
   @ApiProperty({ type: [String] })
   @IsArray()
@@ -207,10 +139,7 @@ export class ProfileProjectDto {
 
 export class ProfileLanguageDto {
   @ApiProperty() @IsString() @MaxLength(100) name!: string;
-  @ApiPropertyOptional({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
+  @OptionalText(100)
   level!: string | null;
 }
 
@@ -262,53 +191,7 @@ export class ProfileDataDto {
   languages!: ProfileLanguageDto[];
 }
 
-export class UpdateProfileDto {
-  @ApiPropertyOptional({ type: ProfileBasicsDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ProfileBasicsDto)
-  basics?: ProfileBasicsDto;
-  @ApiPropertyOptional({ type: ProfilePreferencesDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ProfilePreferencesDto)
-  preferences?: ProfilePreferencesDto;
-  @ApiPropertyOptional({ type: [ProfileSkillDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(200)
-  @ValidateNested({ each: true })
-  @Type(() => ProfileSkillDto)
-  skills?: ProfileSkillDto[];
-  @ApiPropertyOptional({ type: [ProfileExperienceDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(100)
-  @ValidateNested({ each: true })
-  @Type(() => ProfileExperienceDto)
-  experience?: ProfileExperienceDto[];
-  @ApiPropertyOptional({ type: [ProfileEducationDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(50)
-  @ValidateNested({ each: true })
-  @Type(() => ProfileEducationDto)
-  education?: ProfileEducationDto[];
-  @ApiPropertyOptional({ type: [ProfileProjectDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(100)
-  @ValidateNested({ each: true })
-  @Type(() => ProfileProjectDto)
-  projects?: ProfileProjectDto[];
-  @ApiPropertyOptional({ type: [ProfileLanguageDto] })
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(50)
-  @ValidateNested({ each: true })
-  @Type(() => ProfileLanguageDto)
-  languages?: ProfileLanguageDto[];
-}
+export class UpdateProfileDto extends PartialType(ProfileDataDto) {}
 
 export class ApplyCvImportDto {
   @ApiPropertyOptional({

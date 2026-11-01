@@ -31,6 +31,7 @@ description: Use when writing or changing code in server/ (NestJS microservices 
 
 - `libs/helpers` holds only pure, domain-independent functions. Export them from `src/index.ts` and document them in its README.
 - After changing helpers, build them (`npm run build` in `libs/helpers`) before running a service locally.
+- Outbox and the AI log come from `@offerly/nest-common` (`libs/nest-common`); do not copy them into a service. After changing it, run `npm run build` there and `npm install` in each service.
 
 ## Tests and checks
 

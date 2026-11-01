@@ -52,11 +52,10 @@ export class StageTypeService {
   }
   async findOwned(userId: string, id: string): Promise<StageType> {
     const type = await this.types.findOneBy({ id });
-    if (!type) throw new NotFoundException('Stage type not found');
-    if (type.ownerUserId !== userId)
-      throw new ForbiddenException(
-        'System and other users stage types cannot be changed'
-      );
+    const foreign = type?.ownerUserId && type.ownerUserId !== userId;
+    if (!type || foreign) throw new NotFoundException('Stage type not found');
+    if (!type.ownerUserId)
+      throw new ForbiddenException('System stage types cannot be changed');
     return type;
   }
 }

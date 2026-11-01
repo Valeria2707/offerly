@@ -7,13 +7,23 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
+import {
+  RECRUITER_EMAIL_MAX_LENGTH,
+  RECRUITER_NAME_MAX_LENGTH,
+  RECRUITER_PHONE_MAX_LENGTH,
+  URL_MAX_LENGTH,
+  VACANCY_COMPANY_MAX_LENGTH,
+  VACANCY_TITLE_MAX_LENGTH
+} from '../vacancy.constants';
 @Entity({ schema: 'vacancy', name: 'vacancies' })
 @Index('IDX_vacancies_user_updated', ['userId', 'updatedAt'])
 export class Vacancy {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'user_id', type: 'uuid' }) userId!: string;
-  @Column({ type: 'varchar', length: 300 }) title!: string;
-  @Column({ type: 'varchar', length: 300 }) company!: string;
+  @Column({ type: 'varchar', length: VACANCY_TITLE_MAX_LENGTH })
+  title!: string;
+  @Column({ type: 'varchar', length: VACANCY_COMPANY_MAX_LENGTH })
+  company!: string;
   @Column({ type: 'varchar', length: 500, nullable: true }) location!:
     string | null;
   @Column({ name: 'work_format', type: 'varchar', length: 100, nullable: true })
@@ -57,33 +67,38 @@ export class Vacancy {
     default: '{}'
   })
   languageRequirements!: string[];
-  @Column({ name: 'source_url', type: 'varchar', length: 2048, nullable: true })
+  @Column({
+    name: 'source_url',
+    type: 'varchar',
+    length: URL_MAX_LENGTH,
+    nullable: true
+  })
   sourceUrl!: string | null;
   @Column({
     name: 'recruiter_name',
     type: 'varchar',
-    length: 200,
+    length: RECRUITER_NAME_MAX_LENGTH,
     nullable: true
   })
   recruiterName!: string | null;
   @Column({
     name: 'recruiter_email',
     type: 'varchar',
-    length: 320,
+    length: RECRUITER_EMAIL_MAX_LENGTH,
     nullable: true
   })
   recruiterEmail!: string | null;
   @Column({
     name: 'recruiter_phone',
     type: 'varchar',
-    length: 50,
+    length: RECRUITER_PHONE_MAX_LENGTH,
     nullable: true
   })
   recruiterPhone!: string | null;
   @Column({
     name: 'recruiter_url',
     type: 'varchar',
-    length: 2048,
+    length: URL_MAX_LENGTH,
     nullable: true
   })
   recruiterUrl!: string | null;

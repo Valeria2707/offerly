@@ -2,7 +2,7 @@ import { VacancyDraftDto } from '../vacancy/dto/vacancy.dto';
 import { VacancyLifecycle } from '../vacancy/enums/vacancy-lifecycle.enum';
 import { VacancyData, VacancyDraftData } from '../vacancy/vacancy.types';
 
-export function toVacancyData(input: VacancyDraftDto): VacancyData {
+export function toVacancyDraftData(input: VacancyDraftDto): VacancyDraftData {
   return {
     title: input.title,
     company: input.company,
@@ -18,9 +18,12 @@ export function toVacancyData(input: VacancyDraftDto): VacancyData {
     experienceRequirement: input.experienceRequirement ?? null,
     educationRequirement: input.educationRequirement ?? null,
     languageRequirements: input.languageRequirements ?? [],
-    sourceUrl: input.sourceUrl ?? null,
-    lifecycle: VacancyLifecycle.ACTIVE
+    sourceUrl: input.sourceUrl ?? null
   };
+}
+
+export function toVacancyData(input: VacancyDraftDto): VacancyData {
+  return { ...toVacancyDraftData(input), lifecycle: VacancyLifecycle.ACTIVE };
 }
 
 export function resolveVacancyImportDraft(

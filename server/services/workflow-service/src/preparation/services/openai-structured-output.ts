@@ -2,11 +2,11 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException
 } from '@nestjs/common';
-import { isOpenAiResponse } from '@offerly/helpers';
 import {
+  isOpenAiResponse,
   OPENAI_RESPONSES_URL,
   OPENAI_TIMEOUT_MS
-} from '../preparation.constants';
+} from '@offerly/helpers';
 import { JsonSchema } from '../preparation.types';
 
 export interface StructuredOutputRequest {

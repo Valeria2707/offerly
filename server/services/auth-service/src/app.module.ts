@@ -32,7 +32,7 @@ import { HealthController } from './health.controller';
         AUTH_NAME: Joi.string().min(1).default('Admin'),
         AUTH_EMAIL: Joi.string().email().default('admin@example.com'),
         AUTH_PASSWORD: Joi.string().min(8).required(),
-        KAFKA_BROKERS: Joi.string().default('kafka:9092'),
+        KAFKA_BROKERS: Joi.string().required(),
         SWAGGER_ENABLED: Joi.boolean().default(false),
         DATABASE_HOST: Joi.string().required(),
         DATABASE_PORT: Joi.number().port().default(5432),

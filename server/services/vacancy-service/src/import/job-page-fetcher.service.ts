@@ -9,10 +9,13 @@ import {
 } from '../utils/network.utils';
 import { extractReadableJobPage } from '../utils/html.utils';
 import {
+  IMPORTER_USER_AGENT,
+  MIN_VACANCY_TEXT_LENGTH,
   PAGE_FETCH_TIMEOUT_MS,
   PAGE_MAX_BYTES,
   PAGE_MAX_CHARACTERS,
-  PAGE_MAX_REDIRECTS
+  PAGE_MAX_REDIRECTS,
+  REDIRECT_STATUSES
 } from './import.constants';
 
 @Injectable()
@@ -27,7 +30,7 @@ export class JobPageFetcherService {
           redirect: 'manual',
           signal: AbortSignal.timeout(PAGE_FETCH_TIMEOUT_MS),
           headers: {
-            'User-Agent': 'OfferlyVacancyImporter/1.0',
+            'User-Agent': IMPORTER_USER_AGENT,
             Accept: 'text/html,application/xhtml+xml'
           }
         });
@@ -36,7 +39,7 @@ export class JobPageFetcherService {
           'The vacancy page could not be loaded'
         );
       }
-      if ([301, 302, 303, 307, 308].includes(response.status)) {
+      if (REDIRECT_STATUSES.includes(response.status)) {
         const location = response.headers.get('location');
         if (!location)
           throw new UnprocessableEntityException(
@@ -74,7 +77,7 @@ export class JobPageFetcherService {
       const content = extractReadableJobPage(html)
         .slice(0, PAGE_MAX_CHARACTERS)
         .trim();
-      if (content.length < 100)
+      if (content.length < MIN_VACANCY_TEXT_LENGTH)
         throw new UnprocessableEntityException(
           'The vacancy page contains too little readable content'
         );

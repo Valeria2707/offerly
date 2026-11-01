@@ -1,42 +1,22 @@
-import {
-  Injectable,
-  ServiceUnavailableException,
-  UnauthorizedException
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  DEFAULT_PROFILE_SERVICE_URL,
-  DEFAULT_VACANCY_SERVICE_URL,
-  PROFILE_PATH
-} from '../preparation/preparation.constants';
+import { UpstreamService } from '../upstream/upstream.service';
 import {
   buildAnalytics,
   toProfileSkills,
   toVacancies
 } from '../utils/analytics.utils';
-import { toServiceBaseUrl } from '../utils/preparation.utils';
 import { ApplicationWorkflow } from '../workflow/entities/application-workflow.entity';
-import { SOURCE_TIMEOUT_MS, VACANCIES_PATH } from './analytics.constants';
 import { AnalyticsDto } from './dto/analytics.dto';
 
 @Injectable()
 export class AnalyticsService {
-  private readonly vacancyUrl: string;
-  private readonly profileUrl: string;
   constructor(
     @InjectRepository(ApplicationWorkflow)
-    readonly workflows: Repository<ApplicationWorkflow>,
-    config: ConfigService
-  ) {
-    this.vacancyUrl = toServiceBaseUrl(
-      config.get<string>('VACANCY_SERVICE_URL', DEFAULT_VACANCY_SERVICE_URL)
-    );
-    this.profileUrl = toServiceBaseUrl(
-      config.get<string>('PROFILE_SERVICE_URL', DEFAULT_PROFILE_SERVICE_URL)
-    );
-  }
+    private readonly workflows: Repository<ApplicationWorkflow>,
+    private readonly upstream: UpstreamService
+  ) {}
 
   async overview(
     userId: string,
@@ -48,8 +28,8 @@ export class AnalyticsService {
         where: { userId },
         relations: { stages: { stageType: true } }
       }),
-      this.read(`${this.vacancyUrl}${VACANCIES_PATH}`, authorization),
-      this.read(`${this.profileUrl}${PROFILE_PATH}`, authorization)
+      this.upstream.vacancies(authorization),
+      this.upstream.profile(authorization)
     ]);
     if (!Array.isArray(vacancies))
       throw new ServiceUnavailableException('Invalid vacancy list');
@@ -60,26 +40,5 @@ export class AnalyticsService {
       period,
       now: new Date()
     });
-  }
-
-  private async read(url: string, authorization: string): Promise<unknown> {
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        headers: { Authorization: authorization },
-        redirect: 'error',
-        signal: AbortSignal.timeout(SOURCE_TIMEOUT_MS)
-      });
-    } catch {
-      throw new ServiceUnavailableException('Analytics source unavailable');
-    }
-    if (response.status === 401) throw new UnauthorizedException();
-    if (!response.ok)
-      throw new ServiceUnavailableException('Analytics source unavailable');
-    try {
-      return (await response.json()) as unknown;
-    } catch {
-      throw new ServiceUnavailableException('Invalid analytics source');
-    }
   }
 }

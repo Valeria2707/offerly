@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
 import { randomUUID } from 'node:crypto';
 import { AuditProducerService } from './audit-producer.service';
+import { AUDIT_TOPICS } from './auth.constants';
 import { JwtPayload } from './auth.types';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
@@ -36,19 +37,19 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
 
     const response = await this.createTokenPair(user);
-    await this.audit.publish('identity.auth.login.v1', user.id);
+    void this.audit.publish(AUDIT_TOPICS.LOGIN, user.id);
     return response;
   }
 
   async register(input: RegisterDto): Promise<AuthResponseDto> {
     const user = await this.users.create(input);
-    await this.audit.publish('identity.user.registered.v1', user.id);
+    void this.audit.publish(AUDIT_TOPICS.REGISTERED, user.id);
     return this.createTokenPair(user);
   }
 
   async authenticateWithGoogle(idToken: string): Promise<AuthResponseDto> {
     const user = await this.googleAuth.authenticate(idToken);
-    await this.audit.publish('identity.auth.google-login.v1', user.id);
+    void this.audit.publish(AUDIT_TOPICS.GOOGLE_LOGIN, user.id);
     return this.createTokenPair(user);
   }
 
@@ -61,7 +62,7 @@ export class AuthService {
     if (!user.exp) throw new UnauthorizedException('Token has no expiration');
     await this.revocations.revoke(user.jti, user.exp, user.sub);
     await this.refreshTokens.revokeAll(user.sub);
-    await this.audit.publish('identity.auth.logout.v1', user.sub);
+    void this.audit.publish(AUDIT_TOPICS.LOGOUT, user.sub);
   }
 
   private async createTokenPair(

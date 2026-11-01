@@ -1,14 +1,14 @@
 # Workflow service
 
-Owns the stage catalog and every vacancy application workflow. It consumes `vacancy.vacancy.created.v1` and idempotently creates the default `Submitted → HR screening → Technical interview → Final interview → Offer` pipeline.
+Owns the stage catalog and every vacancy application workflow. It consumes `vacancy.vacancy.created.v1` and idempotently creates the default `Submitted → HR screening → Technical interview → Final interview → Offer` pipeline, and `vacancy.vacancy.deleted.v1` to delete the workflow of a removed vacancy (stages, notes, questions and preparation cascade). If the created event has not arrived yet, `GET /workflows/vacancies/:vacancyId` creates the workflow itself, but only after vacancy-service confirms with the caller's token that the vacancy is theirs.
 
 Stages sharing the same `position` run in parallel. The reorder endpoint accepts every stage exactly once, grouped by position. System stage types are immutable; users may create, edit and deactivate personal types.
 
 Each stage of a vacancy workflow has its own list of notes (`stage_notes`), managed via `POST|PATCH|DELETE /workflows/:workflowId/stages/:stageId/notes[/:noteId]` and returned inside every stage of the workflow response.
 
-Stage statuses: `not_started`, `scheduled`, `in_progress`, `awaiting_result`, `completed`, `cancelled` (the candidate did not pass — the whole vacancy is rejected and other statuses freeze), `skipped`, and `cancelled_by_company` (the company called the stage off; the process goes on). A `cancelled` stage may carry a `rejectionReason` from a fixed classifier (`skills`, `experience`, `salary`, `language`, `location`, `culture_fit`, `test_task`, `position_closed`, `other_candidate`, `candidate_declined`, `no_reason`, `other`); any other status clears it.
+Stage statuses: `not_started`, `scheduled`, `in_progress`, `awaiting_result`, `completed`, `cancelled` (the candidate did not pass — the whole vacancy is rejected and other statuses freeze), `skipped`, and `cancelled_by_company` (the company called the stage off; the process goes on). A `cancelled` stage may carry a `rejectionReason` from a fixed classifier (`skills`, `experience`, `salary`, `language`, `location`, `culture_fit`, `test_task`, `position_closed`, `other_candidate`, `candidate_declined`, `no_reason`, `other`); any other status clears it. `completed`, `cancelled` and `cancelled_by_company` record `completedAt`; `skipped` finishes the stage without a completion date. These sets live in `src/workflow/workflow.constants.ts`.
 
-`GET /workflows/summary?vacancyIds=` returns, per vacancy, the first unfinished stage (`currentStage`) and the furthest reached one (`reachedStage`: any status except `not_started` and `skipped`, so a rejection counts). Each brief carries the catalog `code` and `completedAt`; the frontend board places vacancies into columns by `reachedStage`.
+`GET /workflows/summary?vacancyIds=` returns, per vacancy, the first unfinished stage (`currentStage`) and the furthest reached one (`reachedStage`: any status except `not_started`, `skipped` and `cancelled_by_company`, so a rejection counts). Each brief carries the catalog `code` and `completedAt`; the frontend board places vacancies into columns by `reachedStage`.
 
 Swagger is available at `http://localhost:3004/docs` outside production.
 
@@ -75,7 +75,7 @@ Reminders are derived, never stored. `utils/reminders.utils.ts` is a pure functi
 
 Email is not sent from this service. When a reminder comes due the worker writes a `workflow.reminder.due.v1` event to `outbox_events` in the same transaction as the `sent_reminders` row, so a crash can neither lose nor duplicate a message. `OutboxPublisherService` ships it to Kafka, and auth-service delivers it: only auth-service knows the user's email address, so the address never leaves the service that owns it.
 
-The worker wakes every fifteen minutes using `setInterval`, the same pattern as the vacancy outbox publisher, and queues two kinds of message: a reminder the day before an interview and a Monday digest. Quiet hours suppress queueing entirely. `reminder_settings.email_enabled` is the user's opt-in; the address itself is not stored here.
+The worker wakes every fifteen minutes using `setInterval`, the same pattern as the vacancy outbox publisher, and queues two kinds of message: a reminder the day before an interview and a Monday digest. Quiet hours suppress queueing entirely. They are compared in the server time zone (UTC in Docker), so `22:00–08:00` means 00:00–10:00 in Kyiv in winter. The weekly digest lists at most ten upcoming events to stay within the event body limit, and stage names are HTML-escaped. `reminder_settings.email_enabled` is the user's opt-in; the address itself is not stored here.
 
 ## Analytics
 
@@ -88,7 +88,7 @@ All calculations live in `utils/analytics.utils.ts` as pure functions:
 | Block | Rule |
 | --- | --- |
 | Summary | Vacancies added in the period, the previous period of the same length, active and awaiting processes, offers per added vacancy, average days from adding to an offer or rejection |
-| Funnel | Added → reached a screening stage → reached a technical stage → reached a behavioral (final) stage → offer completed. "Reached" means any status except `not_started` and `skipped` |
+| Funnel | Added → reached a screening stage → reached a technical stage → reached a behavioral (final) stage → offer completed. "Reached" means any status except `not_started`, `skipped` and `cancelled_by_company` |
 | Outcomes | Offer completed; rejected or archived; a stage awaits a result; everything else is in progress |
 | Weekly | Monday-based UTC weeks (4–13 for a period, 12 for the whole history): vacancies added and stages completed |
 | Categories | Completed versus cancelled stages for each category |

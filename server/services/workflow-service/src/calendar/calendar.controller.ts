@@ -30,7 +30,7 @@ import {
 @ApiTags('calendar')
 @Controller('calendar')
 export class CalendarController {
-  constructor(readonly service: CalendarService) {}
+  constructor(private readonly service: CalendarService) {}
 
   @Get()
   @ApiBearerAuth()

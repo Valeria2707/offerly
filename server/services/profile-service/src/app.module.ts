@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { SharedAuthModule } from '@offerly/auth';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import Joi from 'joi';
+import * as Joi from 'joi';
 import { createDataSourceWithSchema } from './database/create-data-source';
 import { HealthController } from './health.controller';
 import { CvImport } from './profile/entities/cv-import.entity';
 import { Profile } from './profile/entities/profile.entity';
 import { ProfileModule } from './profile/profile.module';
-import { AiOperation } from './ai-log/ai-operation.entity';
+import { AiOperation } from '@offerly/nest-common';
 
 @Module({
   imports: [
@@ -34,6 +34,12 @@ import { AiOperation } from './ai-log/ai-operation.entity';
           .default(100_000),
         APP_BASE_URL: Joi.string().uri().required(),
         SWAGGER_ENABLED: Joi.boolean().default(false)
+      }).custom((env: Record<string, string>) => {
+        if (Boolean(env.OPENAI_API_KEY) !== Boolean(env.OPENAI_MODEL))
+          throw new Error(
+            'Set both OPENAI_API_KEY and OPENAI_MODEL or neither'
+          );
+        return env;
       })
     }),
     TypeOrmModule.forRootAsync({
@@ -45,6 +51,7 @@ import { AiOperation } from './ai-log/ai-operation.entity';
         database: config.getOrThrow<string>('DATABASE_NAME'),
         username: config.getOrThrow<string>('DATABASE_USER'),
         password: config.getOrThrow<string>('DATABASE_PASSWORD'),
+        schema: 'profile',
         entities: [Profile, CvImport, AiOperation],
         synchronize: true
       }),

@@ -5,8 +5,9 @@ import {
   OnModuleInit
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { createIntegrationEvent } from '@offerly/helpers';
 import { Kafka, Producer } from 'kafkajs';
-import { randomUUID } from 'node:crypto';
+import { SERVICE_NAME } from '../app.constants';
 
 @Injectable()
 export class AuditProducerService implements OnModuleInit, OnModuleDestroy {
@@ -15,7 +16,7 @@ export class AuditProducerService implements OnModuleInit, OnModuleDestroy {
 
   constructor(config: ConfigService) {
     const brokers = config.getOrThrow<string>('KAFKA_BROKERS').split(',');
-    this.producer = new Kafka({ clientId: 'auth-service', brokers }).producer();
+    this.producer = new Kafka({ clientId: SERVICE_NAME, brokers }).producer();
   }
 
   async onModuleInit(): Promise<void> {
@@ -27,13 +28,7 @@ export class AuditProducerService implements OnModuleInit, OnModuleDestroy {
   }
 
   async publish(topic: string, userId: string): Promise<void> {
-    const event = {
-      eventId: randomUUID(),
-      eventType: topic,
-      occurredAt: new Date().toISOString(),
-      producer: 'auth-service',
-      data: { userId }
-    };
+    const event = createIntegrationEvent(topic, SERVICE_NAME, { userId });
     try {
       await this.producer.send({
         topic,

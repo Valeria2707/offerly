@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AiOperation } from '../ai-log/ai-operation.entity';
-import { AiLogService } from '../ai-log/ai-log.service';
+import { AiLogModule } from '@offerly/nest-common';
 import { CvModule } from '../cv/cv.module';
 import { CvImport } from './entities/cv-import.entity';
 import { Profile } from './entities/profile.entity';
@@ -11,10 +10,11 @@ import { ProfileService } from './profile.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Profile, CvImport, AiOperation]),
-    CvModule
+    TypeOrmModule.forFeature([Profile, CvImport]),
+    CvModule,
+    AiLogModule
   ],
   controllers: [ProfileController],
-  providers: [ProfileService, ProfileRepository, AiLogService]
+  providers: [ProfileService, ProfileRepository]
 })
 export class ProfileModule {}

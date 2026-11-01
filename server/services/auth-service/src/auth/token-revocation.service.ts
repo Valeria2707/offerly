@@ -19,7 +19,6 @@ export class TokenRevocationService {
   }
 
   async isRevoked(jti: string): Promise<boolean> {
-    await this.removeExpired();
     return (await this.revokedTokens.countBy({ jti })) > 0;
   }
 

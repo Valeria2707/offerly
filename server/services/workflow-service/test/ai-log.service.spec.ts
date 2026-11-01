@@ -1,7 +1,6 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { AiLogService } from '../src/ai-log/ai-log.service';
-import { AiOperation } from '../src/ai-log/ai-operation.entity';
+import { AiLogService, AiOperation } from '@offerly/nest-common';
 
 describe('AI operations log', () => {
   const insert = jest.fn();

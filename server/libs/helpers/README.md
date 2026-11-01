@@ -12,6 +12,11 @@ Shared, framework-independent backend helpers. Import from `@offerly/helpers`; d
 - `isOpenAiResponse(value)` — validates the common OpenAI Responses API output envelope.
 - `anonymize(text)` — replaces e-mails and phone numbers with `[email]` and `[phone]` before text is sent to an AI provider; also returns the removed values.
 
+- `isUniqueViolation(error)` — true for a Postgres unique constraint violation (`23505`).
+- `escapeHtml(text)` — escapes user text before it goes into an HTML email.
+- `KAFKA_TOPICS`, `createIntegrationEvent(topic, producer, data)` — topics shared between services and the common event envelope (`eventId`, `eventType`, `occurredAt`, `producer`, `data`).
+- `API_PREFIX`, `MINUTE_MS`, `DAY_MS`, `OPENAI_RESPONSES_URL`, `OPENAI_TIMEOUT_MS` — shared constants.
+
 ## Rules for adding helpers
 
 1. Search this package before implementing a new utility in a service.

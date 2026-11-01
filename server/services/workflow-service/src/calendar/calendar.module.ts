@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
+import { OutboxEvent } from '@offerly/nest-common';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
 import { CalendarController } from './calendar.controller';
 import { CalendarService } from './calendar.service';

@@ -8,8 +8,7 @@ import {
   ValidateNested,
   validate
 } from 'class-validator';
-import { isRecord } from '@offerly/helpers';
-import { REMINDER_DUE_TOPIC } from './events.constants';
+import { isRecord, KAFKA_TOPICS } from '@offerly/helpers';
 
 export class ReminderDueData {
   @IsUUID()
@@ -36,8 +35,8 @@ export class ReminderDueEvent {
   @IsUUID()
   eventId!: string;
 
-  @Equals(REMINDER_DUE_TOPIC)
-  eventType!: typeof REMINDER_DUE_TOPIC;
+  @Equals(KAFKA_TOPICS.REMINDER_DUE)
+  eventType!: typeof KAFKA_TOPICS.REMINDER_DUE;
 
   @IsDateString()
   occurredAt!: string;

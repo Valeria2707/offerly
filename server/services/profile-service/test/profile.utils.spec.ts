@@ -1,6 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
-import { ProfileDataDto } from '../src/profile/dto/profile.dto';
+import {
+  ProfileDataDto,
+  UpdateProfileDto
+} from '../src/profile/dto/profile.dto';
 import { createEmptyProfileData } from '../src/profile/profile.defaults';
 import {
   mergeProfileDraft,
@@ -8,6 +11,19 @@ import {
 } from '../src/utils/profile.utils';
 
 describe('profile utilities', () => {
+  it('keeps basics fields that were not sent in a partial update', () => {
+    const current = createEmptyProfileData();
+    current.basics.fullName = 'Jane Doe';
+    const update = plainToInstance(UpdateProfileDto, {
+      basics: { headline: 'Backend Engineer' }
+    });
+
+    const updated = updateProfileData(current, update);
+
+    expect(updated.basics.fullName).toBe('Jane Doe');
+    expect(updated.basics.headline).toBe('Backend Engineer');
+  });
+
   it('preserves career preferences when merging a CV draft', () => {
     const current = createEmptyProfileData();
     current.preferences.desiredPosition = 'Backend Engineer';

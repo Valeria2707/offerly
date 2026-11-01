@@ -1,11 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsUUID } from 'class-validator';
-import {
-  RejectionReason,
-  StageCategory,
-  StageStatus
-} from '../workflow.enums';
+import { RejectionReason, StageCategory, StageStatus } from '../workflow.enums';
 
 export class WorkflowSummaryQueryDto {
   @ApiProperty({
@@ -57,7 +53,7 @@ export class WorkflowSummaryDto {
     type: StageBriefDto,
     nullable: true,
     description:
-      'Furthest stage the candidate has reached (any status except not started or skipped)'
+      'Furthest stage the candidate has reached (any status except not started, skipped or cancelled by company)'
   })
   reachedStage!: StageBriefDto | null;
 }

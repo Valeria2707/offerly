@@ -29,3 +29,29 @@ export class CreateStageTypeDto {
   @ApiPropertyOptional() @IsOptional() @IsBoolean() producesArtifact?: boolean;
 }
 export class UpdateStageTypeDto extends PartialType(CreateStageTypeDto) {}
+
+export class StageTypeResponseDto {
+  @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Null for system stage types'
+  })
+  ownerUserId!: string | null;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Catalog code of a system type; null for personal types'
+  })
+  code!: string | null;
+  @ApiProperty() name!: string;
+  @ApiProperty({ enum: StageCategory }) category!: StageCategory;
+  @ApiProperty({ type: Number, nullable: true })
+  expectedDurationMinutes!: number | null;
+  @ApiProperty() requiresPreparation!: boolean;
+  @ApiProperty() supportsDeadline!: boolean;
+  @ApiProperty() producesArtifact!: boolean;
+  @ApiProperty() isActive!: boolean;
+  @ApiProperty() createdAt!: Date;
+  @ApiProperty() updatedAt!: Date;
+}

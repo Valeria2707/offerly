@@ -7,8 +7,6 @@ export const ZIP_FILE_SIGNATURE = [0x50, 0x4b];
 export const CV_MIN_EXTRACTED_CHARACTERS = 80;
 export const CV_MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 export const CV_SCHEMA_VERSION = '1.0';
-export const OPENAI_REQUEST_TIMEOUT_MS = 60_000;
-export const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
 export const CV_EXTRACTION_INSTRUCTIONS = [
   'Extract only facts explicitly present in the CV into the provided schema.',

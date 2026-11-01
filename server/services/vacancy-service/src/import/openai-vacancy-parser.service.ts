@@ -9,12 +9,14 @@ import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { VacancyDraftDto } from '../vacancy/dto/vacancy.dto';
 import { VacancyDraftData } from '../vacancy/vacancy.types';
-import { getValidationPaths, isOpenAiResponse } from '@offerly/helpers';
 import {
+  getValidationPaths,
+  isOpenAiResponse,
   OPENAI_RESPONSES_URL,
-  OPENAI_TIMEOUT_MS,
-  VACANCY_EXTRACTION_INSTRUCTIONS
-} from './import.constants';
+  OPENAI_TIMEOUT_MS
+} from '@offerly/helpers';
+import { toVacancyDraftData } from '../utils/vacancy.utils';
+import { VACANCY_EXTRACTION_INSTRUCTIONS } from './import.constants';
 import { vacancyJsonSchema } from './vacancy.schema';
 
 @Injectable()
@@ -107,22 +109,6 @@ export class OpenAiVacancyParserService {
         'Vacancy AI provider returned an invalid structured result'
       );
     }
-    return {
-      title: validated.title,
-      company: validated.company,
-      location: validated.location ?? null,
-      workFormat: validated.workFormat ?? null,
-      employmentType: validated.employmentType ?? null,
-      level: validated.level ?? null,
-      salaryRange: validated.salaryRange ?? null,
-      postedAt: validated.postedAt ?? null,
-      description: validated.description ?? null,
-      requiredSkills: validated.requiredSkills ?? [],
-      preferredSkills: validated.preferredSkills ?? [],
-      experienceRequirement: validated.experienceRequirement ?? null,
-      educationRequirement: validated.educationRequirement ?? null,
-      languageRequirements: validated.languageRequirements ?? [],
-      sourceUrl
-    };
+    return { ...toVacancyDraftData(validated), sourceUrl };
   }
 }

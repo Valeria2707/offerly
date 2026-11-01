@@ -21,11 +21,31 @@ import {
   Min,
   ValidateNested
 } from 'class-validator';
+import {
+  MAX_VACANCY_TEXT_LENGTH,
+  MIN_VACANCY_TEXT_LENGTH
+} from '../../import/import.constants';
 import { VacancyLifecycle } from '../enums/vacancy-lifecycle.enum';
+import {
+  RECRUITER_EMAIL_MAX_LENGTH,
+  RECRUITER_NAME_MAX_LENGTH,
+  RECRUITER_PHONE_MAX_LENGTH,
+  URL_MAX_LENGTH,
+  VACANCY_COMPANY_MAX_LENGTH,
+  VACANCY_TITLE_MAX_LENGTH
+} from '../vacancy.constants';
 
 export class VacancyDraftDto {
-  @ApiProperty() @IsString() @Length(1, 300) @Matches(/\S/) title!: string;
-  @ApiProperty() @IsString() @Length(1, 300) @Matches(/\S/) company!: string;
+  @ApiProperty({ maxLength: VACANCY_TITLE_MAX_LENGTH })
+  @IsString()
+  @Length(1, VACANCY_TITLE_MAX_LENGTH)
+  @Matches(/\S/)
+  title!: string;
+  @ApiProperty({ maxLength: VACANCY_COMPANY_MAX_LENGTH })
+  @IsString()
+  @Length(1, VACANCY_COMPANY_MAX_LENGTH)
+  @Matches(/\S/)
+  company!: string;
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
   @IsString()
@@ -91,25 +111,31 @@ export class VacancyDraftDto {
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
-  @MaxLength(2048)
+  @MaxLength(URL_MAX_LENGTH)
   sourceUrl?: string | null;
 }
 
 export class RecruiterContactDto {
-  @ApiPropertyOptional({ nullable: true, maxLength: 200 })
+  @ApiPropertyOptional({ nullable: true, maxLength: RECRUITER_NAME_MAX_LENGTH })
   @IsOptional()
   @IsString()
-  @MaxLength(200)
+  @MaxLength(RECRUITER_NAME_MAX_LENGTH)
   recruiterName?: string | null;
-  @ApiPropertyOptional({ nullable: true, maxLength: 320 })
+  @ApiPropertyOptional({
+    nullable: true,
+    maxLength: RECRUITER_EMAIL_MAX_LENGTH
+  })
   @IsOptional()
   @IsEmail()
-  @MaxLength(320)
+  @MaxLength(RECRUITER_EMAIL_MAX_LENGTH)
   recruiterEmail?: string | null;
-  @ApiPropertyOptional({ nullable: true, maxLength: 50 })
+  @ApiPropertyOptional({
+    nullable: true,
+    maxLength: RECRUITER_PHONE_MAX_LENGTH
+  })
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(RECRUITER_PHONE_MAX_LENGTH)
   recruiterPhone?: string | null;
   @ApiPropertyOptional({
     nullable: true,
@@ -117,7 +143,7 @@ export class RecruiterContactDto {
   })
   @IsOptional()
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
-  @MaxLength(2048)
+  @MaxLength(URL_MAX_LENGTH)
   recruiterUrl?: string | null;
 }
 
@@ -170,18 +196,18 @@ export class UpdateVacancyDto extends IntersectionType(
 export class ImportVacancyUrlDto {
   @ApiProperty({ example: 'https://company.example/jobs/backend-engineer' })
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
-  @MaxLength(2048)
+  @MaxLength(URL_MAX_LENGTH)
   url!: string;
 }
 
 export class ImportVacancyTextDto {
   @ApiProperty({
     description: 'Full vacancy posting copied by the user',
-    minLength: 100,
-    maxLength: 100000
+    minLength: MIN_VACANCY_TEXT_LENGTH,
+    maxLength: MAX_VACANCY_TEXT_LENGTH
   })
   @IsString()
-  @Length(100, 100_000)
+  @Length(MIN_VACANCY_TEXT_LENGTH, MAX_VACANCY_TEXT_LENGTH)
   @Matches(/\S/)
   text!: string;
 }

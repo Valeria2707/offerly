@@ -1,9 +1,6 @@
 import { differenceInCalendarDays } from 'date-fns';
-import {
-  DEADLINE_DAYS,
-  FINISHED_STATUSES,
-  SILENCE_DAYS
-} from '../calendar/calendar.constants';
+import { DEADLINE_DAYS, SILENCE_DAYS } from '../calendar/calendar.constants';
+import { FINISHED_STATUSES } from '../workflow/workflow.constants';
 import { ReminderKind } from '../calendar/calendar.enums';
 import { WorkflowStage } from '../workflow/entities/workflow-stage.entity';
 import { StageStatus } from '../workflow/workflow.enums';

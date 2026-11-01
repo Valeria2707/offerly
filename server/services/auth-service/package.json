@@ -20,6 +20,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/typeorm": "^10.0.2",
+    "@offerly/auth": "file:../../libs/auth",
     "@offerly/helpers": "file:../../libs/helpers",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",

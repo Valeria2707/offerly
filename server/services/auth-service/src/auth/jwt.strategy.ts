@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { JWT_AUDIENCE, JWT_ISSUER } from '@offerly/auth';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from './auth.types';
 import { TokenRevocationService } from './token-revocation.service';
@@ -14,8 +15,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
-      issuer: 'auth-service',
-      audience: 'microservices-api'
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE
     });
   }
 

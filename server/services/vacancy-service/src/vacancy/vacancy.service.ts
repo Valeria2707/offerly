@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { anonymize } from '@offerly/helpers';
-import { AiLogService } from '../ai-log/ai-log.service';
+import { AiLogService } from '@offerly/nest-common';
 import { JobPageFetcherService } from '../import/job-page-fetcher.service';
 import { OpenAiVacancyParserService } from '../import/openai-vacancy-parser.service';
 import {
@@ -47,9 +47,7 @@ export class VacancyService {
     userId: string,
     input: OfferRecommendationRequestDto
   ): Promise<OfferRecommendationDto> {
-    const offers = await Promise.all(
-      input.vacancyIds.map((id) => this.repository.find(userId, id))
-    );
+    const offers = await this.repository.findMany(userId, input.vacancyIds);
     return recommendOffer(offers, input.comparisons);
   }
   async delete(userId: string, id: string): Promise<void> {

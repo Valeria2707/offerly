@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -10,6 +11,7 @@ import {
 import { WorkflowStage } from './workflow-stage.entity';
 @Entity({ schema: 'workflow', name: 'application_workflows' })
 @Unique('UQ_workflow_vacancy', ['vacancyId'])
+@Index('IDX_application_workflows_user', ['userId'])
 export class ApplicationWorkflow {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ name: 'vacancy_id', type: 'uuid' })

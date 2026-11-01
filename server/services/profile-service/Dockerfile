@@ -14,12 +14,22 @@ COPY libs/helpers/tsconfig.json ./
 COPY libs/helpers/src ./src
 RUN npm run build
 
+FROM node:22-alpine AS shared-nest-common
+WORKDIR /server/libs/nest-common
+COPY libs/nest-common/package*.json ./
+RUN npm ci
+COPY libs/nest-common/tsconfig.json ./
+COPY libs/nest-common/src ./src
+RUN npm run build
+
 FROM node:22-alpine AS build
 WORKDIR /server
 COPY --from=shared-auth /server/libs/auth/package.json ./libs/auth/package.json
 COPY --from=shared-auth /server/libs/auth/dist ./libs/auth/dist
 COPY --from=shared-helpers /server/libs/helpers/package.json ./libs/helpers/package.json
 COPY --from=shared-helpers /server/libs/helpers/dist ./libs/helpers/dist
+COPY --from=shared-nest-common /server/libs/nest-common/package.json ./libs/nest-common/package.json
+COPY --from=shared-nest-common /server/libs/nest-common/dist ./libs/nest-common/dist
 WORKDIR /server/services/profile-service
 COPY services/profile-service/package*.json ./
 COPY services/profile-service/.npmrc ./
@@ -35,6 +45,8 @@ COPY --from=shared-auth /server/libs/auth/package.json ./libs/auth/package.json
 COPY --from=shared-auth /server/libs/auth/dist ./libs/auth/dist
 COPY --from=shared-helpers /server/libs/helpers/package.json ./libs/helpers/package.json
 COPY --from=shared-helpers /server/libs/helpers/dist ./libs/helpers/dist
+COPY --from=shared-nest-common /server/libs/nest-common/package.json ./libs/nest-common/package.json
+COPY --from=shared-nest-common /server/libs/nest-common/dist ./libs/nest-common/dist
 WORKDIR /server/services/profile-service
 COPY services/profile-service/package*.json ./
 COPY services/profile-service/.npmrc ./

@@ -4,22 +4,12 @@ import {
   StageBriefDto,
   WorkflowSummaryDto
 } from '../workflow/dto/workflow-summary.dto';
+import { STAGE_CODES } from '../stage-type/stage-type.constants';
+import {
+  FINISHED_STATUSES,
+  NOT_REACHED_STATUSES
+} from '../workflow/workflow.constants';
 import { StageStatus } from '../workflow/workflow.enums';
-
-const CLOSED_STATUSES = new Set([
-  StageStatus.COMPLETED,
-  StageStatus.CANCELLED,
-  StageStatus.SKIPPED,
-  StageStatus.CANCELLED_BY_COMPANY
-]);
-
-const NOT_REACHED_STATUSES = new Set([
-  StageStatus.NOT_STARTED,
-  StageStatus.SKIPPED,
-  StageStatus.CANCELLED_BY_COMPANY
-]);
-
-export const OFFER_STAGE_CODE = 'offer';
 
 function toBrief(stage: WorkflowStage): StageBriefDto {
   return {
@@ -39,7 +29,7 @@ export function toWorkflowSummary(
   workflow: ApplicationWorkflow
 ): WorkflowSummaryDto {
   const stages = workflow.stages;
-  const current = stages.find((stage) => !CLOSED_STATUSES.has(stage.status));
+  const current = stages.find((stage) => !FINISHED_STATUSES.has(stage.status));
   const reached = [...stages]
     .reverse()
     .find((stage) => !NOT_REACHED_STATUSES.has(stage.status));
@@ -49,12 +39,10 @@ export function toWorkflowSummary(
     completedCount: stages.filter(
       (stage) => stage.status === StageStatus.COMPLETED
     ).length,
-    rejected: stages.some(
-      (stage) => stage.status === StageStatus.CANCELLED
-    ),
+    rejected: stages.some((stage) => stage.status === StageStatus.CANCELLED),
     offered: stages.some(
       (stage) =>
-        stage.stageType?.code === OFFER_STAGE_CODE &&
+        stage.stageType?.code === STAGE_CODES.OFFER &&
         stage.status === StageStatus.COMPLETED
     ),
     currentStage: current ? toBrief(current) : null,

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isUniqueViolation } from '@offerly/helpers';
 import { DataSource, Repository } from 'typeorm';
 import { CreateCvImportData } from '../cv/types/cv-import.types';
 import { CvImport } from './entities/cv-import.entity';
@@ -23,9 +24,8 @@ export class ProfileRepository {
         this.profiles.create({ userId, data: createEmptyProfileData() })
       );
     } catch (error) {
-      const concurrentlyCreated = await this.profiles.findOneBy({ userId });
-      if (!concurrentlyCreated) throw error;
-      return concurrentlyCreated;
+      if (!isUniqueViolation(error)) throw error;
+      return this.profiles.findOneByOrFail({ userId });
     }
   }
 

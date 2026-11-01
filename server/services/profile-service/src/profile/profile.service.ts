@@ -19,7 +19,7 @@ import {
 } from './dto/profile.dto';
 import { CvImportStatus } from './enums/cv-import-status.enum';
 import { ProfileRepository } from './profile.repository';
-import { AiLogService } from '../ai-log/ai-log.service';
+import { AiLogService } from '@offerly/nest-common';
 
 @Injectable()
 export class ProfileService {

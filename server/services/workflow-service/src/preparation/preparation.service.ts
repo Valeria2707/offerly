@@ -20,7 +20,7 @@ import {
 } from './preparation.constants';
 import { PastQuestion } from './preparation.types';
 import { StagePreparationData } from './entities/stage-preparation.entity';
-import { AiLogService } from '../ai-log/ai-log.service';
+import { AiLogService } from '@offerly/nest-common';
 import { AnswerReviewerService } from './services/answer-reviewer.service';
 import { PreparationContextService } from './services/preparation-context.service';
 import { PreparationStrategyFactory } from './strategies/preparation-strategy.factory';
@@ -61,12 +61,12 @@ export class PreparationService {
     input: GeneratePreparationDto,
     authorization: string
   ): Promise<StagePreparationData> {
-    const workflow = await this.workflows.requireWorkflow(userId, workflowId);
-    const stage = await this.workflows.stages.findOne({
-      where: { id: stageId, workflowId },
-      relations: { stageType: true }
-    });
-    if (!stage) throw new NotFoundException('Workflow stage not found');
+    const stage = await this.workflows.requireStage(
+      userId,
+      workflowId,
+      stageId,
+      { workflow: true, stageType: true }
+    );
     const stageType = stage.stageType;
     const instructions = input.instructions?.trim() ?? '';
     if (stageType.ownerUserId && !instructions)
@@ -84,7 +84,7 @@ export class PreparationService {
     this.generating.add(stageId);
     try {
       const [context, pastQuestions] = await Promise.all([
-        this.context.load(workflow.vacancyId, authorization),
+        this.context.load(stage.workflow.vacancyId, authorization),
         this.pastQuestions(userId, workflowId, stageId, stage.category)
       ]);
       const data = await this.aiLog.track(userId, 'preparation', () =>
@@ -174,23 +174,7 @@ export class PreparationService {
     userAnswer: string
   ): Promise<StagePreparationData> {
     await this.workflows.requireStage(userId, workflowId, stageId);
-    return this.dataSource.transaction(async (manager) => {
-      await this.lockStage(manager, workflowId, stageId);
-      const preparation = await manager.findOneBy(StagePreparationData, {
-        stageId
-      });
-      if (!preparation)
-        throw new NotFoundException('Stage preparation not found');
-      const question = questionItems(preparation.data).find(
-        (item) => item.id === questionId
-      );
-      if (!question)
-        throw new NotFoundException('Preparation question not found');
-
-      if (question.userAnswer !== userAnswer) delete question.feedback;
-      question.userAnswer = userAnswer;
-      return manager.save(StagePreparationData, preparation);
-    });
+    return this.saveAnswer(workflowId, stageId, questionId, userAnswer);
   }
 
   async review(
@@ -206,18 +190,17 @@ export class PreparationService {
       throw new BadRequestException(
         'Write an answer before requesting a review'
       );
-    const workflow = await this.workflows.requireWorkflow(userId, workflowId);
     const stage = await this.workflows.requireStage(
       userId,
       workflowId,
-      stageId
+      stageId,
+      { workflow: true }
     );
     if (this.reviewing.has(questionId))
       throw new ConflictException('This answer is already being reviewed');
     this.reviewing.add(questionId);
     try {
-      const saved = await this.answer(
-        userId,
+      const saved = await this.saveAnswer(
         workflowId,
         stageId,
         questionId,
@@ -225,7 +208,7 @@ export class PreparationService {
       );
       const question = this.findQuestion(saved, questionId);
       const context = await this.context.load(
-        workflow.vacancyId,
+        stage.workflow.vacancyId,
         authorization
       );
       const review = await this.aiLog.track(userId, 'answer_review', () =>
@@ -256,6 +239,26 @@ export class PreparationService {
     } finally {
       this.reviewing.delete(questionId);
     }
+  }
+
+  private saveAnswer(
+    workflowId: string,
+    stageId: string,
+    questionId: string,
+    userAnswer: string
+  ): Promise<StagePreparationData> {
+    return this.dataSource.transaction(async (manager) => {
+      await this.lockStage(manager, workflowId, stageId);
+      const preparation = await manager.findOneBy(StagePreparationData, {
+        stageId
+      });
+      if (!preparation)
+        throw new NotFoundException('Stage preparation not found');
+      const question = this.findQuestion(preparation, questionId);
+      if (question.userAnswer !== userAnswer) delete question.feedback;
+      question.userAnswer = userAnswer;
+      return manager.save(StagePreparationData, preparation);
+    });
   }
 
   private findQuestion(

@@ -77,9 +77,12 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3001}
+      KAFKA_BROKERS: kafka:9092
     ports:
       - "3000:3000"
     depends_on:
+      kafka:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       mailpit:

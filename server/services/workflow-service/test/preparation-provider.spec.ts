@@ -7,6 +7,16 @@ import {
 import { PreparationGeneratorService } from '../src/preparation/services/preparation-generator.service';
 import { PreparationContextService } from '../src/preparation/services/preparation-context.service';
 import { PreparationType } from '../src/preparation/preparation.enums';
+import { UpstreamService } from '../src/upstream/upstream.service';
+
+const SERVICE_URLS = {
+  VACANCY_SERVICE_URL: 'http://vacancy-service:3003',
+  PROFILE_SERVICE_URL: 'http://profile-service:3002'
+};
+const contextService = (): PreparationContextService =>
+  new PreparationContextService(
+    new UpstreamService(new ConfigService(SERVICE_URLS))
+  );
 const context = {
   vacancy: { title: 'Developer' },
   profile: {},
@@ -29,8 +39,11 @@ describe('preparation provider boundary', () => {
     }
     expect(
       () =>
-        new PreparationContextService(
-          new ConfigService({ PROFILE_SERVICE_URL: 'file:///tmp' })
+        new UpstreamService(
+          new ConfigService({
+            ...SERVICE_URLS,
+            PROFILE_SERVICE_URL: 'file:///tmp'
+          })
         )
     ).toThrow();
   });
@@ -186,9 +199,7 @@ describe('preparation provider boundary', () => {
           }
         })
       );
-    const result = await new PreparationContextService(
-      new ConfigService({})
-    ).load('vacancy', 'Bearer user-token');
+    const result = await contextService().load('vacancy', 'Bearer user-token');
     expect(result.vacancy).toEqual({
       title: 'Developer',
       requiredSkills: ['React']
@@ -209,10 +220,7 @@ describe('preparation provider boundary', () => {
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(new Response('', { status: 404 }));
     await expect(
-      new PreparationContextService(new ConfigService({})).load(
-        'vacancy',
-        'Bearer token'
-      )
+      contextService().load('vacancy', 'Bearer token')
     ).rejects.toThrow(NotFoundException);
   });
 });

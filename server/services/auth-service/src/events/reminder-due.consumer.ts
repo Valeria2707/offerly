@@ -7,27 +7,29 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Consumer, Kafka } from 'kafkajs';
+import { KAFKA_TOPICS } from '@offerly/helpers';
 import { Repository } from 'typeorm';
+import { SERVICE_NAME } from '../app.constants';
 import { MailService } from '../auth/mail.service';
 import { UsersService } from '../auth/users.service';
 import { SentNotification } from './entities/sent-notification.entity';
-import { AUTH_CONSUMER_GROUP, REMINDER_DUE_TOPIC } from './events.constants';
+import { AUTH_CONSUMER_GROUP } from './events.constants';
 import { parseReminderDueEvent } from './reminder-due.event';
 
 @Injectable()
 export class ReminderDueConsumer implements OnModuleInit, OnModuleDestroy {
-  logger = new Logger(ReminderDueConsumer.name);
-  consumer: Consumer;
+  private readonly logger = new Logger(ReminderDueConsumer.name);
+  private readonly consumer: Consumer;
 
   constructor(
     config: ConfigService,
     @InjectRepository(SentNotification)
-    readonly sent: Repository<SentNotification>,
-    readonly users: UsersService,
-    readonly mail: MailService
+    private readonly sent: Repository<SentNotification>,
+    private readonly users: UsersService,
+    private readonly mail: MailService
   ) {
     this.consumer = new Kafka({
-      clientId: 'auth-service',
+      clientId: SERVICE_NAME,
       brokers: config.getOrThrow<string>('KAFKA_BROKERS').split(',')
     }).consumer({ groupId: AUTH_CONSUMER_GROUP });
   }
@@ -35,7 +37,7 @@ export class ReminderDueConsumer implements OnModuleInit, OnModuleDestroy {
   async onModuleInit(): Promise<void> {
     await this.consumer.connect();
     await this.consumer.subscribe({
-      topic: REMINDER_DUE_TOPIC,
+      topic: KAFKA_TOPICS.REMINDER_DUE,
       fromBeginning: true
     });
     await this.consumer.run({
@@ -74,7 +76,7 @@ export class ReminderDueConsumer implements OnModuleInit, OnModuleDestroy {
     }
     await this.mail.send(user.email, data.title, data.body);
     await this.sent.save(
-      this.sent.create({ eventId, eventType: REMINDER_DUE_TOPIC })
+      this.sent.create({ eventId, eventType: KAFKA_TOPICS.REMINDER_DUE })
     );
   }
 }

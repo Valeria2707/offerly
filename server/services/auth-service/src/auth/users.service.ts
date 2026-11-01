@@ -7,9 +7,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
-import { QueryFailedError, Repository } from 'typeorm';
+import { isUniqueViolation } from '@offerly/helpers';
+import { Repository } from 'typeorm';
+import { PASSWORD_HASH_ROUNDS } from './auth.constants';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './entities/user.entity';
+
+export const hashPassword = (password: string): Promise<string> =>
+  hash(password, PASSWORD_HASH_ROUNDS);
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
@@ -37,19 +42,15 @@ export class UsersService implements OnApplicationBootstrap {
     const user = this.users.create({
       name: input.name.trim(),
       email: this.normalizeEmail(input.email),
-      passwordHash: await hash(input.password, 12),
+      passwordHash: await hashPassword(input.password),
       googleId: null,
       isActive: true
     });
     try {
       return await this.users.save(user);
     } catch (error: unknown) {
-      if (
-        error instanceof QueryFailedError &&
-        (error.driverError as { code?: string }).code === '23505'
-      ) {
+      if (isUniqueViolation(error))
         throw new ConflictException('A user with this email already exists');
-      }
       throw error;
     }
   }
@@ -60,13 +61,6 @@ export class UsersService implements OnApplicationBootstrap {
 
   findById(id: string): Promise<User | null> {
     return this.users.findOneBy({ id });
-  }
-
-  async updatePassword(userId: string, password: string): Promise<void> {
-    await this.users.update(
-      { id: userId },
-      { passwordHash: await hash(password, 12) }
-    );
   }
 
   async findOrCreateGoogleUser(input: {

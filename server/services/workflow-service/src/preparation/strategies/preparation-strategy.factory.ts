@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { StageType } from '../../stage-type/entities/stage-type.entity';
 import { StageCategory } from '../../workflow/workflow.enums';
+import { STAGE_CODES } from '../../stage-type/stage-type.constants';
 import {
-  CV_STAGE_CODE,
   NO_PREPARATION_CODES,
   TECHNICAL_SCREENING_CODES
 } from '../preparation.constants';
@@ -32,7 +32,7 @@ export class PreparationStrategyFactory {
       throw new BadRequestException(
         'Format overrides are only supported for personal stage types'
       );
-    if (stageType.code === CV_STAGE_CODE)
+    if (stageType.code === STAGE_CODES.SUBMITTED)
       return PreparationType.CV_COVER_LETTER;
     if (
       (stageType.code && TECHNICAL_SCREENING_CODES.has(stageType.code)) ||

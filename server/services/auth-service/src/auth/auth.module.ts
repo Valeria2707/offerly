@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JWT_AUDIENCE, JWT_ISSUER } from '@offerly/auth';
 import { AuditProducerService } from './audit-producer.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -31,7 +32,7 @@ import { GoogleAuthService } from './google-auth.service';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { issuer: 'auth-service', audience: 'microservices-api' }
+        signOptions: { issuer: JWT_ISSUER, audience: JWT_AUDIENCE }
       })
     })
   ],

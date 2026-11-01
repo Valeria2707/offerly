@@ -1,16 +1,8 @@
+import { STAGE_CODES } from '../stage-type/stage-type.constants';
 import { PreparationType } from './preparation.enums';
 
-export const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-export const OPENAI_TIMEOUT_MS = 60_000;
 export const OPENAI_SCHEMA_NAME = 'stage_preparation';
 export const REVIEW_SCHEMA_NAME = 'answer_review';
-
-export const DEFAULT_VACANCY_SERVICE_URL = 'http://localhost:3003';
-export const DEFAULT_PROFILE_SERVICE_URL = 'http://localhost:3002';
-export const CONTEXT_TIMEOUT_MS = 10_000;
-export const VACANCY_PATH = (vacancyId: string): string =>
-  `/api/v1/vacancies/${encodeURIComponent(vacancyId)}`;
-export const PROFILE_PATH = '/api/v1/profile';
 
 export const VACANCY_CONTEXT_FIELDS = [
   'title',
@@ -41,9 +33,9 @@ export const PROFILE_BASICS_CONTEXT_FIELDS = ['headline', 'summary'];
 
 export const PREPARATION_LANGUAGES = ['uk', 'en'] as const;
 
-export const CV_STAGE_CODE = 'submitted';
-
-export const TECHNICAL_SCREENING_CODES = new Set(['pre_tech_screening']);
+export const TECHNICAL_SCREENING_CODES = new Set<string>([
+  STAGE_CODES.PRE_TECH_SCREENING
+]);
 
 export const NO_PREPARATION_CODES = new Set(['rejection']);
 

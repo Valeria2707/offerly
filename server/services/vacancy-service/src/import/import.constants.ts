@@ -2,8 +2,10 @@ export const PAGE_FETCH_TIMEOUT_MS = 15_000;
 export const PAGE_MAX_BYTES = 2 * 1024 * 1024;
 export const PAGE_MAX_REDIRECTS = 5;
 export const PAGE_MAX_CHARACTERS = 100_000;
-export const OPENAI_TIMEOUT_MS = 60_000;
-export const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
+export const REDIRECT_STATUSES = [301, 302, 303, 307, 308];
+export const IMPORTER_USER_AGENT = 'OfferlyVacancyImporter/1.0';
+export const MIN_VACANCY_TEXT_LENGTH = 100;
+export const MAX_VACANCY_TEXT_LENGTH = 100_000;
 export const VACANCY_EXTRACTION_INSTRUCTIONS = [
   'Extract only facts explicitly present in the job posting.',
   'Never guess missing values; use null or an empty array.',
