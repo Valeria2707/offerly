@@ -9,11 +9,14 @@ import {
   eventTime,
   isFinished,
   relativeDay,
+  shortDate,
   toEntries,
+  weekdayTime,
   type CalendarEntry,
 } from "@/lib/calendar";
 import { dateFnsLocale } from "@/lib/date-locale";
 import type { Translator } from "@/lib/i18n";
+import { silentDays } from "@/lib/reminders";
 import type { StageNameFormatter } from "@/lib/workflow";
 import type { CalendarEvent, Reminder } from "@/types/calendar";
 import type { ProfileData } from "@/types/profile";
@@ -36,23 +39,44 @@ export type ActiveProcess = {
 const isInProgress = (summary: WorkflowSummary | undefined) =>
   Boolean(summary?.currentStage && !summary.rejected && !summary.offered);
 
+export type VacancyCounts = {
+  total: number;
+  inProgress: number;
+  rejected: number;
+  offers: number;
+};
+
+export function vacancyCounts(
+  vacancies: Vacancy[],
+  summaries: Map<string, WorkflowSummary> = new Map(),
+): VacancyCounts {
+  const list = vacancies.map((vacancy) => summaries.get(vacancy.id));
+
+  return {
+    total: vacancies.length,
+    inProgress: list.filter(isInProgress).length,
+    rejected: list.filter((summary) => summary?.rejected).length,
+    offers: list.filter((summary) => summary?.offered).length,
+  };
+}
+
 export function dashboardStats(
   vacancies: Vacancy[],
   summaries: Map<string, WorkflowSummary>,
 ): DashboardStats {
-  const all = vacancies.map((vacancy) => summaries.get(vacancy.id));
   const active = vacancies
     .filter((vacancy) => vacancy.lifecycle === "active")
     .map((vacancy) => summaries.get(vacancy.id))
     .filter(isInProgress);
+  const { rejected, offers } = vacancyCounts(vacancies, summaries);
 
   return {
     active: active.length,
     awaiting: active.filter(
       (summary) => summary?.currentStage?.status === "awaiting_result",
     ).length,
-    rejected: all.filter((summary) => summary?.rejected).length,
-    offers: all.filter((summary) => summary?.offered).length,
+    rejected,
+    offers,
   };
 }
 
@@ -64,11 +88,7 @@ export function activeProcesses(
   summaries: Map<string, WorkflowSummary>,
   reminders: Reminder[],
 ): ActiveProcess[] {
-  const silence = new Map(
-    reminders
-      .filter((reminder) => reminder.kind === "silence")
-      .map((reminder) => [reminder.stageId, Math.abs(reminder.days)]),
-  );
+  const silence = silentDays(reminders, "stageId");
 
   return vacancies
     .filter((vacancy) => vacancy.lifecycle === "active")
@@ -97,19 +117,18 @@ export function processNote(
 ): string {
   const { stage, silentDays } = process;
   const name = stageName(stage.name);
-  const options = { locale: dateFnsLocale(locale) };
 
   if (silentDays !== null)
     return t("dashboard.processes.silent", { days: silentDays });
   if (stage.scheduledAt)
     return t("dashboard.processes.scheduled", {
       name,
-      when: format(new Date(stage.scheduledAt), "EEEEEE, HH:mm", options),
+      when: weekdayTime(stage.scheduledAt, locale),
     });
   if (stage.deadlineAt)
     return t("dashboard.processes.deadline", {
       name,
-      date: format(new Date(stage.deadlineAt), "d MMM", options),
+      date: shortDate(stage.deadlineAt, locale),
     });
   if (stage.status === "awaiting_result")
     return t("dashboard.processes.awaiting", { name });
@@ -126,7 +145,7 @@ export function whenLabel(
   const days = differenceInCalendarDays(entry.at, now);
   const day =
     days >= 0 && days <= 1
-      ? `${relativeDay(days, locale)}, ${format(entry.at, "d MMM", options)}`
+      ? `${relativeDay(days, locale)}, ${shortDate(entry.at, locale)}`
       : format(entry.at, "EEEEEE, d MMM", options);
 
   return entry.kind === "meeting" ? `${day} · ${eventTime(entry.at)}` : day;

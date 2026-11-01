@@ -4,7 +4,6 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
@@ -17,20 +16,18 @@ import {
   useVacancies,
 } from "@/hooks/use-vacancies";
 import { useWorkflowSummaries } from "@/hooks/use-workflow";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import type { Vacancy } from "@/types/vacancy";
 
 export default function VacancyArchivePage() {
   const t = useTranslations("vacancies");
   const { data: vacancies, isPending, error } = useVacancies();
-  const errorMessage = useErrorMessage();
   const updateVacancy = useUpdateVacancy();
   const deleteVacancy = useDeleteVacancy();
 
   const [toDelete, setToDelete] = useState<Vacancy | null>(null);
 
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause), { id: "vacancy-error" });
+  const notify = useNotifyError("vacancy");
 
   const archived = (vacancies ?? []).filter(
     (vacancy) => vacancy.lifecycle === "archived",

@@ -1,8 +1,7 @@
-import { format } from "date-fns";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useStageName } from "@/hooks/use-stage-name";
-import { dateFnsLocale } from "@/lib/date-locale";
+import { weekdayDateTime } from "@/lib/calendar";
 import { vacancyReminders } from "@/lib/reminders";
 import { cn } from "@/lib/utils";
 import type { WorkflowStage } from "@/types/workflow";
@@ -54,9 +53,7 @@ export function WorkflowReminders({
               <div className="min-w-0">
                 <p className="text-[13px] font-semibold">{reminder.title}</p>
                 <p className="font-mono text-[11px] text-muted-foreground">
-                  {format(reminder.at, "EEE, d MMM · HH:mm", {
-                    locale: dateFnsLocale(locale),
-                  })}
+                  {weekdayDateTime(reminder.at, locale)}
                 </p>
               </div>
             </li>

@@ -6,16 +6,21 @@ import {
   SYSTEM_STAGE_KEYS,
   type SystemStageName,
 } from "@/constants/workflow";
-import type {
-  StageBrief,
-  StageType,
-  WorkflowStage,
-  WorkflowSummary,
+import {
+  STAGE_STATUSES,
+  type StageBrief,
+  type StageStatus,
+  type StageType,
+  type WorkflowStage,
+  type WorkflowSummary,
 } from "@/types/workflow";
 
 type StageTypeMetaT = ReturnType<typeof useTranslations<"stageTypes.meta">>;
 
 export type StageNameFormatter = (name: string) => string;
+
+export const isStageStatus = (value: unknown): value is StageStatus =>
+  STAGE_STATUSES.some((status) => status === value);
 
 export function isSystemStageName(name: string): name is SystemStageName {
   return name in SYSTEM_STAGE_KEYS;

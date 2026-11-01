@@ -9,38 +9,30 @@ import type {
 
 const withWorkflowService = { baseUrl: WORKFLOW_API_BASE_URL };
 
-export const calendarEventsRequest = (token: string, from: string, to: string) =>
+export const calendarEventsRequest = (from: string, to: string) =>
   apiRequest<CalendarEvent[]>(CALENDAR_ROUTES.calendar(from, to), {
     ...withWorkflowService,
-    token,
   });
 
-export const remindersRequest = (token: string) =>
+export const remindersRequest = () =>
   apiRequest<Reminder[]>(CALENDAR_ROUTES.reminders, {
     ...withWorkflowService,
-    token,
   });
 
-export const reminderSettingsRequest = (token: string) =>
+export const reminderSettingsRequest = () =>
   apiRequest<ReminderSettings>(CALENDAR_ROUTES.settings, {
     ...withWorkflowService,
-    token,
   });
 
-export const updateReminderSettingsRequest = (
-  token: string,
-  patch: ReminderSettingsPatch,
-) =>
+export const updateReminderSettingsRequest = (patch: ReminderSettingsPatch) =>
   apiRequest<ReminderSettings>(CALENDAR_ROUTES.settings, {
     ...withWorkflowService,
     method: "PATCH",
     body: patch,
-    token,
   });
 
-export const createCalendarSubscriptionRequest = (token: string) =>
+export const createCalendarSubscriptionRequest = () =>
   apiRequest<ReminderSettings>(CALENDAR_ROUTES.subscription, {
     ...withWorkflowService,
     method: "POST",
-    token,
   });

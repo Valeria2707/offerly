@@ -2,7 +2,6 @@
 
 import { RefreshCw } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { PreparationEmpty } from "@/components/workflow/preparation-empty";
 import { PreparationSummary } from "@/components/workflow/preparation-summary";
@@ -14,11 +13,11 @@ import {
   useGeneratePreparation,
   usePreparation,
 } from "@/hooks/use-preparation";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { ApiError } from "@/lib/api-client";
 import { resolvePreparationType } from "@/lib/preparation";
 import { preparationCards } from "@/lib/preparation-cards";
-import { formatDaysAgo } from "@/lib/utils";
+import { formatDaysAgo } from "@/lib/calendar";
 import type { PreparationLanguage } from "@/types/preparation";
 import type { StageType } from "@/types/workflow";
 
@@ -39,7 +38,6 @@ export function StagePreparation({
 }: StagePreparationProps) {
   const t = useTranslations();
   const locale = useLocale();
-  const errorMessage = useErrorMessage();
   const {
     data: preparation,
     isPending,
@@ -48,10 +46,7 @@ export function StagePreparation({
   const generate = useGeneratePreparation(workflowId, stageId);
   const remove = useDeletePreparation(workflowId, stageId);
 
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause, "preparation"), {
-      id: "preparation-error",
-    });
+  const notify = useNotifyError("preparation", "preparation");
 
   const isMissing = error instanceof ApiError && error.status === 404;
   const expectedType = resolvePreparationType(stageType);

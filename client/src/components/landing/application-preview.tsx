@@ -1,10 +1,7 @@
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-  APPLICATION_STAGES,
-  CURRENT_STAGE_INDEX,
-} from "@/constants/landing";
+import { APPLICATION_STAGES, CURRENT_STAGE_INDEX } from "@/constants/landing";
 import { cn } from "@/lib/utils";
 
 export function ApplicationPreview() {
@@ -17,7 +14,7 @@ export function ApplicationPreview() {
           HL
         </span>
         <div className="min-w-0">
-          <h3 className="font-heading font-medium">Platform Engineer</h3>
+          <h3 className="font-heading font-medium">{t("position")}</h3>
           <p className="truncate text-sm text-muted-foreground">
             {t("company")}
           </p>

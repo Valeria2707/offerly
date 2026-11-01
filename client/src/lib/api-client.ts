@@ -1,5 +1,9 @@
 import { API_BASE_URL, API_ROUTES } from "@/constants/api";
-import { getRefreshToken, useAuthStore } from "@/stores/auth-store";
+import {
+  getAccessToken,
+  getRefreshToken,
+  useAuthStore,
+} from "@/stores/auth-store";
 import type { AuthTokens } from "@/types/auth";
 
 export class ApiError extends Error {
@@ -79,7 +83,12 @@ function refreshSession(): Promise<string | null> {
 
 export async function apiRequest<T>(
   path: string,
-  { method = "GET", body, token, baseUrl = API_BASE_URL }: RequestOptions = {},
+  {
+    method = "GET",
+    body,
+    token = getAccessToken(),
+    baseUrl = API_BASE_URL,
+  }: RequestOptions = {},
 ): Promise<T> {
   let response = await send(path, method, body, token, baseUrl);
 

@@ -15,12 +15,13 @@ import {
   vacancyRequest,
 } from "@/api/vacancies";
 import { vacancyUpdateToast } from "@/lib/toasts";
-import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { VacancyDraft, VacancyPatch } from "@/types/vacancy";
 
 export const vacancyKeys = {
-  list: ["vacancies"] as const,
-  detail: (vacancyId: string) => ["vacancies", vacancyId] as const,
+  all: ["vacancies"] as const,
+  list: ["vacancies", "list"] as const,
+  detail: (vacancyId: string) => ["vacancies", "detail", vacancyId] as const,
   import: (importId: string) => ["vacancies", "imports", importId] as const,
 };
 
@@ -29,7 +30,7 @@ export function useVacancies() {
 
   return useQuery({
     queryKey: vacancyKeys.list,
-    queryFn: () => vacanciesRequest(getAccessToken()!),
+    queryFn: () => vacanciesRequest(),
     enabled: Boolean(accessToken),
   });
 }
@@ -39,7 +40,7 @@ export function useVacancy(vacancyId: string) {
 
   return useQuery({
     queryKey: vacancyKeys.detail(vacancyId),
-    queryFn: () => vacancyRequest(getAccessToken()!, vacancyId),
+    queryFn: () => vacancyRequest(vacancyId),
     enabled: Boolean(accessToken),
   });
 }
@@ -49,7 +50,7 @@ export function useVacancyImport(importId: string) {
 
   return useQuery({
     queryKey: vacancyKeys.import(importId),
-    queryFn: () => vacancyImportRequest(getAccessToken()!, importId),
+    queryFn: () => vacancyImportRequest(importId),
     enabled: Boolean(accessToken),
   });
 }
@@ -60,8 +61,8 @@ export function useImportVacancy() {
   return useMutation({
     mutationFn: (input: { url: string } | { text: string }) =>
       "url" in input
-        ? importVacancyUrlRequest(getAccessToken()!, input.url)
-        : importVacancyTextRequest(getAccessToken()!, input.text),
+        ? importVacancyUrlRequest(input.url)
+        : importVacancyTextRequest(input.text),
     onSuccess: (vacancyImport) => {
       queryClient.setQueryData(
         vacancyKeys.import(vacancyImport.id),
@@ -82,7 +83,7 @@ export function useApplyVacancyImport() {
     }: {
       importId: string;
       draft: VacancyDraft;
-    }) => applyVacancyImportRequest(getAccessToken()!, importId, draft),
+    }) => applyVacancyImportRequest(importId, draft),
     onSuccess: () => {
       toast.success(t("toasts.vacancyAdded"));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
@@ -101,13 +102,11 @@ export function useUpdateVacancy() {
     }: {
       vacancyId: string;
       patch: VacancyPatch;
-    }) => updateVacancyRequest(getAccessToken()!, vacancyId, patch),
-    onSuccess: (_vacancy, { vacancyId, patch }) => {
+    }) => updateVacancyRequest(vacancyId, patch),
+    onSuccess: (vacancy, { patch }) => {
       toast.success(vacancyUpdateToast(patch, t));
+      queryClient.setQueryData(vacancyKeys.detail(vacancy.id), vacancy);
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });
-      queryClient.invalidateQueries({
-        queryKey: vacancyKeys.detail(vacancyId),
-      });
     },
   });
 }
@@ -117,8 +116,7 @@ export function useDeleteVacancy() {
   const t = useTranslations();
 
   return useMutation({
-    mutationFn: (vacancyId: string) =>
-      deleteVacancyRequest(getAccessToken()!, vacancyId),
+    mutationFn: (vacancyId: string) => deleteVacancyRequest(vacancyId),
     onSuccess: () => {
       toast.success(t("toasts.vacancyDeleted"));
       queryClient.invalidateQueries({ queryKey: vacancyKeys.list });

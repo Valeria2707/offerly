@@ -90,6 +90,4 @@ export const ANALYTICS_ROUTES = {
 
 export const HTTP_ERROR_STATUSES = [400, 401, 409, 413, 422, 429, 503] as const;
 
-export const PREPARATION_ERROR_STATUSES = [400, 409, 422, 503] as const;
-
-export const REVIEW_ERROR_STATUSES = [400, 409, 422, 503] as const;
+export const AI_ERROR_STATUSES = [400, 409, 422, 503] as const;

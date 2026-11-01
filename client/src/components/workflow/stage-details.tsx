@@ -21,7 +21,7 @@ import {
 import { StageCategoryBadge } from "@/components/workflow/stage-category-badge";
 import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
 import { useStageName } from "@/hooks/use-stage-name";
-import { formatStageDate } from "@/lib/workflow";
+import { formatStageDate, isStageStatus } from "@/lib/workflow";
 import {
   STAGE_STATUSES,
   type StageStatus,
@@ -34,7 +34,7 @@ type StageDetailsProps = {
   withArtifact: boolean;
   pending: boolean;
   frozen: boolean;
-  onUpdate: (patch: WorkflowStagePatch) => void;
+  onUpdate: (patch: WorkflowStagePatch, onDone?: () => void) => void;
   onRemove: () => void;
 };
 
@@ -114,16 +114,14 @@ export function StageDetails({
         <Select
           value={stage.status}
           disabled={pending || frozen}
-          onValueChange={(status) => changeStatus(status as StageStatus)}
+          onValueChange={(status) => {
+            if (isStageStatus(status)) changeStatus(status);
+          }}
         >
           <SelectTrigger
             size="sm"
             aria-label={t("details.statusLabel", { name })}
-            title={
-              frozen
-                ? t("details.frozen")
-                : undefined
-            }
+            title={frozen ? t("details.frozen") : undefined}
             className="w-44 rounded-lg border-transparent bg-muted text-xs shadow-none"
           >
             <SelectValue>
@@ -181,7 +179,7 @@ export function StageDetails({
             <DateField
               label={t("details.deadlineLabel")}
               name={t("details.deadlineName")}
-              emptyLabel={t("details.deadlineName")}
+              emptyLabel={t("details.deadlineEmpty")}
               value={stage.deadlineAt}
               disabled={pending}
               onChange={(deadlineAt) => onUpdate({ deadlineAt })}
@@ -199,14 +197,14 @@ export function StageDetails({
           initialReason={stage.rejectionReason}
           pending={pending}
           onClose={() => setDialog(null)}
-          onSave={(rejectionReason) => {
+          onSave={(rejectionReason) =>
             onUpdate(
               dialog === "reject"
                 ? { status: "cancelled", rejectionReason }
                 : { rejectionReason },
-            );
-            setDialog(null);
-          }}
+              () => setDialog(null),
+            )
+          }
         />
       )}
     </section>

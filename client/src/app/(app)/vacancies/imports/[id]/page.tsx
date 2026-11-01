@@ -7,6 +7,7 @@ import { FormError } from "@/components/auth/form-error";
 import { ImportReviewForm } from "@/components/vacancies/import-review-form";
 import { ImportReviewSkeleton } from "@/components/vacancies/import-review-skeleton";
 import { useVacancies, useVacancyImport } from "@/hooks/use-vacancies";
+import { findDuplicate } from "@/lib/vacancy-data";
 
 export default function VacancyImportReviewPage({
   params,
@@ -18,14 +19,7 @@ export default function VacancyImportReviewPage({
   const { data: vacancyImport, isPending, error } = useVacancyImport(id);
   const { data: vacancies } = useVacancies();
 
-  const duplicate = vacancies?.find(
-    (vacancy) =>
-      vacancyImport &&
-      vacancy.title.trim().toLowerCase() ===
-        vacancyImport.draft.title.trim().toLowerCase() &&
-      vacancy.company.trim().toLowerCase() ===
-        vacancyImport.draft.company.trim().toLowerCase(),
-  );
+  const duplicate = findDuplicate(vacancies, vacancyImport?.draft);
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6">
@@ -33,9 +27,7 @@ export default function VacancyImportReviewPage({
         <h1 className="font-heading text-2xl font-bold tracking-tight">
           {t("title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("description")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </header>
 
       <FormError error={error} />

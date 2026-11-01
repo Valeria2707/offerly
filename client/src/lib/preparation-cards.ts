@@ -114,3 +114,15 @@ export function preparationStats(cards: PreparationCard[]): {
     total: questions.length,
   };
 }
+
+export function questionPosition(
+  cards: PreparationCard[],
+  index: number,
+): { number: number; total: number } {
+  const isQuestion = (card: PreparationCard) => card.kind === "question";
+
+  return {
+    number: cards.slice(0, index + 1).filter(isQuestion).length,
+    total: cards.filter(isQuestion).length,
+  };
+}

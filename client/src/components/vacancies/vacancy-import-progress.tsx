@@ -2,8 +2,8 @@
 
 import { Check, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
+import { useStepTicker } from "@/hooks/use-step-ticker";
 import { cn } from "@/lib/utils";
 
 const STEP_INTERVAL_MS = 1800;
@@ -21,16 +21,7 @@ export function VacancyImportProgress({
     t("duplicates"),
   ];
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(
-      () => setActiveIndex((index) => Math.min(index + 1, steps.length - 1)),
-      STEP_INTERVAL_MS,
-    );
-
-    return () => clearInterval(timer);
-  }, [steps.length]);
+  const activeIndex = useStepTicker(steps.length, STEP_INTERVAL_MS);
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 py-24">

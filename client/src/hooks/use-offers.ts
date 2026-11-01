@@ -7,7 +7,6 @@ import {
   updateVacancyRequest,
 } from "@/api/vacancies";
 import { vacancyKeys } from "@/hooks/use-vacancies";
-import { getAccessToken } from "@/stores/auth-store";
 import type { CriteriaComparisons } from "@/types/offer";
 import type { OfferDetails } from "@/types/vacancy";
 
@@ -22,14 +21,12 @@ export function useCompareOffers() {
       offers: { vacancyId: string; details: OfferDetails }[];
       comparisons: CriteriaComparisons;
     }) => {
-      const token = getAccessToken()!;
       await Promise.all(
         offers.map((offer) =>
-          updateVacancyRequest(token, offer.vacancyId, offer.details),
+          updateVacancyRequest(offer.vacancyId, offer.details),
         ),
       );
       return offerRecommendationRequest(
-        token,
         offers.map((offer) => offer.vacancyId),
         comparisons,
       );

@@ -4,18 +4,17 @@ import type { CvImport, Profile, ProfileData } from "@/types/profile";
 
 const withProfileService = { baseUrl: PROFILE_API_BASE_URL };
 
-export const profileRequest = (token: string) =>
-  apiRequest<Profile>(PROFILE_ROUTES.profile, { ...withProfileService, token });
+export const profileRequest = () =>
+  apiRequest<Profile>(PROFILE_ROUTES.profile, { ...withProfileService });
 
-export const updateProfileRequest = (token: string, data: ProfileData) =>
+export const updateProfileRequest = (data: ProfileData) =>
   apiRequest<Profile>(PROFILE_ROUTES.profile, {
     ...withProfileService,
     method: "PATCH",
     body: data,
-    token,
   });
 
-export const importCvRequest = (token: string, file: File) => {
+export const importCvRequest = (file: File) => {
   const form = new FormData();
   form.append("file", file);
 
@@ -23,18 +22,12 @@ export const importCvRequest = (token: string, file: File) => {
     ...withProfileService,
     method: "POST",
     body: form,
-    token,
   });
 };
 
-export const applyCvImportRequest = (
-  token: string,
-  importId: string,
-  data: ProfileData,
-) =>
+export const applyCvImportRequest = (importId: string, data: ProfileData) =>
   apiRequest<Profile>(PROFILE_ROUTES.applyCvImport(importId), {
     ...withProfileService,
     method: "POST",
     body: { data },
-    token,
   });

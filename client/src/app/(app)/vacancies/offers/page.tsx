@@ -4,7 +4,6 @@ import { ChevronLeft, Loader2, Scale } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { Skeleton } from "@/components/core/skeleton";
@@ -13,7 +12,7 @@ import { OfferDetailsTable } from "@/components/offers/offer-details-table";
 import { OfferResult } from "@/components/offers/offer-result";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { useCompareOffers } from "@/hooks/use-offers";
 import { useVacancies } from "@/hooks/use-vacancies";
 import { useWorkflowSummaries } from "@/hooks/use-workflow";
@@ -23,7 +22,7 @@ import type { OfferDetails } from "@/types/vacancy";
 
 export default function OffersPage() {
   const t = useTranslations("offers");
-  const errorMessage = useErrorMessage();
+  const notify = useNotifyError("offers");
   const { data: vacancies, isPending, error } = useVacancies();
   const { data: summaries, isPending: isSummaryPending } = useWorkflowSummaries(
     (vacancies ?? []).map((vacancy) => vacancy.id),
@@ -71,10 +70,7 @@ export default function OffersPage() {
         })),
         comparisons: answers,
       },
-      {
-        onError: (cause) =>
-          toast.error(errorMessage(cause), { id: "offers-error" }),
-      },
+      { onError: notify },
     );
 
   const loading = isPending || (offers.length === 0 && isSummaryPending);

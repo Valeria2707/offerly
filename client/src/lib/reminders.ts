@@ -6,6 +6,17 @@ import type { StageNameFormatter } from "@/lib/workflow";
 import type { Reminder } from "@/types/calendar";
 import type { WorkflowStage } from "@/types/workflow";
 
+export function silentDays(
+  reminders: Reminder[],
+  by: "vacancyId" | "stageId",
+): Map<string, number> {
+  return new Map(
+    reminders
+      .filter((reminder) => reminder.kind === "silence")
+      .map((reminder) => [reminder[by], Math.abs(reminder.days)]),
+  );
+}
+
 export type ReminderAction = "record" | "prepare" | "open";
 
 export type ReminderView = {

@@ -14,44 +14,35 @@ import type {
 
 const withWorkflowService = { baseUrl: WORKFLOW_API_BASE_URL };
 
-export const stageTypesRequest = (token: string) =>
+export const stageTypesRequest = () =>
   apiRequest<StageType[]>(WORKFLOW_ROUTES.stageTypes, {
     ...withWorkflowService,
-    token,
   });
 
-export const createStageTypeRequest = (token: string, draft: StageTypeDraft) =>
+export const createStageTypeRequest = (draft: StageTypeDraft) =>
   apiRequest<StageType>(WORKFLOW_ROUTES.stageTypes, {
     ...withWorkflowService,
     method: "POST",
     body: draft,
-    token,
   });
 
-export const deleteStageTypeRequest = (token: string, stageTypeId: string) =>
+export const deleteStageTypeRequest = (stageTypeId: string) =>
   apiRequest<void>(WORKFLOW_ROUTES.stageType(stageTypeId), {
     ...withWorkflowService,
     method: "DELETE",
-    token,
   });
 
-export const workflowSummariesRequest = (
-  token: string,
-  vacancyIds: string[],
-) =>
+export const workflowSummariesRequest = (vacancyIds: string[]) =>
   apiRequest<WorkflowSummary[]>(WORKFLOW_ROUTES.workflowSummary(vacancyIds), {
     ...withWorkflowService,
-    token,
   });
 
-export const vacancyWorkflowRequest = (token: string, vacancyId: string) =>
+export const vacancyWorkflowRequest = (vacancyId: string) =>
   apiRequest<ApplicationWorkflow>(WORKFLOW_ROUTES.vacancyWorkflow(vacancyId), {
     ...withWorkflowService,
-    token,
   });
 
 export const addWorkflowStageRequest = (
-  token: string,
   workflowId: string,
   stageTypeId: string,
 ) =>
@@ -59,11 +50,9 @@ export const addWorkflowStageRequest = (
     ...withWorkflowService,
     method: "POST",
     body: { stageTypeId },
-    token,
   });
 
 export const updateWorkflowStageRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   patch: WorkflowStagePatch,
@@ -72,11 +61,9 @@ export const updateWorkflowStageRequest = (
     ...withWorkflowService,
     method: "PATCH",
     body: patch,
-    token,
   });
 
 export const reorderWorkflowStagesRequest = (
-  token: string,
   workflowId: string,
   stageIds: string[],
 ) =>
@@ -84,22 +71,19 @@ export const reorderWorkflowStagesRequest = (
     ...withWorkflowService,
     method: "PUT",
     body: { groups: stageIds.map((stageId) => ({ stageIds: [stageId] })) },
-    token,
   });
 
 export const addStageQuestionRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   draft: StageQuestionDraft,
 ) =>
   apiRequest<StageQuestion>(
     WORKFLOW_ROUTES.stageQuestions(workflowId, stageId),
-    { ...withWorkflowService, method: "POST", body: draft, token },
+    { ...withWorkflowService, method: "POST", body: draft },
   );
 
 export const updateStageQuestionRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   questionId: string,
@@ -107,22 +91,20 @@ export const updateStageQuestionRequest = (
 ) =>
   apiRequest<StageQuestion>(
     WORKFLOW_ROUTES.stageQuestion(workflowId, stageId, questionId),
-    { ...withWorkflowService, method: "PATCH", body: draft, token },
+    { ...withWorkflowService, method: "PATCH", body: draft },
   );
 
 export const removeStageQuestionRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   questionId: string,
 ) =>
   apiRequest<void>(
     WORKFLOW_ROUTES.stageQuestion(workflowId, stageId, questionId),
-    { ...withWorkflowService, method: "DELETE", token },
+    { ...withWorkflowService, method: "DELETE" },
   );
 
 export const addStageNoteRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   content: string,
@@ -131,28 +113,9 @@ export const addStageNoteRequest = (
     ...withWorkflowService,
     method: "POST",
     body: { content },
-    token,
   });
 
-export const updateStageNoteRequest = (
-  token: string,
-  workflowId: string,
-  stageId: string,
-  noteId: string,
-  content: string,
-) =>
-  apiRequest<StageNote>(
-    WORKFLOW_ROUTES.stageNote(workflowId, stageId, noteId),
-    {
-      ...withWorkflowService,
-      method: "PATCH",
-      body: { content },
-      token,
-    },
-  );
-
 export const removeStageNoteRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   noteId: string,
@@ -160,16 +123,13 @@ export const removeStageNoteRequest = (
   apiRequest<void>(WORKFLOW_ROUTES.stageNote(workflowId, stageId, noteId), {
     ...withWorkflowService,
     method: "DELETE",
-    token,
   });
 
 export const removeWorkflowStageRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
 ) =>
   apiRequest<void>(WORKFLOW_ROUTES.stage(workflowId, stageId), {
     ...withWorkflowService,
     method: "DELETE",
-    token,
   });

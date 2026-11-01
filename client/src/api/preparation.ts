@@ -7,31 +7,29 @@ import type {
 
 const withWorkflowService = { baseUrl: WORKFLOW_API_BASE_URL };
 
-export const preparationRequest = (
-  token: string,
-  workflowId: string,
-  stageId: string,
-) =>
-  apiRequest<StagePreparation>(WORKFLOW_ROUTES.preparation(workflowId, stageId), {
-    ...withWorkflowService,
-    token,
-  });
+export const preparationRequest = (workflowId: string, stageId: string) =>
+  apiRequest<StagePreparation>(
+    WORKFLOW_ROUTES.preparation(workflowId, stageId),
+    {
+      ...withWorkflowService,
+    },
+  );
 
 export const generatePreparationRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   input: GeneratePreparationInput,
 ) =>
-  apiRequest<StagePreparation>(WORKFLOW_ROUTES.preparation(workflowId, stageId), {
-    ...withWorkflowService,
-    method: "POST",
-    body: input,
-    token,
-  });
+  apiRequest<StagePreparation>(
+    WORKFLOW_ROUTES.preparation(workflowId, stageId),
+    {
+      ...withWorkflowService,
+      method: "POST",
+      body: input,
+    },
+  );
 
 export const answerPreparationQuestionRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   questionId: string,
@@ -43,12 +41,10 @@ export const answerPreparationQuestionRequest = (
       ...withWorkflowService,
       method: "PATCH",
       body: { userAnswer },
-      token,
     },
   );
 
 export const reviewPreparationAnswerRequest = (
-  token: string,
   workflowId: string,
   stageId: string,
   questionId: string,
@@ -60,17 +56,11 @@ export const reviewPreparationAnswerRequest = (
       ...withWorkflowService,
       method: "POST",
       body: { userAnswer },
-      token,
     },
   );
 
-export const deletePreparationRequest = (
-  token: string,
-  workflowId: string,
-  stageId: string,
-) =>
+export const deletePreparationRequest = (workflowId: string, stageId: string) =>
   apiRequest<void>(WORKFLOW_ROUTES.preparation(workflowId, stageId), {
     ...withWorkflowService,
     method: "DELETE",
-    token,
   });

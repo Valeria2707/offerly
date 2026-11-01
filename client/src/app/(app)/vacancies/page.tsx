@@ -30,14 +30,11 @@ import {
   useVacancies,
 } from "@/hooks/use-vacancies";
 import { useReminders } from "@/hooks/use-calendar";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useErrorMessage, useNotifyError } from "@/hooks/use-error-message";
 import { useVacancyView } from "@/hooks/use-vacancy-view";
-import {
-  useMoveOnBoard,
-  useStageTypes,
-  useWorkflowSummaries,
-} from "@/hooks/use-workflow";
+import { useMoveOnBoard, useWorkflowSummaries } from "@/hooks/use-workflow";
 import { MissingBoardStageError } from "@/lib/board";
+import { vacancyCounts } from "@/lib/dashboard";
 import { offerVacancies } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 import { filterVacancies } from "@/lib/vacancy-search";
@@ -62,19 +59,14 @@ export default function VacanciesPage() {
   const [view, setView] = useVacancyView();
 
   const { data: reminders } = useReminders();
-  const { data: stageTypes } = useStageTypes();
   const moveOnBoard = useMoveOnBoard();
 
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause), { id: "vacancy-error" });
+  const notify = useNotifyError("vacancy");
+  const notifyImport = useNotifyError("vacancy-import");
 
   const moveVacancy = (vacancy: Vacancy, target: BoardColumn) =>
     moveOnBoard.mutate(
-      {
-        vacancyId: vacancy.id,
-        target,
-        codes: new Map((stageTypes ?? []).map((type) => [type.id, type.code])),
-      },
+      { vacancyId: vacancy.id, target },
       {
         onError: (cause) =>
           toast.error(
@@ -91,8 +83,7 @@ export default function VacanciesPage() {
     importVacancy.mutate(input, {
       onSuccess: (vacancyImport) =>
         router.push(vacancyImportRoute(vacancyImport.id)),
-      onError: (cause) =>
-        toast.error(errorMessage(cause), { id: "vacancy-import-error" }),
+      onError: notifyImport,
     });
   };
 
@@ -182,10 +173,7 @@ export default function VacanciesPage() {
           vacancies && (
             <>
               {view === "list" && (
-                <VacancyStats
-                  total={current.length}
-                  summaries={[...(summaries?.values() ?? [])]}
-                />
+                <VacancyStats counts={vacancyCounts(current, summaries)} />
               )}
               {view === "board" ? (
                 <VacancyBoard

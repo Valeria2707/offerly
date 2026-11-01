@@ -8,7 +8,7 @@ import {
   googleRequest,
   loginRequest,
   logoutRequest,
-  profileRequest,
+  currentUserRequest,
   registerRequest,
   resetPasswordRequest,
 } from "@/api/auth";
@@ -17,15 +17,15 @@ import { getAccessToken, useAuthStore } from "@/stores/auth-store";
 import type { AuthTokens } from "@/types/auth";
 
 export const authKeys = {
-  profile: ["auth", "profile"] as const,
+  currentUser: ["auth", "current-user"] as const,
 };
 
 export function useCurrentUser() {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
-    queryKey: authKeys.profile,
-    queryFn: () => profileRequest(getAccessToken()!),
+    queryKey: authKeys.currentUser,
+    queryFn: currentUserRequest,
     enabled: Boolean(accessToken),
     retry: false,
   });
@@ -38,7 +38,7 @@ function useSessionStart() {
 
   return async (tokens: AuthTokens) => {
     setSession(tokens);
-    await queryClient.invalidateQueries({ queryKey: authKeys.profile });
+    await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
     router.replace(ROUTES.dashboard);
   };
 }
@@ -68,8 +68,7 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      const token = getAccessToken();
-      if (token) await logoutRequest(token);
+      if (getAccessToken()) await logoutRequest();
     },
     onSettled: () => {
       clearSession();

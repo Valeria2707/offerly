@@ -10,42 +10,36 @@ import type { CriteriaComparisons, OfferRecommendation } from "@/types/offer";
 
 const withVacancyService = { baseUrl: VACANCY_API_BASE_URL };
 
-export const vacanciesRequest = (token: string) =>
+export const vacanciesRequest = () =>
   apiRequest<Vacancy[]>(VACANCY_ROUTES.vacancies, {
     ...withVacancyService,
-    token,
   });
 
-export const vacancyRequest = (token: string, vacancyId: string) =>
+export const vacancyRequest = (vacancyId: string) =>
   apiRequest<Vacancy>(VACANCY_ROUTES.vacancy(vacancyId), {
     ...withVacancyService,
-    token,
   });
 
-export const vacancyImportRequest = (token: string, importId: string) =>
+export const vacancyImportRequest = (importId: string) =>
   apiRequest<VacancyImport>(VACANCY_ROUTES.vacancyImport(importId), {
     ...withVacancyService,
-    token,
   });
 
-export const importVacancyUrlRequest = (token: string, url: string) =>
+export const importVacancyUrlRequest = (url: string) =>
   apiRequest<VacancyImport>(VACANCY_ROUTES.importUrl, {
     ...withVacancyService,
     method: "POST",
     body: { url },
-    token,
   });
 
-export const importVacancyTextRequest = (token: string, text: string) =>
+export const importVacancyTextRequest = (text: string) =>
   apiRequest<VacancyImport>(VACANCY_ROUTES.importText, {
     ...withVacancyService,
     method: "POST",
     body: { text },
-    token,
   });
 
 export const applyVacancyImportRequest = (
-  token: string,
   importId: string,
   draft: VacancyDraft,
 ) =>
@@ -53,30 +47,22 @@ export const applyVacancyImportRequest = (
     ...withVacancyService,
     method: "POST",
     body: { draft },
-    token,
   });
 
-export const updateVacancyRequest = (
-  token: string,
-  vacancyId: string,
-  patch: VacancyPatch,
-) =>
+export const updateVacancyRequest = (vacancyId: string, patch: VacancyPatch) =>
   apiRequest<Vacancy>(VACANCY_ROUTES.vacancy(vacancyId), {
     ...withVacancyService,
     method: "PATCH",
     body: patch,
-    token,
   });
 
-export const deleteVacancyRequest = (token: string, vacancyId: string) =>
+export const deleteVacancyRequest = (vacancyId: string) =>
   apiRequest<void>(VACANCY_ROUTES.vacancy(vacancyId), {
     ...withVacancyService,
     method: "DELETE",
-    token,
   });
 
 export const offerRecommendationRequest = (
-  token: string,
   vacancyIds: string[],
   comparisons: CriteriaComparisons,
 ) =>
@@ -84,5 +70,4 @@ export const offerRecommendationRequest = (
     ...withVacancyService,
     method: "POST",
     body: { vacancyIds, comparisons },
-    token,
   });

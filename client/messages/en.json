@@ -67,6 +67,7 @@
       }
     },
     "preview": {
+      "position": "Platform Engineer",
       "company": "Helios Labs · Berlin, hybrid",
       "done": "done",
       "stages": {
@@ -236,8 +237,8 @@
       "meetingEmpty": "schedule a meeting",
       "deadlineLabel": "Deadline",
       "deadlineName": "deadline",
+      "deadlineEmpty": "set a deadline",
       "rejectionReason": "Rejection reason",
-      "rejectionReasonEmpty": "Select the rejection reason",
       "frozenSelect": "The vacancy was closed with a rejection — undo it to open other stages"
     },
     "notes": {
@@ -663,7 +664,12 @@
       "removeLink": "Delete link"
     },
     "career": {
-      "title": "Career profile"
+      "title": "Career profile",
+      "placeholders": {
+        "level": "Senior · 5+ years",
+        "workFormat": "Hybrid, 2 days / week",
+        "expectedSalary": "€90,000 – €110,000 / year"
+      }
     },
     "skills": {
       "title": "Skills",
@@ -871,7 +877,6 @@
     "deadlineCleared": "Deadline cleared",
     "artifactSaved": "Link saved",
     "stageUpdated": "Stage updated",
-    "stageRescheduled": "Stage rescheduled",
     "movedTo": "Moved to “{column}”",
     "stagesAdded": "Stages added",
     "stagesReordered": "Stage order updated",
@@ -879,7 +884,6 @@
     "stageTypeCreated": "Stage type created",
     "stageTypeDeleted": "Stage type deleted",
     "noteAdded": "Note added",
-    "noteUpdated": "Note updated",
     "noteRemoved": "Note removed",
     "questionAdded": "Question added",
     "questionUpdated": "Question updated",

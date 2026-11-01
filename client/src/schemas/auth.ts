@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-/** Повідомлення схем — ключі `validation.*`; перекладає їх FormField. */
 export const VALIDATION_KEYS = [
   "email",
   "passwordMin",

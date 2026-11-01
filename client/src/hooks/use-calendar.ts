@@ -12,12 +12,9 @@ import {
   remindersRequest,
   updateReminderSettingsRequest,
 } from "@/api/calendar";
-import { updateWorkflowStageRequest } from "@/api/workflow";
-import { workflowKeys } from "@/hooks/use-workflow";
 import { monthRange } from "@/lib/calendar";
-import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { ReminderSettings, ReminderSettingsPatch } from "@/types/calendar";
-import type { WorkflowStagePatch } from "@/types/workflow";
 
 export const calendarKeys = {
   all: ["calendar"] as const,
@@ -33,7 +30,7 @@ export function useCalendarMonth(month: Date) {
 
   return useQuery({
     queryKey: calendarKeys.month(from),
-    queryFn: () => calendarEventsRequest(getAccessToken()!, from, to),
+    queryFn: () => calendarEventsRequest(from, to),
     enabled: Boolean(accessToken),
   });
 }
@@ -46,7 +43,6 @@ export function useUpcomingEvents(days: number) {
     queryFn: () => {
       const from = startOfDay(new Date());
       return calendarEventsRequest(
-        getAccessToken()!,
         from.toISOString(),
         addDays(from, days).toISOString(),
       );
@@ -60,7 +56,7 @@ export function useReminders() {
 
   return useQuery({
     queryKey: calendarKeys.reminders,
-    queryFn: () => remindersRequest(getAccessToken()!),
+    queryFn: () => remindersRequest(),
     enabled: Boolean(accessToken),
   });
 }
@@ -70,7 +66,7 @@ export function useReminderSettings() {
 
   return useQuery({
     queryKey: calendarKeys.settings,
-    queryFn: () => reminderSettingsRequest(getAccessToken()!),
+    queryFn: () => reminderSettingsRequest(),
     enabled: Boolean(accessToken),
   });
 }
@@ -81,7 +77,7 @@ export function useUpdateReminderSettings() {
 
   return useMutation({
     mutationFn: (patch: ReminderSettingsPatch) =>
-      updateReminderSettingsRequest(getAccessToken()!, patch),
+      updateReminderSettingsRequest(patch),
     onSuccess: (settings: ReminderSettings) => {
       toast.success(t("toasts.settingsSaved"));
       queryClient.setQueryData(calendarKeys.settings, settings);
@@ -95,37 +91,10 @@ export function useCreateCalendarSubscription() {
   const t = useTranslations();
 
   return useMutation({
-    mutationFn: () => createCalendarSubscriptionRequest(getAccessToken()!),
+    mutationFn: () => createCalendarSubscriptionRequest(),
     onSuccess: (settings: ReminderSettings) => {
       toast.success(t("toasts.subscriptionReady"));
       queryClient.setQueryData(calendarKeys.settings, settings);
-    },
-  });
-}
-
-export function useRescheduleStage() {
-  const queryClient = useQueryClient();
-  const t = useTranslations();
-
-  return useMutation({
-    mutationFn: ({
-      workflowId,
-      stageId,
-      patch,
-    }: {
-      vacancyId: string;
-      workflowId: string;
-      stageId: string;
-      patch: WorkflowStagePatch;
-    }) =>
-      updateWorkflowStageRequest(getAccessToken()!, workflowId, stageId, patch),
-    onSuccess: (_stage, { vacancyId }) => {
-      toast.success(t("toasts.stageRescheduled"));
-      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
-      queryClient.invalidateQueries({
-        queryKey: workflowKeys.vacancy(vacancyId),
-      });
-      queryClient.invalidateQueries({ queryKey: ["workflows", "summary"] });
     },
   });
 }

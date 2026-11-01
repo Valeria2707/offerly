@@ -1,3 +1,5 @@
+import { LOCALES, type Locale } from "@/constants/i18n";
+
 export const PREPARATION_TYPES = [
   "CV_COVER_LETTER",
   "HR_SCREENING",
@@ -7,9 +9,12 @@ export const PREPARATION_TYPES = [
 
 export type PreparationType = (typeof PREPARATION_TYPES)[number];
 
-export const PREPARATION_LANGUAGES = ["uk", "en"] as const;
+export const PREPARATION_LANGUAGES = LOCALES;
 
-export type PreparationLanguage = (typeof PREPARATION_LANGUAGES)[number];
+export type PreparationLanguage = Locale;
+
+export const isPreparationType = (value: unknown): value is PreparationType =>
+  PREPARATION_TYPES.some((type) => type === value);
 
 export type AnswerFeedback = {
   score: number;

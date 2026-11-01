@@ -4,8 +4,7 @@ import { ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { use, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { use, useState } from "react";
 
 import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
@@ -23,28 +22,21 @@ import { WorkflowSkeleton } from "@/components/workflow/workflow-skeleton";
 import { ROUTES } from "@/constants/routes";
 import { useUpdateVacancy, useVacancy } from "@/hooks/use-vacancies";
 import {
-  useAddStageNote,
-  useAddStageQuestion,
   useAddWorkflowStages,
-  useRemoveStageNote,
-  useRemoveStageQuestion,
   useRemoveWorkflowStage,
   useReorderWorkflowStages,
+  useStageNotes,
+  useStageQuestions,
   useStageTypes,
-  useUpdateStageQuestion,
   useUpdateWorkflowStage,
   useVacancyWorkflow,
 } from "@/hooks/use-workflow";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { useStageName } from "@/hooks/use-stage-name";
 import { detectLanguage, hasPreparation } from "@/lib/preparation";
 import { initials } from "@/lib/utils";
 import { currentStageIndex, movedStageIds } from "@/lib/workflow";
-import type {
-  StageQuestionDraft,
-  WorkflowStage,
-  WorkflowStagePatch,
-} from "@/types/workflow";
+import type { WorkflowStage, WorkflowStagePatch } from "@/types/workflow";
 
 export default function VacancyWorkflowPage({
   params,
@@ -54,7 +46,7 @@ export default function VacancyWorkflowPage({
   const { id } = use(params);
   const t = useTranslations();
   const stageName = useStageName();
-  const errorMessage = useErrorMessage();
+  const notify = useNotifyError("workflow");
 
   const { data: vacancy } = useVacancy(id);
   const updateVacancy = useUpdateVacancy();
@@ -65,23 +57,15 @@ export default function VacancyWorkflowPage({
     null,
   );
   const [isAdding, setIsAdding] = useState(false);
-  const now = useMemo(() => new Date(), []);
+  const [now] = useState(() => new Date());
   // Календар веде сюди з конкретним етапом: ?stage=<id>.
   const requestedStageId = useSearchParams().get("stage");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const addStages = useAddWorkflowStages(id);
   const reorderStages = useReorderWorkflowStages(id);
-  const updateStage = useUpdateWorkflowStage(id);
+  const updateStage = useUpdateWorkflowStage();
   const removeStage = useRemoveWorkflowStage(id);
-  const addNote = useAddStageNote(id);
-  const removeNote = useRemoveStageNote(id);
-  const addQuestion = useAddStageQuestion(id);
-  const updateQuestion = useUpdateStageQuestion(id);
-  const removeQuestion = useRemoveStageQuestion(id);
-
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause), { id: "workflow-error" });
 
   const stages = workflow?.stages ?? [];
   const rejectedStage = stages.find((stage) => stage.status === "cancelled");
@@ -95,11 +79,19 @@ export default function VacancyWorkflowPage({
     (type) => type.id === selected?.stageTypeId,
   );
 
-  const updateSelected = (patch: WorkflowStagePatch) => {
+  const stageRef = {
+    vacancyId: id,
+    workflowId: workflow?.id,
+    stageId: selected?.id,
+  };
+  const notes = useStageNotes(stageRef);
+  const questions = useStageQuestions(stageRef);
+
+  const updateSelected = (patch: WorkflowStagePatch, onDone?: () => void) => {
     if (!workflow || !selected) return;
     updateStage.mutate(
-      { workflowId: workflow.id, stageId: selected.id, patch },
-      { onError: notify },
+      { vacancyId: id, workflowId: workflow.id, stageId: selected.id, patch },
+      { onSuccess: onDone, onError: notify },
     );
   };
 
@@ -127,46 +119,6 @@ export default function VacancyWorkflowPage({
     addStages.mutate(
       { workflowId: workflow.id, stageTypeIds },
       { onSuccess: () => setIsAdding(false), onError: notify },
-    );
-  };
-
-  const createQuestion = (draft: StageQuestionDraft) => {
-    if (!workflow || !selected) return;
-    addQuestion.mutate(
-      { workflowId: workflow.id, stageId: selected.id, draft },
-      { onError: notify },
-    );
-  };
-
-  const saveQuestion = (questionId: string, draft: StageQuestionDraft) => {
-    if (!workflow || !selected) return;
-    updateQuestion.mutate(
-      { workflowId: workflow.id, stageId: selected.id, questionId, draft },
-      { onError: notify },
-    );
-  };
-
-  const deleteQuestion = (questionId: string) => {
-    if (!workflow || !selected) return;
-    removeQuestion.mutate(
-      { workflowId: workflow.id, stageId: selected.id, questionId },
-      { onError: notify },
-    );
-  };
-
-  const createNote = (content: string) => {
-    if (!workflow || !selected) return;
-    addNote.mutate(
-      { workflowId: workflow.id, stageId: selected.id, content },
-      { onError: notify },
-    );
-  };
-
-  const deleteNote = (noteId: string) => {
-    if (!workflow || !selected) return;
-    removeNote.mutate(
-      { workflowId: workflow.id, stageId: selected.id, noteId },
-      { onError: notify },
     );
   };
 
@@ -296,22 +248,18 @@ export default function VacancyWorkflowPage({
                 <StageQuestions
                   key={`questions-${selected.id}`}
                   questions={selected.questions}
-                  pending={
-                    addQuestion.isPending ||
-                    updateQuestion.isPending ||
-                    removeQuestion.isPending
-                  }
-                  onAdd={createQuestion}
-                  onUpdate={saveQuestion}
-                  onRemove={deleteQuestion}
+                  pending={questions.pending}
+                  onAdd={questions.add}
+                  onUpdate={questions.update}
+                  onRemove={questions.remove}
                 />
 
                 <StageNotes
                   key={`notes-${selected.id}`}
                   notes={selected.notes}
-                  pending={addNote.isPending || removeNote.isPending}
-                  onAdd={createNote}
-                  onRemove={deleteNote}
+                  pending={notes.pending}
+                  onAdd={notes.add}
+                  onRemove={notes.remove}
                 />
               </div>
 
@@ -322,10 +270,10 @@ export default function VacancyWorkflowPage({
                   <RecruiterCard
                     vacancy={vacancy}
                     pending={updateVacancy.isPending}
-                    onSave={(contact) =>
+                    onSave={(contact, onDone) =>
                       updateVacancy.mutate(
                         { vacancyId: id, patch: contact },
-                        { onError: notify },
+                        { onSuccess: onDone, onError: notify },
                       )
                     }
                   />

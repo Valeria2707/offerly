@@ -21,6 +21,7 @@ import {
 import {
   PREPARATION_LANGUAGES,
   PREPARATION_TYPES,
+  isPreparationType,
   type GeneratePreparationInput,
   type PreparationLanguage,
   type PreparationType,
@@ -78,7 +79,9 @@ export function PreparationEmpty({
           <Select
             value={chosenType}
             disabled={pending}
-            onValueChange={(value) => setChosenType(value as PreparationType)}
+            onValueChange={(value) => {
+              if (isPreparationType(value)) setChosenType(value);
+            }}
           >
             <SelectTrigger id="preparation-type" className="w-64 rounded-lg">
               <SelectValue>

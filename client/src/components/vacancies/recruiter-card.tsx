@@ -48,7 +48,7 @@ export function RecruiterCard({
 }: {
   vacancy: Vacancy;
   pending: boolean;
-  onSave: (contact: RecruiterContact) => void;
+  onSave: (contact: RecruiterContact, onDone: () => void) => void;
 }) {
   const t = useTranslations("vacancies.recruiter");
   const [draft, setDraft] = useState<Record<
@@ -171,8 +171,7 @@ export function RecruiterCard({
             disabled={false}
             onCancel={() => setDraft(null)}
             onSubmit={() => {
-              if (draft) onSave(toContact(draft));
-              setDraft(null);
+              if (draft) onSave(toContact(draft), () => setDraft(null));
             }}
           />
         </DialogContent>

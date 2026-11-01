@@ -1,4 +1,4 @@
-import type { VacancyDraft } from "@/types/vacancy";
+import type { Vacancy, VacancyDraft } from "@/types/vacancy";
 
 const emptyToNull = (value: string | null) => value?.trim() || null;
 
@@ -20,4 +20,20 @@ export function toVacancyDraft(values: VacancyDraft): VacancyDraft {
     languageRequirements: values.languageRequirements.filter(Boolean),
     sourceUrl: emptyToNull(values.sourceUrl),
   };
+}
+
+const sameText = (a: string, b: string) =>
+  a.trim().toLowerCase() === b.trim().toLowerCase();
+
+export function findDuplicate(
+  vacancies: Vacancy[] | undefined,
+  draft: VacancyDraft | undefined,
+): Vacancy | undefined {
+  if (!draft) return undefined;
+
+  return vacancies?.find(
+    (vacancy) =>
+      sameText(vacancy.title, draft.title) &&
+      sameText(vacancy.company, draft.company),
+  );
 }

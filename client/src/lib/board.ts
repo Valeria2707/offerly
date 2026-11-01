@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import {
   BOARD_COLUMNS,
   CATEGORY_COLUMNS,
@@ -8,9 +6,9 @@ import {
 } from "@/constants/board";
 import type { Locale } from "@/constants/i18n";
 import { CLOSED_STAGE_STATUSES } from "@/constants/workflow";
-import { dateFnsLocale } from "@/lib/date-locale";
+import { formatDaysAgo, shortDate, weekdayTime } from "@/lib/calendar";
 import type { Translator } from "@/lib/i18n";
-import { formatDaysAgo } from "@/lib/utils";
+
 import type { Vacancy } from "@/types/vacancy";
 import type {
   StageCategory,
@@ -100,14 +98,13 @@ export function boardNote(
   t: Translator,
   locale: Locale,
 ): BoardNote | null {
-  const options = { locale: dateFnsLocale(locale) };
   const reached = summary?.reachedStage;
   const current = summary?.currentStage;
 
   if (column === "rejected") {
     if (!reached?.completedAt) return null;
 
-    const date = format(new Date(reached.completedAt), "d MMM", options);
+    const date = shortDate(reached.completedAt, locale);
     const reason = reached.rejectionReason
       ? t(`workflow.rejectionReasons.${reached.rejectionReason}`)
       : null;
@@ -128,14 +125,14 @@ export function boardNote(
     return {
       icon: "calendar",
       tone: column === "offer" ? "success" : "muted",
-      text: format(new Date(current.scheduledAt), "EEEEEE, HH:mm", options),
+      text: weekdayTime(current.scheduledAt, locale),
     };
   if (current?.deadlineAt)
     return {
       icon: column === "offer" ? "offer" : "clock",
       tone: column === "offer" ? "success" : "warning",
       text: t("vacancies.board.deadline", {
-        date: format(new Date(current.deadlineAt), "d MMM", options),
+        date: shortDate(current.deadlineAt, locale),
       }),
     };
   if (current?.status === "awaiting_result")

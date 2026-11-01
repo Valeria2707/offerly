@@ -24,19 +24,19 @@ export function CareerSection() {
         <TextField
           id="level"
           label={tf("level")}
-          placeholder="Senior · 5+ years"
+          placeholder={t("placeholders.level")}
           {...register("preferences.level")}
         />
         <TextField
           id="workFormat"
           label={tf("workFormat")}
-          placeholder="Hybrid, 2 days / week"
+          placeholder={t("placeholders.workFormat")}
           {...register("preferences.workFormat")}
         />
         <TextField
           id="expectedSalary"
           label={tf("expectedSalary")}
-          placeholder="€90,000 – €110,000 / year"
+          placeholder={t("placeholders.expectedSalary")}
           {...register("preferences.expectedSalary")}
         />
       </div>

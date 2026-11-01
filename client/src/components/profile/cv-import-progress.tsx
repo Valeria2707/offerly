@@ -2,26 +2,20 @@
 
 import { Check, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 
 import {
   CV_IMPORT_STEP_DURATION_MS,
   CV_IMPORT_STEPS,
 } from "@/constants/cv-import";
+import { useStepTicker } from "@/hooks/use-step-ticker";
 import { cn } from "@/lib/utils";
 
 export function CvImportProgress({ filename }: { filename: string | null }) {
   const t = useTranslations("profile.cv");
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(
-      () => setStep((value) => Math.min(value + 1, CV_IMPORT_STEPS.length - 1)),
-      CV_IMPORT_STEP_DURATION_MS,
-    );
-
-    return () => clearInterval(timer);
-  }, []);
+  const step = useStepTicker(
+    CV_IMPORT_STEPS.length,
+    CV_IMPORT_STEP_DURATION_MS,
+  );
 
   return (
     <div className="grid justify-items-center gap-6 py-24">
@@ -30,9 +24,7 @@ export function CvImportProgress({ filename }: { filename: string | null }) {
       </span>
 
       <div className="grid justify-items-center gap-1 text-center">
-        <h2 className="font-heading text-lg font-semibold">
-          {t("parsing")}
-        </h2>
+        <h2 className="font-heading text-lg font-semibold">{t("parsing")}</h2>
         <p className="font-mono text-[11px] text-subtle">
           {t("parsingHint", { filename: filename ?? t("document") })}
         </p>

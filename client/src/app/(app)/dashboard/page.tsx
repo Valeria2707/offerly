@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 
 import { FormError } from "@/components/auth/form-error";
 import { ActionList } from "@/components/dashboard/action-list";
@@ -23,11 +22,11 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useReminders, useUpcomingEvents } from "@/hooks/use-calendar";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { useProfile } from "@/hooks/use-profile";
 import { useVacancies } from "@/hooks/use-vacancies";
 import {
-  useRecordStageResult,
+  useUpdateWorkflowStage,
   useWorkflowSummaries,
 } from "@/hooks/use-workflow";
 import { dayTitle } from "@/lib/calendar";
@@ -44,8 +43,8 @@ import type { StageStatus, WorkflowSummary } from "@/types/workflow";
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
-  const errorMessage = useErrorMessage();
-  const now = useMemo(() => new Date(), []);
+  const notify = useNotifyError("dashboard");
+  const [now] = useState(() => new Date());
 
   const { data: user } = useCurrentUser();
   const { data: vacancies, isPending, error } = useVacancies();
@@ -54,11 +53,10 @@ export default function DashboardPage() {
   const { data: reminders } = useReminders();
   const { data: events } = useUpcomingEvents(UPCOMING_DAYS);
   const { data: profile } = useProfile();
-  const record = useRecordStageResult();
+  const record = useUpdateWorkflowStage();
 
-  const vacancyById = useMemo(
-    () => new Map((vacancies ?? []).map((vacancy) => [vacancy.id, vacancy])),
-    [vacancies],
+  const vacancyById = new Map(
+    (vacancies ?? []).map((vacancy) => [vacancy.id, vacancy]),
   );
 
   const companyOf = (vacancyId: string) =>
@@ -76,12 +74,9 @@ export default function DashboardPage() {
         vacancyId: reminder.vacancyId,
         workflowId: reminder.workflowId,
         stageId: reminder.stageId,
-        status,
+        patch: { status },
       },
-      {
-        onError: (cause) =>
-          toast.error(errorMessage(cause), { id: "dashboard-error" }),
-      },
+      { onError: notify },
     );
 
   return (

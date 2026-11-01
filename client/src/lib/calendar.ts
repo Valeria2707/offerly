@@ -36,6 +36,20 @@ export function eventTime(value: Date): string {
   return format(value, "HH:mm");
 }
 
+export function shortDate(value: Date | string, locale: Locale): string {
+  return format(new Date(value), "d MMM", { locale: dateFnsLocale(locale) });
+}
+
+export function weekdayTime(value: Date | string, locale: Locale): string {
+  return format(new Date(value), "EEEEEE, HH:mm", {
+    locale: dateFnsLocale(locale),
+  });
+}
+
+export function weekdayDateTime(value: Date, locale: Locale): string {
+  return format(value, "EEE, d MMM · HH:mm", { locale: dateFnsLocale(locale) });
+}
+
 export function monthGrid(month: Date): Date[] {
   return eachDayOfInterval({
     start: startOfWeek(startOfMonth(month), WEEK_OPTIONS),
@@ -110,6 +124,14 @@ export function relativeDay(days: number, locale: Locale): string {
     days,
     "day",
   );
+}
+
+export function formatDaysAgo(isoDate: string, locale: Locale): string {
+  const days = Math.floor(
+    (Date.now() - new Date(isoDate).getTime()) / 86_400_000,
+  );
+
+  return relativeDay(days > 0 ? -days : 0, locale);
 }
 
 export function weekdayLabels(locale: Locale): string[] {

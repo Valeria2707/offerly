@@ -1,31 +1,22 @@
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import type { WorkflowSummary } from "@/types/workflow";
+import type { VacancyCounts } from "@/lib/dashboard";
 
-export function VacancyStats({
-  total,
-  summaries,
-}: {
-  total: number;
-  summaries: WorkflowSummary[];
-}) {
+export function VacancyStats({ counts }: { counts: VacancyCounts }) {
   const t = useTranslations("vacancies.stats");
-  const inProgress = summaries.filter(
-    (summary) => summary.currentStage && !summary.rejected,
-  ).length;
 
   const cards = [
-    { label: t("total"), value: total },
-    { label: t("inProgress"), value: inProgress },
+    { label: t("total"), value: counts.total },
+    { label: t("inProgress"), value: counts.inProgress },
     {
       label: t("rejected"),
-      value: summaries.filter((summary) => summary.rejected).length,
+      value: counts.rejected,
       className: "text-rejected",
     },
     {
       label: t("offers"),
-      value: summaries.filter((summary) => summary.offered).length,
+      value: counts.offers,
       className: "text-success",
       cardClassName: "bg-success-muted ring-success/20",
     },

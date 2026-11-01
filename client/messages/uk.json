@@ -67,6 +67,7 @@
       }
     },
     "preview": {
+      "position": "Platform Engineer",
       "company": "Helios Labs · Берлін, гібрид",
       "done": "пройдено",
       "stages": {
@@ -236,8 +237,8 @@
       "meetingEmpty": "призначити зустріч",
       "deadlineLabel": "Дедлайн",
       "deadlineName": "дедлайн",
+      "deadlineEmpty": "вказати дедлайн",
       "rejectionReason": "Причина відмови",
-      "rejectionReasonEmpty": "Вкажіть причину відмови",
       "frozenSelect": "Вакансію закрито відмовою — щоб відкрити інші етапи, зніміть відмову"
     },
     "notes": {
@@ -663,7 +664,12 @@
       "removeLink": "Видалити посилання"
     },
     "career": {
-      "title": "Кар’єрний профіль"
+      "title": "Кар’єрний профіль",
+      "placeholders": {
+        "level": "Senior · 5+ років",
+        "workFormat": "Гібрид, 2 дні на тиждень",
+        "expectedSalary": "€90 000 – €110 000 / рік"
+      }
     },
     "skills": {
       "title": "Навички",
@@ -871,7 +877,6 @@
     "deadlineCleared": "Дедлайн прибрано",
     "artifactSaved": "Посилання збережено",
     "stageUpdated": "Етап оновлено",
-    "stageRescheduled": "Етап перенесено",
     "movedTo": "Перенесено в «{column}»",
     "stagesAdded": "Етапи додано",
     "stagesReordered": "Порядок етапів змінено",
@@ -879,7 +884,6 @@
     "stageTypeCreated": "Тип етапу створено",
     "stageTypeDeleted": "Тип етапу видалено",
     "noteAdded": "Нотатку додано",
-    "noteUpdated": "Нотатку оновлено",
     "noteRemoved": "Нотатку видалено",
     "questionAdded": "Питання додано",
     "questionUpdated": "Питання оновлено",

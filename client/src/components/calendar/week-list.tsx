@@ -15,13 +15,13 @@ export function WeekList({
   entries,
   now,
   pending,
-  labelOf,
+  companyOf,
   onReschedule,
 }: {
   entries: CalendarEntry[];
   now: Date;
   pending: boolean;
-  labelOf: (vacancyId: string) => string | null;
+  companyOf: (vacancyId: string) => string | null;
   onReschedule: (entry: CalendarEntry, iso: string | null) => void;
 }) {
   const t = useTranslations("calendar");
@@ -39,9 +39,7 @@ export function WeekList({
       </div>
 
       {entries.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {t("weekEmpty")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("weekEmpty")}</p>
       ) : (
         <div className="-mr-2 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-2">
           {days.map((day) => (
@@ -56,7 +54,7 @@ export function WeekList({
                   <WeekEventCard
                     key={entry.key}
                     entry={entry}
-                    company={labelOf(entry.event.vacancyId)}
+                    company={companyOf(entry.event.vacancyId)}
                     pending={pending}
                     onReschedule={onReschedule}
                   />

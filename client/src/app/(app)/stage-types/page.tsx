@@ -3,7 +3,6 @@
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { ConfirmDialog } from "@/components/core/confirm-dialog";
@@ -16,7 +15,7 @@ import {
   useDeleteStageType,
   useStageTypes,
 } from "@/hooks/use-workflow";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { useStageName } from "@/hooks/use-stage-name";
 import {
   STAGE_CATEGORIES,
@@ -31,7 +30,6 @@ const FILTERS: Filter[] = ["all", ...STAGE_CATEGORIES];
 export default function StageTypesPage() {
   const t = useTranslations();
   const stageName = useStageName();
-  const errorMessage = useErrorMessage();
   const { data: stageTypes, isPending, error } = useStageTypes();
   const createStageType = useCreateStageType();
   const deleteStageType = useDeleteStageType();
@@ -40,8 +38,7 @@ export default function StageTypesPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<StageType | null>(null);
 
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause), { id: "stage-type-error" });
+  const notify = useNotifyError("stage-type");
 
   const visible =
     filter === "all"

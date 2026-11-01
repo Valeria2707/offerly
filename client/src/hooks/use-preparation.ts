@@ -11,7 +11,7 @@ import {
   preparationRequest,
   reviewPreparationAnswerRequest,
 } from "@/api/preparation";
-import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { GeneratePreparationInput } from "@/types/preparation";
 
 export const preparationKeys = {
@@ -23,7 +23,7 @@ export function usePreparation(workflowId: string, stageId: string) {
 
   return useQuery({
     queryKey: preparationKeys.stage(stageId),
-    queryFn: () => preparationRequest(getAccessToken()!, workflowId, stageId),
+    queryFn: () => preparationRequest(workflowId, stageId),
     enabled: Boolean(accessToken) && Boolean(workflowId),
     retry: false,
   });
@@ -35,7 +35,7 @@ export function useGeneratePreparation(workflowId: string, stageId: string) {
 
   return useMutation({
     mutationFn: (input: GeneratePreparationInput) =>
-      generatePreparationRequest(getAccessToken()!, workflowId, stageId, input),
+      generatePreparationRequest(workflowId, stageId, input),
     onSuccess: (preparation) => {
       toast.success(t("toasts.preparationReady"));
       queryClient.setQueryData(preparationKeys.stage(stageId), preparation);
@@ -58,7 +58,6 @@ export function useAnswerPreparationQuestion(
       userAnswer: string;
     }) =>
       answerPreparationQuestionRequest(
-        getAccessToken()!,
         workflowId,
         stageId,
         questionId,
@@ -85,7 +84,6 @@ export function useReviewPreparationAnswer(
       userAnswer: string;
     }) =>
       reviewPreparationAnswerRequest(
-        getAccessToken()!,
         workflowId,
         stageId,
         questionId,
@@ -102,8 +100,7 @@ export function useDeletePreparation(workflowId: string, stageId: string) {
   const t = useTranslations();
 
   return useMutation({
-    mutationFn: () =>
-      deletePreparationRequest(getAccessToken()!, workflowId, stageId),
+    mutationFn: () => deletePreparationRequest(workflowId, stageId),
     onSuccess: () => {
       toast.success(t("toasts.preparationDeleted"));
       queryClient.removeQueries({ queryKey: preparationKeys.stage(stageId) });

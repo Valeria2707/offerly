@@ -5,10 +5,10 @@ import type { Reminder } from "@/types/calendar";
 
 export function TodayReminders({
   reminders,
-  labelOf,
+  companyOf,
 }: {
   reminders: Reminder[];
-  labelOf: (vacancyId: string) => string | null;
+  companyOf: (vacancyId: string) => string | null;
 }) {
   const t = useTranslations("calendar");
 
@@ -22,7 +22,7 @@ export function TodayReminders({
         <ReminderRow
           key={`${reminder.kind}-${reminder.stageId}`}
           reminder={reminder}
-          vacancyLabel={labelOf(reminder.vacancyId)}
+          vacancyLabel={companyOf(reminder.vacancyId)}
         />
       ))}
     </section>

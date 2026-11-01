@@ -10,6 +10,7 @@ import {
   type BoardColumn,
 } from "@/constants/board";
 import { boardColumn, canMove } from "@/lib/board";
+import { silentDays } from "@/lib/reminders";
 import { cn } from "@/lib/utils";
 import type { Reminder } from "@/types/calendar";
 import type { Vacancy } from "@/types/vacancy";
@@ -34,11 +35,7 @@ export function VacancyBoard({
   const [dragged, setDragged] = useState<Dragged | null>(null);
   const [over, setOver] = useState<BoardColumn | null>(null);
 
-  const silence = new Map(
-    reminders
-      .filter((reminder) => reminder.kind === "silence")
-      .map((reminder) => [reminder.vacancyId, Math.abs(reminder.days)]),
-  );
+  const silence = silentDays(reminders, "vacancyId");
 
   const columnOf = (vacancy: Vacancy) =>
     boardColumn(summaries?.get(vacancy.id));

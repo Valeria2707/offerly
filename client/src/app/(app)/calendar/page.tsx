@@ -4,7 +4,6 @@ import { addMonths, startOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { CalendarMonth } from "@/components/calendar/calendar-month";
@@ -19,13 +18,13 @@ import {
   useCreateCalendarSubscription,
   useReminderSettings,
   useReminders,
-  useRescheduleStage,
   useUpdateReminderSettings,
 } from "@/hooks/use-calendar";
 import { useCurrentUser } from "@/hooks/use-auth";
-import { useErrorMessage } from "@/hooks/use-error-message";
+import { useNotifyError } from "@/hooks/use-error-message";
 import { useStageName } from "@/hooks/use-stage-name";
 import { useVacancies } from "@/hooks/use-vacancies";
+import { useUpdateWorkflowStage } from "@/hooks/use-workflow";
 import {
   dayTitle,
   entriesOfWeek,
@@ -39,8 +38,8 @@ export default function CalendarPage() {
   const t = useTranslations("calendar");
   const locale = useLocale();
   const stageName = useStageName();
-  const errorMessage = useErrorMessage();
-  const now = useMemo(() => new Date(), []);
+  const notify = useNotifyError("calendar");
+  const [now] = useState(() => new Date());
   const [month, setMonth] = useState(() => startOfMonth(now));
 
   const { data: events, isPending, error } = useCalendarMonth(month);
@@ -51,7 +50,7 @@ export default function CalendarPage() {
 
   const updateSettings = useUpdateReminderSettings();
   const subscribe = useCreateCalendarSubscription();
-  const reschedule = useRescheduleStage();
+  const reschedule = useUpdateWorkflowStage();
 
   const companies = useMemo(
     () => new Map((vacancies ?? []).map((item) => [item.id, item.company])),
@@ -63,9 +62,6 @@ export default function CalendarPage() {
   const overdue = (reminders ?? []).filter(
     (reminder) => reminder.kind === "record_result",
   ).length;
-
-  const notify = (cause: unknown) =>
-    toast.error(errorMessage(cause), { id: "calendar-error" });
 
   const companyOf = (vacancyId: string) => companies.get(vacancyId) ?? null;
 
@@ -130,7 +126,7 @@ export default function CalendarPage() {
       <FormError error={error} />
 
       {reminders && (
-        <TodayReminders reminders={reminders} labelOf={companyOf} />
+        <TodayReminders reminders={reminders} companyOf={companyOf} />
       )}
 
       {isPending ? (
@@ -156,7 +152,7 @@ export default function CalendarPage() {
                 entries={week}
                 now={now}
                 pending={reschedule.isPending}
-                labelOf={companyOf}
+                companyOf={companyOf}
                 onReschedule={moveStage}
               />
             </div>

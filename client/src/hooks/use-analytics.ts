@@ -3,13 +3,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { analyticsRequest } from "@/api/analytics";
-import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { AnalyticsPeriod } from "@/types/analytics";
 
 export const analyticsKeys = {
   all: ["analytics"] as const,
-  period: (period: AnalyticsPeriod) =>
-    ["analytics", period ?? "all"] as const,
+  period: (period: AnalyticsPeriod) => ["analytics", period ?? "all"] as const,
 };
 
 export function useAnalytics(period: AnalyticsPeriod) {
@@ -17,7 +16,7 @@ export function useAnalytics(period: AnalyticsPeriod) {
 
   return useQuery({
     queryKey: analyticsKeys.period(period),
-    queryFn: () => analyticsRequest(getAccessToken()!, period),
+    queryFn: () => analyticsRequest(period),
     enabled: Boolean(accessToken),
     placeholderData: keepPreviousData,
   });

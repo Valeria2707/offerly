@@ -8,7 +8,7 @@ import {
   profileRequest,
   updateProfileRequest,
 } from "@/api/profile";
-import { getAccessToken, useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import type { ProfileData } from "@/types/profile";
 
 export const profileKeys = {
@@ -20,14 +20,14 @@ export function useProfile() {
 
   return useQuery({
     queryKey: profileKeys.profile,
-    queryFn: () => profileRequest(getAccessToken()!),
+    queryFn: () => profileRequest(),
     enabled: Boolean(accessToken),
   });
 }
 
 export function useImportCv() {
   return useMutation({
-    mutationFn: (file: File) => importCvRequest(getAccessToken()!, file),
+    mutationFn: (file: File) => importCvRequest(file),
   });
 }
 
@@ -43,8 +43,8 @@ export function useSaveProfile() {
       importId: string | null;
     }) =>
       importId
-        ? applyCvImportRequest(getAccessToken()!, importId, data)
-        : updateProfileRequest(getAccessToken()!, data),
+        ? applyCvImportRequest(importId, data)
+        : updateProfileRequest(data),
     onSuccess: (profile) => {
       queryClient.setQueryData(profileKeys.profile, profile);
     },

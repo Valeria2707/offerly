@@ -2,7 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { TermList } from "@/components/core/term-list";
-import { formatDaysAgo } from "@/lib/utils";
+import { formatDaysAgo } from "@/lib/calendar";
 import type { Vacancy } from "@/types/vacancy";
 
 export function VacancySummary({ vacancy }: { vacancy: Vacancy }) {
